@@ -370,9 +370,6 @@ int main(int argc, char *argv[]) {
 
   CompactQtree *cq;
 
-  ofstream file;
-  LOG("Saving graph file in '%s'", opts.outfile);
-  file.open(opts.outfile, ios::binary);
   switch(opts.ds) {
     case ePRBlack:
       cq = new PRBCompactQtree(vp,bs,bb,opts.k1,opts.k2,opts.lk1,opts.lki);
@@ -402,6 +399,11 @@ int main(int argc, char *argv[]) {
     assert(vp[i] == vpall[i]);
   }
 
+
+  ofstream file;
+  LOG("Saving graph file in '%s'", opts.outfile);
+  fprintf(stderr, "Saving data structure\n");
+  file.open(opts.outfile, ios::binary);
   //cq->setInfo(nodes,edges,lifetime,contacts);
   cq->save(file);
 
