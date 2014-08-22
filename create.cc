@@ -56,7 +56,10 @@ struct opts {
   enum bitseq bs;  //bits for T bitmaps (tree)
   enum bitseq bb;  //bits for B bitmaps (leaves)
   enum typeds ds;  //type of compact qtree
-  char *outfile;
+  const char *outfile;
+
+  /* Name of input file.  May be "-".  */
+  const char *infile;
 
   enum TypeGraph typegraph;
 
@@ -66,137 +69,6 @@ struct opts {
   int lki; //levels for ki
   int lf;  //levels for fixed mx
 };
-
-int readopts(int argc, char **argv, struct opts *opts) {
-  int o;
-
-  int dsflag = 0;
-  // Default options
-  opts->bs = eRG;
-  opts->bb = eRG;
-  opts->typegraph = kInterval;
-
-  opts->k1 = 4;
-  opts->k2 = 2;
-
-  opts->lk1 = 0;
-  opts->lki = 0;
-
-  opts->lf = 0;
-
-  while ((o = getopt(argc, argv, "t:b:s:g:z:k:x:c:f:")) != -1) {
-    switch (o) {
-      case 't':
-        if (strcmp(optarg, "RG") == 0) {
-          INFO("Using RG for T bitmaps");
-          opts->bs = eRG;
-        } else if (strcmp(optarg, "RRR") == 0) {
-          INFO("Using RRR for T bitmaps");
-          opts->bs = eRRR;
-        } else if (strcmp(optarg, "SD") == 0) {
-          INFO("Using SDarray for T bitmaps");
-          opts->bs = eSD;
-        }
-        break;
-      case 'b':
-        if (strcmp(optarg, "RG") == 0) {
-          INFO("Using RG for B bitmaps");
-          opts->bb = eRG;
-        } else if (strcmp(optarg, "RRR") == 0) {
-          INFO("Using RRR for B bitmaps");
-          opts->bb = eRRR;
-        } else if (strcmp(optarg, "SD") == 0) {
-          INFO("Using SDarray for B bitmaps");
-          opts->bb = eSD;
-        }
-        break;
-      case 's':
-        dsflag = 1;
-        if (strcmp(optarg, "PRW") == 0) {
-          INFO("Using PRWhite");
-          opts->ds = ePRWhite;
-        } else if (strcmp(optarg, "PRB") == 0) {
-          INFO("Using PRBlack");
-          opts->ds = ePRBlack;
-        } else if (strcmp(optarg, "MXD") == 0) {
-          INFO("Using MXDepth");
-          opts->ds = eMXDepth;
-        } else if (strcmp(optarg, "MXF") == 0) {
-          INFO("Using MXFixed");
-          opts->ds = eMXFixed;
-        } else {
-          dsflag = 0;
-        }
-        break;
-      case 'g':
-        if (strcmp(optarg, "I") == 0) {
-          INFO("Interval-contact Temporal Graph");
-          opts->typegraph = kInterval;
-        } else if (strcmp(optarg, "P") == 0) {
-          INFO("Point-contact Temporal Graph");
-          opts->typegraph = kPoint;
-        } else if (strcmp(optarg, "G") == 0) {
-          INFO("Growing Temporal Graph");
-          opts->typegraph = kGrowth;
-        }
-        break;
-      case 'z':
-        opts->k1 = atoi(optarg);
-        break;
-      case 'k':
-        opts->k2 = atoi(optarg);
-        break;
-      case 'x':
-        opts->lk1 = atoi(optarg);
-        break;
-      case 'c':
-        opts->lki = atoi(optarg);
-        break;
-      case 'f':
-        opts->lf = atoi(optarg);
-        break;
-      default: /* '?' */
-        break;
-    }
-  }
-
-  if (optind >= argc || (argc - optind) < 1 || dsflag == 0
-      || (opts->lf == 0 && opts->ds == eMXFixed)) {
-    fprintf(stderr,
-        "%s -s {MXD,MXF,PRB,PRW} [-g I,P,G] [-t RG,RRR,SD] [-b RG,RRR,SD] <outputfile> \n",
-        argv[0]);
-    fprintf(stderr, "Expected data structure (-s):\n");
-    fprintf(stderr, "\tMXD for MatriX Quadtree (automatic depth)\n");
-    fprintf(stderr, "\tMXF for MatriX Quadtree Fixed Depth\n");
-    fprintf(stderr, "\tPRB for Point Region Quadtree Leaves as Black Nodes\n");
-    fprintf(stderr, "\tPRW for Point Region Quadtree Leaves as White Nodes\n");
-
-    fprintf(stderr, "\nExpected data structure flags:\n");
-    fprintf(stderr,  "\t -z set k1\n");
-    fprintf(stderr,  "\t -k set k2\n");
-    fprintf(stderr,  "\t -x set lk1\n");
-    fprintf(stderr,  "\t -c set lki\n");
-    fprintf(stderr,  "\t -f set the number of fixed levels (MXF only)\n");
-
-
-    fprintf(stderr, "\nExpected type of graph (-g):\n");
-    fprintf(stderr, "\tI for Interval-contact Temporal Graph\n");
-    fprintf(stderr, "\tP for Point-contact Temporal Graph\n");
-    fprintf(stderr, "\tG for Growing Temporal Graph\n");
-
-
-
-    fprintf(stderr, "\nExpected argument after options\n");
-    fprintf(stderr, "\t<outputfile> destination file\n");
-    exit(EXIT_FAILURE);
-  }
-
-  opts->outfile = argv[optind];
-
-  return optind;
-
-}
-
 void printsettings(struct opts *opts) {
   switch (opts->typegraph) {
     case kGrowth:
@@ -256,7 +128,152 @@ void printsettings(struct opts *opts) {
       break;
   }
 
+  printf("Reading input file '%s'\n",opts->infile);
+
 }
+int readflags(struct opts *opts, char *flags) {
+  // "k1,k2,lk1,lkf,lf"
+  vector<string> f;
+  tokenize(flags,f,',');
+
+  if (f.size() < 4) {
+    return -1; //error
+  }
+
+  opts->k1 = atoi(f[0].c_str());
+  opts->k2 = atoi(f[1].c_str());
+  opts->lk1 = atoi(f[2].c_str());
+  opts->lki = atoi(f[3].c_str());
+
+  if (f.size() == 5) {
+      opts->lf = atoi(f[4].c_str());
+    }
+
+  return f.size();
+}
+
+int readopts(int argc, char **argv, struct opts *opts) {
+  int o;
+
+  int fflags = 0;
+  int dsflag = 0;
+  // Default options
+  opts->infile = "-";
+
+  opts->bs = eRG;
+  opts->bb = eRG;
+  opts->typegraph = kInterval;
+
+  opts->k1 = 4;
+  opts->k2 = 2;
+
+  opts->lk1 = 0;
+  opts->lki = 0;
+
+  opts->lf = 1;
+
+  while ((o = getopt(argc, argv, "t:b:s:g:f:i:")) != -1) {
+    switch (o) {
+      case 't':
+        if (strcmp(optarg, "RG") == 0) {
+          INFO("Using RG for T bitmaps");
+          opts->bs = eRG;
+        } else if (strcmp(optarg, "RRR") == 0) {
+          INFO("Using RRR for T bitmaps");
+          opts->bs = eRRR;
+        } else if (strcmp(optarg, "SD") == 0) {
+          INFO("Using SDarray for T bitmaps");
+          opts->bs = eSD;
+        }
+        break;
+      case 'b':
+        if (strcmp(optarg, "RG") == 0) {
+          INFO("Using RG for B bitmaps");
+          opts->bb = eRG;
+        } else if (strcmp(optarg, "RRR") == 0) {
+          INFO("Using RRR for B bitmaps");
+          opts->bb = eRRR;
+        } else if (strcmp(optarg, "SD") == 0) {
+          INFO("Using SDarray for B bitmaps");
+          opts->bb = eSD;
+        }
+        break;
+      case 's':
+        dsflag = 1;
+        if (strcmp(optarg, "PRW") == 0) {
+          INFO("Using PRWhite");
+          opts->ds = ePRWhite;
+        } else if (strcmp(optarg, "PRB") == 0) {
+          INFO("Using PRBlack");
+          opts->ds = ePRBlack;
+        } else if (strcmp(optarg, "MXD") == 0) {
+          INFO("Using MXDepth");
+          opts->ds = eMXDepth;
+        } else if (strcmp(optarg, "MXF") == 0) {
+          INFO("Using MXFixed");
+          opts->ds = eMXFixed;
+        } else {
+          dsflag = 0;
+        }
+        break;
+      case 'g':
+        if (strcmp(optarg, "I") == 0) {
+          INFO("Interval-contact Temporal Graph");
+          opts->typegraph = kInterval;
+        } else if (strcmp(optarg, "P") == 0) {
+          INFO("Point-contact Temporal Graph");
+          opts->typegraph = kPoint;
+        } else if (strcmp(optarg, "G") == 0) {
+          INFO("Growing Temporal Graph");
+          opts->typegraph = kGrowth;
+        }
+        break;
+      case 'f':
+        fflags = readflags(opts,optarg);
+        break;
+      case 'i':
+        opts->infile = optarg;
+        break;
+      default: /* '?' */
+        break;
+    }
+  }
+
+  if (optind >= argc || (argc - optind) < 1 || dsflag == 0 || fflags == -1
+      || (opts->lf == 0 && opts->ds == eMXFixed)) {
+    fprintf(stderr,
+        "%s -s {MXD,MXF,PRB,PRW} [-f k1:k2:lk1:lki:lf] [-g I,P,G] [-t RG,RRR,SD] [-b RG,RRR,SD] [-i <inputfile>] <outputfile> \n",
+        argv[0]);
+    fprintf(stderr, "Expected data structure (-s):\n");
+    fprintf(stderr, "\tMXD for MatriX Quadtree (automatic depth)\n");
+    fprintf(stderr, "\tMXF for MatriX Quadtree Fixed Depth\n");
+    fprintf(stderr, "\tPRB for Point Region Quadtree Leaves as Black Nodes\n");
+    fprintf(stderr, "\tPRW for Point Region Quadtree Leaves as White Nodes\n");
+
+    fprintf(stderr, "\nExpected data structure flags (-f k1,k2,lk1,lki,lf):\n");
+    fprintf(stderr,  "\t lk1 set the number of levels using k1\n");
+    fprintf(stderr,  "\t lk1 set the number of levels using half dimensions\n");
+    fprintf(stderr,  "\t lf set the number of fixed levels (MXF only)\n");
+
+    fprintf(stderr, "\nExpected type of graph (-g):\n");
+    fprintf(stderr, "\tI for Interval-contact Temporal Graph\n");
+    fprintf(stderr, "\tP for Point-contact Temporal Graph\n");
+    fprintf(stderr, "\tG for Growing Temporal Graph\n");
+
+    fprintf(stderr, "\nExpected input file -i input file can be set to '-' to read stdin\n");
+
+    fprintf(stderr, "\nExpected argument after options\n");
+    fprintf(stderr, "\t<outputfile> destination file\n");
+    exit(EXIT_FAILURE);
+  }
+
+  opts->outfile = argv[optind];
+
+  return optind;
+
+}
+
+
 
 int main(int argc, char *argv[]) {
   uint nodes, edges, lifetime, contacts;
@@ -266,15 +283,23 @@ int main(int argc, char *argv[]) {
 
   printsettings(&opts);
 
+
+
+  FILE *infile;
+  if ( strcmp(opts.infile,"-") == 0 ) {
+    infile = stdin;
+  }
+  else {
+    infile = fopen(opts.infile, "r");
+  }
+
   // Reading input
   INFO("Reading input...");
-  scanf("%u %u %u %u", &nodes, &edges, &lifetime, &contacts);
+  fscanf(infile,"%u %u %u %u", &nodes, &edges, &lifetime, &contacts);
   LOG("nodes: %u", nodes);
   LOG("edges: %u", edges);
   LOG("maxtime: %u", maxtime);
   LOG("contacts: %u", contacts);
-
-
 
 
   size_t readcontacts = 0;
@@ -283,7 +308,7 @@ int main(int argc, char *argv[]) {
   if (opts.typegraph == kInterval) {
     //4dim data
     Point<uint> c(4);
-    while(EOF != scanf("%u %u %u %u", &c[0], &c[1], &c[2], &c[3] )) {
+    while(EOF != fscanf(infile,"%u %u %u %u", &c[0], &c[1], &c[2], &c[3] )) {
       readcontacts++;
       if (readcontacts%10000==0)fprintf(stderr, "Reading data: %.2f%% \r", (float)readcontacts/contacts*100);
 
@@ -299,7 +324,7 @@ int main(int argc, char *argv[]) {
     //3dim data
     Point<uint> c(3);
     uint dummy;
-    while(EOF != scanf("%u %u %u %u", &c[0], &c[1], &c[2], &dummy )) {
+    while(EOF != fscanf(infile,"%u %u %u %u", &c[0], &c[1], &c[2], &dummy )) {
       readcontacts++;
       if (readcontacts%10000==0)fprintf(stderr, "Reading data: %.2f%% \r", (float)readcontacts/contacts*100);
 
@@ -311,7 +336,10 @@ int main(int argc, char *argv[]) {
     }
   }
 
+  fclose(infile);
   assert(readcontacts == contacts);
+
+
 
   BitSequenceBuilder *bs=NULL;
   switch(opts.bs) {
@@ -360,6 +388,20 @@ int main(int argc, char *argv[]) {
       break;
   }
 
+
+  //First check points...
+  vector<Point<uint> > vpall;
+  cq->all(vpall);
+
+  if (vp.size() != vpall.size()) {
+    fprintf(stderr, "Error: data from data structure doesnt match the input\n");
+    abort();
+  }
+  for(size_t i=0; i < vp.size(); i++) {
+    if (i%10000==0)fprintf(stderr, "Checking data: %.2f%% \r", (float)i/contacts*100);
+    assert(vp[i] == vpall[i]);
+  }
+
   //cq->setInfo(nodes,edges,lifetime,contacts);
   cq->save(file);
 
@@ -367,6 +409,8 @@ int main(int argc, char *argv[]) {
 
   delete bb;
   delete bs;
+
+  delete cq;
 
   return 0;
 
