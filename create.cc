@@ -22,7 +22,7 @@
 
 // mandatory
 //#include "TemporalGraph.h"
-#include <Point.h>
+#include <point.h>
 #include <CompactQtree.h>
 //#include <MXCompactQtreeFixed.h>
 //#include <PRBCompactQtree.h>
