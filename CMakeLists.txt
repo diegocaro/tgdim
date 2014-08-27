@@ -26,5 +26,7 @@ add_dependencies(libcds libcds_ext)
 add_executable( create create.cc $<TARGET_OBJECTS:Objs>)
 target_link_libraries(create libcds)
 
+add_executable( sort sort.cc )
+
 ### Common objects files in my project
 #add_library(Objs OBJECT src/utils.cc src/MXCompactQtree.cc src/MXCompactQtreeFixed.cc src/PRBCompactQtree.cc src/PRWCompactQtree.cc)
