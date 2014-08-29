@@ -28,5 +28,8 @@ target_link_libraries(create libcds)
 
 add_executable( sort sort.cc )
 
+
+add_executable( benchmark benchmark.cc arraysort.cc $<TARGET_OBJECTS:Objs>)
+target_link_libraries(benchmark libcds)
 ### Common objects files in my project
 #add_library(Objs OBJECT src/utils.cc src/MXCompactQtree.cc src/MXCompactQtreeFixed.cc src/PRBCompactQtree.cc src/PRWCompactQtree.cc)
