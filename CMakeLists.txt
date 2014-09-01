@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.6.2)
 project(tgcq CXX C)
 
 ### Flags for all
-SET(CMAKE_CXX_FLAGS "")
+SET(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra")
 
 # Where .h files can be found.
 #include_directories(
@@ -10,16 +10,17 @@ SET(CMAKE_CXX_FLAGS "")
 #  ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 ### Default parameter for debug
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O2 -Wall -Wextra")
+#set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O2 -Wall -Wextra")
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
    message(STATUS "Makefile for Debug mode")
+   #    add_definitions( -DEXPERIMENTS )
 endif()
 
 ### Default parametrs for release
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -Wall -Wextra")
-if (CMAKE_BUILD_TYPE STREQUAL "Release")
-   message(STATUS "Makefile for Release mode")
-endif()
+#set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ")
+#if (CMAKE_BUILD_TYPE STREQUAL "Release")
+#   message(STATUS "Makefile for Release mode")
+#endif()
 
 
 
@@ -42,7 +43,7 @@ target_link_libraries(create libcds)
 
 add_executable( sort sort.cc )
 
-add_definitions( -DEXPERIMENTS )
+
 
 add_executable( benchmark benchmark.cc arraysort.cc $<TARGET_OBJECTS:Objs>)
 target_link_libraries(benchmark libcds)

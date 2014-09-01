@@ -17,6 +17,8 @@
 #include <point.h>
 #include <CompactQtree.h>
 
+#include "params.h"
+#include <utils.h>
 using namespace std;
 using namespace cqtree_static;
 using namespace cqtree_utils;
@@ -146,7 +148,7 @@ virtual bool operator()(const Point<uint> &lo, const uint nk) const {
 
 
 int main(int argc, char ** argv) {
-
+    struct opts opts;
         char * fileName;
 
         int totalres = 0;
@@ -170,6 +172,8 @@ int main(int argc, char ** argv) {
         CompactQtree *index;
 
         f.open(fileName, ios::binary);
+        loadValue(f,opts);
+        
         index = CompactQtree::load(f);
 
         f.close();
@@ -275,6 +279,7 @@ int main(int argc, char ** argv) {
 		                    }
 							break;
 						}
+                    }
 
 					
                 	//Results aren't sorted (because the way the results are obtained)
