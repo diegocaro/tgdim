@@ -189,7 +189,7 @@ int main(int argc, char ** argv) {
 
         for (i = 0; i < nqueries; i++) {
                 TimeQuery query = queries[i];
-
+				vp.clear();
 		//cleaning vector of results
 
                 switch(query.type) {
@@ -216,13 +216,10 @@ int main(int argc, char ** argv) {
                 case DIRECT_NEIGHBORS: {
                     dirnei a(query.row, query.time);
 
-                    vp.clear();
+                    
                     index->range(vp,a);
+					gotreslist[0] = vp.size();
 
-                    for(size_t i=0; i < vp.size(); i++) {
-                        gotreslist[i+1] = vp[i][1];
-                    }
-                    gotreslist[0] = vp.size();
                         //get_neighbors_point(gotreslist, &index, query.row, query.time);
 			//index->direct_point(query.row, query.time, gotreslist);
 
@@ -265,6 +262,21 @@ int main(int argc, char ** argv) {
 #ifndef EXPERIMENTS
 //                //Comentar para medir tiempos:
                 if (CHECK_RESULTS) {
+					switch(query.type) {
+						case DIRECT_NEIGHBORS:case DIRECT_NEIGHBORS_WEAK: case DIRECT_NEIGHBORS_STRONG: {
+		                    for(size_t i=0; i < vp.size(); i++) {
+		                        gotreslist[i+1] = vp[i][1];
+		                    }
+							break;
+						}
+						case REVERSE_NEIGHBORS:case REVERSE_NEIGHBORS_WEAK: case REVERSE_NEIGHBORS_STRONG: {
+		                    for(size_t i=0; i < vp.size(); i++) {
+		                        gotreslist[i+1] = vp[i][0];
+		                    }
+							break;
+						}
+
+					
                 	//Results aren't sorted (because the way the results are obtained)
                         qsort(&gotreslist[1], *gotreslist, sizeof(unsigned int), compare);
 
