@@ -156,6 +156,31 @@ virtual bool operator()(const Point<uint> &lo, const uint nk) const {
 };
 
 
+class revnei:public _Compare {
+ public:
+    revnei(uint u, uint t): u_(u), t_(t) {};
+
+virtual bool operator()(const Point<uint> &lo, const uint nk) const {
+           if (lo[1] <= u_ && lo[1]+nk > u_ && lo[2] <= t_ && lo[3]+nk > t_+1) {
+               return true;
+           }
+
+           return false;
+   }
+   
+   virtual bool operator()(const Point<uint> &lo, const Point<uint> &hi) const {
+
+              if (lo[1] <= u_ && hi[1] > u_ && lo[2] <= t_ && hi[3] > t_+1) {
+                  return true;
+              }
+
+              return false;
+      }
+    uint u_;
+    uint t_;
+};
+
+
 int main(int argc, char ** argv) {
     struct opts opts;
         char * fileName;
@@ -239,6 +264,10 @@ int main(int argc, char ** argv) {
                         break;
                 }
                 case REVERSE_NEIGHBORS: {
+                    revnei a(query.row, query.time);
+
+                    index->range(vp,a);
+					gotreslist[0] = vp.size();
                        // get_reverse_point(gotreslist, &index, query.row, query.time);
 			//index->reverse_point(query.row, query.time, gotreslist);
                         break;
