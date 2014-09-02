@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.6.2)
 project(tgcq CXX C)
 
 ### Flags for all
-SET(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra")
+SET(CMAKE_CXX_FLAGS "-O2 -Wall -Wextra")
 
 # Where .h files can be found.
 #include_directories(
@@ -47,9 +47,16 @@ add_executable( sort sort.cc )
 
 add_executable( benchmark benchmark.cc arraysort.cc TemporalGraph.cc $<TARGET_OBJECTS:Objs>)
 target_link_libraries(benchmark libcds)
+set_target_properties (benchmark PROPERTIES COMPILE_DEFINITIONS "EXPERIMENTS")
+
+
+add_executable( checkans benchmark.cc arraysort.cc TemporalGraph.cc $<TARGET_OBJECTS:Objs>)
+target_link_libraries(checkans libcds)
+
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         target_link_libraries(benchmark -lrt)
+		target_link_libraries(checkans -lrt)
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 ### Common objects files in my project
