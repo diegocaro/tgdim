@@ -142,6 +142,15 @@ virtual bool operator()(const Point<uint> &lo, const uint nk) const {
 
            return false;
    }
+   
+   virtual bool operator()(const Point<uint> &lo, const Point<uint> &hi) const {
+
+              if (lo[0] <= u_ && hi[0] > u_ && lo[2] <= t_ && hi[3] > t_+1) {
+                  return true;
+              }
+
+              return false;
+      }
     uint u_;
     uint t_;
 };
