@@ -30,7 +30,7 @@
 // extra
 #include "debug.h"
 
-#include "params.h"
+#include "TemporalGraph.h"
 
 using namespace cds_static;
 using namespace cqtree_static;
@@ -366,23 +366,33 @@ int main(int argc, char *argv[]) {
   }
 
 
+  TemporalGraph *tg;
+
+  switch(opts.typegraph) {
+      case kInterval:
+          tg = new IntervalContactGraph();
+      break;
+  }
+
+
+
   ofstream file;
   LOG("Saving graph file in '%s'", opts.outfile);
   
   fprintf(stderr, "Saving data structure\n");
   file.open(opts.outfile, ios::binary);
   
-  cds_utils::saveValue(file,opts);
-  //cq->setInfo(nodes,edges,lifetime,contacts);
+  tg->setDs(cq);
+  tg->setInfo(nodes,edges,lifetime,contacts);
   
-  cq->save(file);
+  tg->save(file);
 
   file.close();
 
   delete bb;
   delete bs;
 
-  delete cq;
+  delete tg;
 
   return 0;
 

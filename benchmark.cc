@@ -17,7 +17,7 @@
 #include <point.h>
 #include <CompactQtree.h>
 
-#include "params.h"
+#include "TemporalGraph.h"
 #include <utils.h>
 using namespace std;
 using namespace cqtree_static;
@@ -131,58 +131,10 @@ void printQuery(TimeQuery q) {
 #define CHECK_RESULTS 1
 int savegotFile = 0;
 
-class dirnei:public _Compare {
- public:
-    dirnei(uint u, uint t): u_(u), t_(t) {};
-
-virtual bool operator()(const Point<uint> &lo, const uint nk) const {
-           if (lo[0] <= u_ && lo[0]+nk > u_ && lo[2] <= t_ && lo[3]+nk > t_+1) {
-               return true;
-           }
-
-           return false;
-   }
-   
-   virtual bool operator()(const Point<uint> &lo, const Point<uint> &hi) const {
-
-              if (lo[0] <= u_ && hi[0] > u_ && lo[2] <= t_ && hi[3] > t_+1) {
-                  return true;
-              }
-
-              return false;
-      }
-    uint u_;
-    uint t_;
-};
-
-
-class revnei:public _Compare {
- public:
-    revnei(uint u, uint t): u_(u), t_(t) {};
-
-virtual bool operator()(const Point<uint> &lo, const uint nk) const {
-           if (lo[1] <= u_ && lo[1]+nk > u_ && lo[2] <= t_ && lo[3]+nk > t_+1) {
-               return true;
-           }
-
-           return false;
-   }
-   
-   virtual bool operator()(const Point<uint> &lo, const Point<uint> &hi) const {
-
-              if (lo[1] <= u_ && hi[1] > u_ && lo[2] <= t_ && hi[3] > t_+1) {
-                  return true;
-              }
-
-              return false;
-      }
-    uint u_;
-    uint t_;
-};
 
 
 int main(int argc, char ** argv) {
-    struct opts opts;
+
         char * fileName;
 
         int totalres = 0;
@@ -203,12 +155,12 @@ int main(int argc, char ** argv) {
 
         fileName = argv[1];
 
-        CompactQtree *index;
+
 
         f.open(fileName, ios::binary);
-        loadValue(f,opts);
+        TemporalGraph *index;
         
-        index = CompactQtree::load(f);
+        index =  TemporalGraph::load(f);
 
         f.close();
 
@@ -216,7 +168,7 @@ int main(int argc, char ** argv) {
 
         int nqueries = 0;
         TimeQuery * queries = readQueries(argv[2], &nqueries);
-        vector<Point<uint> > vp;
+
         int i;
 
 #ifndef EXPERIMENTS
@@ -227,8 +179,6 @@ int main(int argc, char ** argv) {
 
         for (i = 0; i < nqueries; i++) {
                 TimeQuery query = queries[i];
-				vp.clear();
-		//cleaning vector of results
 
                 switch(query.type) {
                case EDGE: {
@@ -252,24 +202,24 @@ int main(int argc, char ** argv) {
                        break;
                }
                 case DIRECT_NEIGHBORS: {
-                    dirnei a(query.row, query.time);
-
-                    
-                    index->range(vp,a);
-					gotreslist[0] = vp.size();
+//                    dirnei a(query.row, query.time);
+//
+//
+//                    tg->range(vp,a);
+//					gotreslist[0] = vp.size();
 
                         //get_neighbors_point(gotreslist, &index, query.row, query.time);
-			//index->direct_point(query.row, query.time, gotreslist);
+			index->direct_point(query.row, query.time, gotreslist);
 
                         break;
                 }
                 case REVERSE_NEIGHBORS: {
-                    revnei a(query.row, query.time);
-
-                    index->range(vp,a);
-					gotreslist[0] = vp.size();
-                       // get_reverse_point(gotreslist, &index, query.row, query.time);
-			//index->reverse_point(query.row, query.time, gotreslist);
+//                    revnei a(query.row, query.time);
+//
+//                    tg->range(vp,a);
+//					gotreslist[0] = vp.size();
+//                       // get_reverse_point(gotreslist, &index, query.row, query.time);
+			index->reverse_point(query.row, query.time, gotreslist);
                         break;
                 }
                 case DIRECT_NEIGHBORS_WEAK: {
@@ -304,22 +254,6 @@ int main(int argc, char ** argv) {
 #ifndef EXPERIMENTS
 //                //Comentar para medir tiempos:
                 if (CHECK_RESULTS) {
-					switch(query.type) {
-						case DIRECT_NEIGHBORS:case DIRECT_NEIGHBORS_WEAK: case DIRECT_NEIGHBORS_STRONG: {
-		                    for(size_t i=0; i < vp.size(); i++) {
-		                        gotreslist[i+1] = vp[i][1];
-		                    }
-							break;
-						}
-						case REVERSE_NEIGHBORS:case REVERSE_NEIGHBORS_WEAK: case REVERSE_NEIGHBORS_STRONG: {
-		                    for(size_t i=0; i < vp.size(); i++) {
-		                        gotreslist[i+1] = vp[i][0];
-		                    }
-							break;
-						}
-                    }
-
-					
                 	//Results aren't sorted (because the way the results are obtained)
                         qsort(&gotreslist[1], *gotreslist, sizeof(unsigned int), compare);
 

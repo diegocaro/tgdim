@@ -45,7 +45,7 @@ add_executable( sort sort.cc )
 
 
 
-add_executable( benchmark benchmark.cc arraysort.cc $<TARGET_OBJECTS:Objs>)
+add_executable( benchmark benchmark.cc arraysort.cc TemporalGraph.cc $<TARGET_OBJECTS:Objs>)
 target_link_libraries(benchmark libcds)
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
