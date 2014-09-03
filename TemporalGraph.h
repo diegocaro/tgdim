@@ -363,7 +363,7 @@ public:
 
 
    void save(ofstream &f) {
-       uint wr = TG_INTERV;
+       uint wr = TG_GROWTH;
            saveValue(f,wr);
            saveValue(f,nodes_);
            saveValue(f,edges_);
@@ -521,7 +521,7 @@ public:
 
 
    void save(ofstream &f) {
-       uint wr = TG_INTERV;
+       uint wr = TG_POINT;
            saveValue(f,wr);
            saveValue(f,nodes_);
            saveValue(f,edges_);

@@ -372,6 +372,12 @@ int main(int argc, char *argv[]) {
       case kInterval:
           tg = new IntervalContactGraph();
       break;
+      case kGrowth:
+        tg = new GrowingContactGraph();
+        break;
+      case kPoint:
+        tg = new PointContactGraph();
+        break;
   }
 
 
