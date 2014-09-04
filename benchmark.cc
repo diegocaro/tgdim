@@ -182,69 +182,57 @@ int main(int argc, char ** argv) {
 
                 switch(query.type) {
                case EDGE: {
-              //         gotres = index->edge_point(query.row, query.column, query.time);
+                       gotres = index->edge_point(query.row, query.column, query.time);
                        //gotres = findEdge(tree, query.row, query.column, query.time);
                        break;
                }
                case EDGE_NEXT: {
                        //gotres = findEdgeInterval(tree, query.row, query.column, query.initime, query.endtime, 1);
-              //         gotres = index->edge_next(query.row, query.column, query.time);
+                       gotres = index->edge_next(query.row, query.column, query.time);
                        break;
                }
                case EDGE_WEAK: {
                        //gotres = findEdgeInterval(tree, query.row, query.column, query.initime, query.endtime, 0);
-             //          gotres = index->edge_weak(query.row, query.column, query.initime, query.endtime);
+                       gotres = index->edge_weak(query.row, query.column, query.initime, query.endtime);
                        break;
                }
                case EDGE_STRONG: {
                        //gotres = findEdgeInterval(tree, query.row, query.column, query.initime, query.endtime, 1);
-             //          gotres = index->edge_strong(query.row, query.column, query.initime, query.endtime);
+                       gotres = index->edge_strong(query.row, query.column, query.initime, query.endtime);
                        break;
                }
                 case DIRECT_NEIGHBORS: {
-//                    dirnei a(query.row, query.time);
-//
-//
-//                    tg->range(vp,a);
-//					gotreslist[0] = vp.size();
-
-                        //get_neighbors_point(gotreslist, &index, query.row, query.time);
-			index->direct_point(query.row, query.time, gotreslist);
+                  index->direct_point(query.row, query.time, gotreslist);
 
                         break;
                 }
                 case REVERSE_NEIGHBORS: {
-//                    revnei a(query.row, query.time);
-//
-//                    tg->range(vp,a);
-//					gotreslist[0] = vp.size();
-//                       // get_reverse_point(gotreslist, &index, query.row, query.time);
-			index->reverse_point(query.row, query.time, gotreslist);
+                  index->reverse_point(query.row, query.time, gotreslist);
                         break;
                 }
                 case DIRECT_NEIGHBORS_WEAK: {
                         //get_neighbors_weak(gotreslist, &index, query.row, query.initime, query.endtime);
-			//index->direct_weak(query.row, query.initime, query.endtime, gotreslist);
+			index->direct_weak(query.row, query.initime, query.endtime+1, gotreslist);
                         break;
                 }
                 case REVERSE_NEIGHBORS_WEAK: {
                         //get_reverse_weak(gotreslist, &index, query.row, query.initime, query.endtime);
-			//index->reverse_weak(query.row, query.initime, query.endtime, gotreslist);
+			index->reverse_weak(query.row, query.initime, query.endtime+1, gotreslist);
                         break;
                 }
                 case DIRECT_NEIGHBORS_STRONG: {
                         //get_neighbors_strong(gotreslist, &index, query.row, query.initime, query.endtime);
-			//index->direct_strong(query.row, query.initime, query.endtime, gotreslist);
+			index->direct_strong(query.row, query.initime, query.endtime+1, gotreslist);
                         break;
                 }
                 case REVERSE_NEIGHBORS_STRONG: {
 //                        get_reverse_strong(gotreslist, &index, query.row, query.initime, query.endtime);
-			//index->reverse_strong(query.row, query.initime, query.endtime, gotreslist);
+			index->reverse_strong(query.row, query.initime, query.endtime+1, gotreslist);
                         break;
                 }
 		
 		case SNAPSHOT: {
-			//gotres = index->snapshot(query.time);
+			gotres = index->snapshot(query.time);
 			*gotreslist = gotres;
 //                      gotres = findRange(tree, 0, tree->nNodesReal, 0, tree->nNodesReal, time)[0][0];
 			break;
