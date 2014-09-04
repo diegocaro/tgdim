@@ -360,7 +360,7 @@ class GrowingContactGraph : public TemporalGraph {
   GrowingContactGraph(ifstream &f) {
     uint type = loadValue<uint>(f);
     // TODO:throw an exception!
-    if (type != TG_INTERV) {
+    if (type != TG_GROWTH) {
       abort();
     }
 
@@ -519,7 +519,7 @@ class PointContactGraph : public TemporalGraph {
   PointContactGraph(ifstream &f) {
     uint type = loadValue<uint>(f);
     // TODO:throw an exception!
-    if (type != TG_INTERV) {
+    if (type != TG_POINT) {
       abort();
     }
 
