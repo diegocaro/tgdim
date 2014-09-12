@@ -111,6 +111,7 @@ class TemporalGraph {
   virtual int edge_next(uint u, uint v, uint t)=0;
 
   virtual unsigned long snapshot(uint t)=0;
+  virtual unsigned long contacts()=0;
 
  protected:
   uint nodes_;
@@ -187,13 +188,17 @@ class IntervalContactGraph : public TemporalGraph {
       to[2] = tend;
       to[3] = lifetime_;
 
+
+
+#ifdef EXPERIMENTS
+      *res = qt_->range(from,to,vp,false);
+#else
       qt_->range(from,to,vp,true);
-      *res = vp.size();
-      #ifndef EXPERIMENTS
-          for (size_t i = 0; i < vp.size(); i++) {
-            res[i + 1] = vp[i][1];
-          }
-      #endif
+        *res = vp.size();
+      for (size_t i = 0; i < vp.size(); i++) {
+        res[i + 1] = vp[i][1];
+      }
+#endif
   }
   virtual void direct_strong(uint u, uint tstart, uint tend, uint *res) {
     vp.clear();
@@ -211,9 +216,11 @@ class IntervalContactGraph : public TemporalGraph {
       to[2] = tend-1;
       to[3] = tend;
 
+#ifdef EXPERIMENTS
+      *res = qt_->range(from,to,vp,false);
+#else
       qt_->range(from,to,vp,true);
       *res = vp.size();
-      #ifndef EXPERIMENTS
           for (size_t i = 0; i < vp.size(); i++) {
             res[i + 1] = vp[i][1];
           }
@@ -240,9 +247,11 @@ class IntervalContactGraph : public TemporalGraph {
       to[2] = tend;
       to[3] = lifetime_;
 
+#ifdef EXPERIMENTS
+      *res = qt_->range(from,to,vp,false);
+#else
       qt_->range(from,to,vp,true);
       *res = vp.size();
-      #ifndef EXPERIMENTS
           for (size_t i = 0; i < vp.size(); i++) {
             res[i + 1] = vp[i][0];
           }
@@ -264,9 +273,11 @@ class IntervalContactGraph : public TemporalGraph {
       to[2] = tend-1;
       to[3] = tend;
 
+#ifdef EXPERIMENTS
+      *res = qt_->range(from,to,vp,false);
+#else
       qt_->range(from,to,vp,true);
       *res = vp.size();
-      #ifndef EXPERIMENTS
           for (size_t i = 0; i < vp.size(); i++) {
             res[i + 1] = vp[i][0];
           }
@@ -323,6 +334,7 @@ class IntervalContactGraph : public TemporalGraph {
   }
 
   virtual unsigned long snapshot(uint t) {
+      vp.clear();
     Point<uint> from(4);
       Point<uint> to(4);
 
@@ -336,9 +348,27 @@ class IntervalContactGraph : public TemporalGraph {
       to[2] = t+1;
       to[3] = lifetime_;
 
-      qt_->range(from,to,vp,false);
-      return vp.size();
+      return qt_->range(from,to,vp,false);
   }
+
+  virtual unsigned long contacts() {
+      vp.clear();
+    Point<uint> from(4);
+      Point<uint> to(4);
+
+      from[0] = 0;
+      from[1] = 0;
+      from[2] = 0;
+      from[3] = 0;
+
+      to[0] = nodes_;
+      to[1] = nodes_;
+      to[2] = lifetime_;
+      to[3] = lifetime_;
+
+      return qt_->range(from,to,vp,false);
+  }
+
 
 };
 
@@ -401,9 +431,11 @@ class GrowingContactGraph : public TemporalGraph {
       to[1] = nodes_;
       to[2] = t+1;
 
+#ifdef EXPERIMENTS
+      *res = qt_->range(from,to,vp,false);
+#else
       qt_->range(from,to,vp,true);
       *res = vp.size();
-      #ifndef EXPERIMENTS
           for (size_t i = 0; i < vp.size(); i++) {
             res[i + 1] = vp[i][1];
           }
@@ -432,9 +464,11 @@ class GrowingContactGraph : public TemporalGraph {
       to[1] = v+1;
       to[2] = t+1;
 
+#ifdef EXPERIMENTS
+      *res = qt_->range(from,to,vp,false);
+#else
       qt_->range(from,to,vp,true);
       *res = vp.size();
-      #ifndef EXPERIMENTS
           for (size_t i = 0; i < vp.size(); i++) {
             res[i + 1] = vp[i][0];
           }
@@ -494,8 +528,25 @@ class GrowingContactGraph : public TemporalGraph {
       to[1] = nodes_;
       to[2] = t+1;
 
-      qt_->range(from,to,vp,0);
-      return vp.size();
+      return qt_->range(from,to,vp,0);
+  }
+
+  virtual unsigned long contacts() {
+      vp.clear();
+
+      Point<uint> from(3);
+        Point<uint> to(3);
+
+        from[0] = 0;
+        from[1] = 0;
+        from[2] = 0;
+
+
+        to[0] = nodes_;
+        to[1] = nodes_;
+        to[2] = lifetime_;
+
+      return qt_->range(from,to,vp,false);
   }
 
 };
@@ -564,9 +615,12 @@ class PointContactGraph : public TemporalGraph {
       to[1] = nodes_;
       to[2] = tend;
 
+#ifdef EXPERIMENTS
+      *res = qt_->range(from,to,vp,false);
+#else
       qt_->range(from,to,vp,true);
       *res = vp.size();
-      #ifndef EXPERIMENTS
+
           for (size_t i = 0; i < vp.size(); i++) {
             res[i + 1] = vp[i][1];
           }
@@ -601,9 +655,12 @@ class PointContactGraph : public TemporalGraph {
       to[1] = v+1;
       to[2] = tend;
 
+#ifdef EXPERIMENTS
+      *res = qt_->range(from,to,vp,false);
+#else
       qt_->range(from,to,vp,true);
       *res = vp.size();
-      #ifndef EXPERIMENTS
+
           for (size_t i = 0; i < vp.size(); i++) {
             res[i + 1] = vp[i][0];
           }
@@ -667,8 +724,27 @@ class PointContactGraph : public TemporalGraph {
       to[1] = nodes_;
       to[2] = t+1;
 
-      qt_->range(from,to,vp,false);
-     return vp.size();
+     return qt_->range(from,to,vp,false);
+
+  }
+
+  virtual unsigned long contacts() {
+      vp.clear();
+
+      Point<uint> from(3);
+        Point<uint> to(3);
+
+        from[0] = 0;
+        from[1] = 0;
+        from[2] = 0;
+
+
+        to[0] = nodes_;
+        to[1] = nodes_;
+        to[2] = lifetime_;
+
+       return  qt_->range(from,to,vp,false);
+
   }
 
 };

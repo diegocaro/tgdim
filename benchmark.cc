@@ -39,6 +39,7 @@ pode haber repetidos)
 #define SNAPSHOT 9
 
 #define EDGE_NEXT 10
+#define CONTACTS 11
 
 #define DIRECT_NEIGHBORS 0
 #define REVERSE_NEIGHBORS 1
@@ -104,6 +105,10 @@ TimeQuery * readQueries(char * filename, int * nqueries) {
 				//the number of active edges at time t
                                 res = fscanf(queryFile, "%d\n", &query->time); 
                                 break;
+                        }
+                        case CONTACTS: {
+                            // do nothing
+                            break;
                         }
                 }
 
@@ -236,6 +241,12 @@ int main(int argc, char ** argv) {
 			*gotreslist = gotres;
 //                      gotres = findRange(tree, 0, tree->nNodesReal, 0, tree->nNodesReal, time)[0][0];
 			break;
+		}
+
+		case CONTACTS: {
+		    gotres = index->contacts();
+		    *gotreslist = gotres;
+		    break;
 		}
                 }
 
