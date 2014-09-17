@@ -12,14 +12,14 @@ echo Reading $INPUT
 HEADER=`gzcat $INPUT|head -n1`
 LEVELS=`python -c "import math; h = '$HEADER'.split(); print int(math.ceil(math.log(max(int(h[0]),int(h[2]))/math.log(2) )));"`
 
-for ((lf=2; lf <= $LEVELS; lf+=2 ))
+for ((lf=4; lf <= $LEVELS; lf+=4 ))
 do
     OUTFILE=$OUTPUT-2,2,0,0,$lf-$BITT-$BITB.mxf
     echo Creating $OUTFILE
     gzcat $INPUT | ./create -s MXF -t $BITT -b $BITB -g $TYPEGRAPH -f 2,2,0,0,$lf $OUTFILE
 done
 
-for ((l=0; l <= $LEVELS; l+=2 ))
+for ((l=0; l <= $LEVELS; l+=4 ))
 do
     lki=$((l*2))
     
