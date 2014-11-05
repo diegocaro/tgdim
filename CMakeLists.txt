@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.6.2)
 project(tgcq CXX C)
 
 ### Flags for all
-SET(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra")
+SET(CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++  -O3 -Wall -Wextra")
 
 # Where .h files can be found.
 #include_directories(
@@ -36,22 +36,30 @@ SET_TARGET_PROPERTIES(libcds PROPERTIES
 
 add_dependencies(libcds libcds_ext)
 
+# libsdsl used to build libcqtree
+include_directories(${libcqtree_SOURCE_DIR}/../sdsl-lite/include)
+add_library(libsdsl STATIC IMPORTED)
+SET_TARGET_PROPERTIES(libsdsl PROPERTIES
+    IMPORTED_LOCATION  ${CMAKE_CURRENT_SOURCE_DIR}/../sdsl-lite/lib/libsdsl.a)
+
+add_dependencies(libsdsl libsdsl_ext)
+
 
 
 add_executable( create create.cc $<TARGET_OBJECTS:Objs>)
-target_link_libraries(create libcds)
+target_link_libraries(create libcds libsdsl)
 
 add_executable( sort sort.cc )
 
 
 
 add_executable( benchmark benchmark.cc arraysort.cc TemporalGraph.cc $<TARGET_OBJECTS:Objs>)
-target_link_libraries(benchmark libcds)
+target_link_libraries(benchmark libcds libsdsl)
 set_target_properties (benchmark PROPERTIES COMPILE_DEFINITIONS "EXPERIMENTS")
 
 
 add_executable( checkans benchmark.cc arraysort.cc TemporalGraph.cc $<TARGET_OBJECTS:Objs>)
-target_link_libraries(checkans libcds)
+target_link_libraries(checkans libcds libsdsl)
 
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")

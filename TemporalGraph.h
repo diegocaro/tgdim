@@ -13,9 +13,14 @@
 #include <CompactQtree.h>
 
 enum bitseq {
-  eRG,
-  eRRR,
-  eSD
+  eRG, //libcds
+  eRRR, //libcds
+  eSD, //libcds
+  eSDSL_RRR15, //sdsl RRR blocksize 15
+  eSDSL_RRR31,
+  eSDSL_RRR63,
+  eSDSL_RRR127,
+  eSDSL_RRR255
 };
 
 enum TypeGraph {

@@ -72,14 +72,29 @@ void printsettings(struct opts *opts) {
 
   switch (opts->bb) {
     case eRG:
-      printf("RG for T bits\n");
+      printf("libcds RG for T bits\n");
       break;
     case eRRR:
-      printf("RRR for T bits\n");
+      printf("libcds RRR for T bits\n");
       break;
     case eSD:
-      printf("SDarray for T bits\n");
+      printf("libcds SDarray for T bits\n");
       break;
+    case eSDSL_RRR15:
+   	 printf("sdsl RRR (bs=15) for T bits\n");
+	break;
+    case eSDSL_RRR31:
+   	 printf("sdsl RRR (bs=31) for T bits\n");
+	break;
+    case eSDSL_RRR63:
+   	 printf("sdsl RRR (bs=63) for T bits\n");
+	break;
+    case eSDSL_RRR127:
+   	 printf("sdsl RRR (bs=127) for T bits\n");
+	break;
+    case eSDSL_RRR255:
+   	 printf("sdsl RRR (bs=255) for T bits\n");
+	break;
   }
 
   switch (opts->bs) {
@@ -92,6 +107,21 @@ void printsettings(struct opts *opts) {
     case eSD:
       printf("SDarray for B bits\n");
       break;
+      case eSDSL_RRR15:
+     	 printf("sdsl RRR (bs=15) for B bits\n");
+  	break;
+      case eSDSL_RRR31:
+     	 printf("sdsl RRR (bs=31) for B bits\n");
+  	break;
+      case eSDSL_RRR63:
+     	 printf("sdsl RRR (bs=63) for B bits\n");
+  	break;
+      case eSDSL_RRR127:
+     	 printf("sdsl RRR (bs=127) for B bits\n");
+  	break;
+      case eSDSL_RRR255:
+     	 printf("sdsl RRR (bs=255) for B bits\n");
+  	break;
   }
 
   printf("Reading input file '%s'\n",opts->infile);
@@ -150,7 +180,26 @@ int readopts(int argc, char **argv, struct opts *opts) {
         } else if (strcmp(optarg, "SD") == 0) {
           INFO("Using SDarray for T bitmaps");
           opts->bs = eSD;
+        } else if (strcmp(optarg, "SRRR15") == 0) {
+            INFO("Using SDSL RRR (bs=15) for T bitmaps");
+            opts->bs = eSDSL_RRR15;
         }
+		else if (strcmp(optarg, "SRRR31") == 0) {
+            INFO("Using SDSL RRR (bs=31) for T bitmaps");
+            opts->bs = eSDSL_RRR31;
+        }
+		else if (strcmp(optarg, "SRRR63") == 0) {
+			INFO("Using SDSL RRR (bs=63) for T bitmaps");
+			opts->bs = eSDSL_RRR63;
+		}
+		else if (strcmp(optarg, "SRRR127") == 0) {
+			INFO("Using SDSL RRR (bs=127) for T bitmaps");
+			opts->bs = eSDSL_RRR127;
+		}
+		else if (strcmp(optarg, "SRRR255") == 0) {
+			INFO("Using SDSL RRR (bs=255) for T bitmaps");
+			opts->bs = eSDSL_RRR255;
+		}
         break;
       case 'b':
         if (strcmp(optarg, "RG") == 0) {
@@ -162,7 +211,26 @@ int readopts(int argc, char **argv, struct opts *opts) {
         } else if (strcmp(optarg, "SD") == 0) {
           INFO("Using SDarray for B bitmaps");
           opts->bb = eSD;
+        } else if (strcmp(optarg, "SRRR15") == 0) {
+            INFO("Using SDSL RRR (bs=15) for T bitmaps");
+            opts->bb = eSDSL_RRR15;
         }
+		else if (strcmp(optarg, "SRRR31") == 0) {
+            INFO("Using SDSL RRR (bs=31) for T bitmaps");
+            opts->bb = eSDSL_RRR31;
+        }
+		else if (strcmp(optarg, "SRRR63") == 0) {
+			INFO("Using SDSL RRR (bs=63) for T bitmaps");
+			opts->bb = eSDSL_RRR63;
+		}
+		else if (strcmp(optarg, "SRRR127") == 0) {
+			INFO("Using SDSL RRR (bs=127) for T bitmaps");
+			opts->bb = eSDSL_RRR127;
+		}
+		else if (strcmp(optarg, "SRRR255") == 0) {
+			INFO("Using SDSL RRR (bs=255) for T bitmaps");
+			opts->bb = eSDSL_RRR255;
+		}
         break;
       case 's':
         dsflag = 1;
@@ -208,7 +276,7 @@ int readopts(int argc, char **argv, struct opts *opts) {
   if (optind >= argc || (argc - optind) < 1 || dsflag == 0 || fflags == -1
       || (opts->lf == 0 && opts->ds == eMXFixed)) {
     fprintf(stderr,
-        "%s -s {MXD,MXF,PRB,PRW} [-f k1:k2:lk1:lki:lf] [-g I,P,G] [-t RG,RRR,SD] [-b RG,RRR,SD] [-i <inputfile>] <outputfile> \n",
+        "%s -s {MXD,MXF,PRB,PRW} [-f k1:k2:lk1:lki:lf] [-g I,P,G] [-t RG,RRR,SD,SRRR15] [-b RG,RRR,SD,SRRR15] [-i <inputfile>] <outputfile> \n",
         argv[0]);
     fprintf(stderr, "Expected data structure (-s):\n");
     fprintf(stderr, "\tMXD for MatriX Quadtree (automatic depth)\n");
@@ -318,6 +386,21 @@ int main(int argc, char *argv[]) {
   case eSD:
       bs = new BitSequenceBuilderSDArray(); // ?
       break;
+  case eSDSL_RRR15:
+      bs = new BitSequenceBuilder_SDSL_RRR_15();
+	  break;
+	  case eSDSL_RRR31:
+	  bs = new BitSequenceBuilder_SDSL_RRR_31();
+	  break;
+	  case eSDSL_RRR63:
+	  bs = new BitSequenceBuilder_SDSL_RRR_63();
+	  break;
+	  case eSDSL_RRR127:
+	  bs = new BitSequenceBuilder_SDSL_RRR_127();
+	  break;
+	  case eSDSL_RRR255:
+	  bs = new BitSequenceBuilder_SDSL_RRR_255();
+	  break;
   }
 
   BitSequenceBuilder *bb=NULL;
@@ -331,6 +414,21 @@ int main(int argc, char *argv[]) {
   case eSD:
       bb = new BitSequenceBuilderSDArray(); // ?
       break;
+	  case eSDSL_RRR15:
+	      bb = new BitSequenceBuilder_SDSL_RRR_15();
+		  break;
+		  case eSDSL_RRR31:
+		  bb = new BitSequenceBuilder_SDSL_RRR_31();
+		  break;
+		  case eSDSL_RRR63:
+		  bb = new BitSequenceBuilder_SDSL_RRR_63();
+		  break;
+		  case eSDSL_RRR127:
+		  bb = new BitSequenceBuilder_SDSL_RRR_127();
+		  break;
+		  case eSDSL_RRR255:
+		  bb = new BitSequenceBuilder_SDSL_RRR_255();
+		  break;
   }
 
 
