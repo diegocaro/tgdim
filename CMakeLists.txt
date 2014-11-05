@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.6.2)
 project(tgcq CXX C)
 
 ### Flags for all
-SET(CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++  -O3 -Wall -Wextra")
+SET(CMAKE_CXX_FLAGS "-std=c++11  -O3 -Wall -Wextra")
 
 # Where .h files can be found.
 #include_directories(
