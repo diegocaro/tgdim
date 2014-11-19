@@ -22,50 +22,43 @@ endif()
 #   message(STATUS "Makefile for Release mode")
 #endif()
 
+# libcqtree 
+# this include sdsl cds cdswrapper
+add_subdirectory(libcqtree)
 
+###
+# cdswrapper
+##
+#add_subdirectory(cdswrapper)
+#include_directories(cdswrapper/include)
 
-# libcqtree
-add_subdirectory(../libcqtree libcqtree_build)
-include_directories(${libcqtree_SOURCE_DIR}/src)
+##
+#libcds
+##
+#add_subdirectory(../libcds ext_libcds)
+#include_directories(../libcds/include)
 
-# libcds used to build libcqtree
-include_directories(${libcqtree_SOURCE_DIR}/libcds_ext-prefix/include)
-add_library(libcds STATIC IMPORTED)
-SET_TARGET_PROPERTIES(libcds PROPERTIES
-    IMPORTED_LOCATION  ${CMAKE_CURRENT_SOURCE_DIR}/libcqtree_build/libcds_ext-prefix/lib/libcds.a)
+##
+#sdsl
+##
+#add_subdirectory(../sdsl-lite ext_sdsl-lite)
+#include_directories(../sdsl-lite/include)
 
-add_dependencies(libcds libcds_ext)
-
-# libsdsl used to build libcqtree
-include_directories(${libcqtree_SOURCE_DIR}/../sdsl-lite/include)
-add_library(libsdsl STATIC IMPORTED)
-SET_TARGET_PROPERTIES(libsdsl PROPERTIES
-    IMPORTED_LOCATION  ${CMAKE_CURRENT_SOURCE_DIR}/../sdsl-lite/lib/libsdsl.a)
-
-add_dependencies(libsdsl libsdsl_ext)
-
-
-
-add_executable( create create.cc $<TARGET_OBJECTS:Objs>)
-target_link_libraries(create libcds libsdsl)
+add_executable( create create.cc )
+target_link_libraries(create cqtree)
 
 add_executable( sort sort.cc )
+target_link_libraries(sort cqtree)
 
 
-
-add_executable( benchmark benchmark.cc arraysort.cc TemporalGraph.cc $<TARGET_OBJECTS:Objs>)
-target_link_libraries(benchmark libcds libsdsl)
+add_executable( benchmark benchmark.cc arraysort.cc TemporalGraph.cc)
+target_link_libraries(benchmark cqtree)
 set_target_properties (benchmark PROPERTIES COMPILE_DEFINITIONS "EXPERIMENTS")
 
-
-add_executable( checkans benchmark.cc arraysort.cc TemporalGraph.cc $<TARGET_OBJECTS:Objs>)
-target_link_libraries(checkans libcds libsdsl)
-
+add_executable( checkans benchmark.cc arraysort.cc TemporalGraph.cc)
+target_link_libraries(checkans cqtree)
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         target_link_libraries(benchmark -lrt)
-		target_link_libraries(checkans -lrt)
+	target_link_libraries(checkans -lrt)
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-
-### Common objects files in my project
-#add_library(Objs OBJECT src/utils.cc src/MXCompactQtree.cc src/MXCompactQtreeFixed.cc src/PRBCompactQtree.cc src/PRWCompactQtree.cc)
