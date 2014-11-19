@@ -52,21 +52,21 @@ add_executable( runMXUnitTests test/mx_test.cc  )
 target_link_libraries(runMXUnitTests gtest gtest_main cqtree)
 add_test( runMXUnitTests runMXUnitTests )
 
-add_executable( runMXFUnitTests test/mxf_test.cc  )
-target_link_libraries(runMXFUnitTests gtest gtest_main cqtree)
-add_test( runMXFUnitTests runMXFUnitTests )
+#add_executable( runMXFUnitTests test/mxf_test.cc  )
+#target_link_libraries(runMXFUnitTests gtest gtest_main cqtree)
+#add_test( runMXFUnitTests runMXFUnitTests )
 
 add_executable( runPRBUnitTests test/prb_test.cc  )
 target_link_libraries(runPRBUnitTests gtest gtest_main cqtree)
 add_test( runPRBUnitTests runPRBUnitTests )
 
-
-add_executable( runPRWUnitTests test/prw_test.cc  )
-target_link_libraries(runPRWUnitTests gtest gtest_main cqtree)
-add_test( runPRWUnitTests runPRWUnitTests )
+#add_executable( runPRWUnitTests test/prw_test.cc  )
+#target_link_libraries(runPRWUnitTests gtest gtest_main cqtree)
+#add_test( runPRWUnitTests runPRWUnitTests )
 
 ### Common objects files in my project
-add_library(cqtree src/utils.cc src/CompactQtree.cc src/MXCompactQtree.cc src/MXCompactQtreeFixed.cc src/PRBCompactQtree.cc src/PRWCompactQtree.cc )
+#add_library(cqtree src/utils.cc src/CompactQtree.cc src/MXCompactQtree.cc src/MXCompactQtreeFixed.cc src/PRBCompactQtree.cc src/PRWCompactQtree.cc )
+add_library(cqtree src/utils.cc src/CompactQtree.cc src/MXCompactQtree.cc src/PRBCompactQtree.cc)
 
 target_include_directories(cqtree PUBLIC src)
 target_include_directories(cqtree PUBLIC include)

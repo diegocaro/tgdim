@@ -48,8 +48,8 @@ public:
 } /* namespace cqtree_static */
 
 #include "MXCompactQtree.h"
-#include "MXCompactQtreeFixed.h"
+//#include "MXCompactQtreeFixed.h"
 #include "PRBCompactQtree.h"
-#include "PRWCompactQtree.h"
+//#include "PRWCompactQtree.h"
 
 #endif /* COMPACTQTREE_H_ */
