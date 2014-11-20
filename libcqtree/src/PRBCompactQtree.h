@@ -88,6 +88,7 @@ class PRBCompactQtree:public CompactQtree {
 
     }
 
+    virtual void stats() const;
 
     void range(Point<uint> &p, size_t z, int level, Point<uint> &from, Point<uint> &to, vector<Point<uint> > &vpall, size_t &items,bool pushval);
     virtual size_t range(Point<uint> &from, Point<uint> &to,vector<Point<uint> > &vpall, bool pushval=true){

@@ -566,6 +566,7 @@ void PRBCompactQtree::create(const std::vector<Point<uint> > &vp,
         delete [] leafbits[i];
     }
 }
+
 //
 //void PRBCompactQtree::range(uint n, Point<uint> from, Point<uint> to, Point<uint> p, size_t z, int level, size_t &items) {
 //    if (level != -1 && (p+n <= from || p > to) ) {
@@ -1006,6 +1007,35 @@ void PRBCompactQtree::range(Point<uint> &p, size_t z, int level, Point<uint> &fr
 
 
     }
+}
+
+void PRBCompactQtree::stats() const {
+  size_t treebits=0;
+  size_t leafbits=0;
+  size_t arraysize=0;
+  printf(" l  k  d  k^d\t");
+  printf("%10s\t%10s\t%8s\t%10s\t%8s\t", "|T|","T.1s","T.1s/|T|", "T.bytes","T.cratio");
+  printf("%10s\t%10s\t%8s\t%10s\t%8s\t", "|B|","B.1s","B.1s/|B|", "B.bytes","B.cratio");
+  printf("%10s\n", "A.bytes");
+  for(int i = 0; i < depth_; i++) {
+      printf("%2d %2d %2d %3d\t", i, k_[i],dims_[i],children_[i]);
+      printf("%10lu\t%10lu\t%8.2f\t%10lu\t%8.2f\t", T_[i]->getLength(), T_[i]->countOnes(),1.0*T_[i]->countOnes()/T_[i]->getLength() ,T_[i]->getSize(), 1.0*T_[i]->getSize()*8/T_[i]->getLength());
+      printf("%10lu\t%10lu\t%8.2f\t%10lu\t%8.2f\t", B_[i]->getLength(), B_[i]->countOnes(),1.0*B_[i]->countOnes()/B_[i]->getLength() ,B_[i]->getSize(), 1.0*B_[i]->getSize()*8/B_[i]->getLength());
+      
+      size_t A=0;
+      for(int j=0; i!=depth_-1 && j < dims_[i]; j++) {
+        A += leaves_[i][j]->getSize();
+      }
+      printf("%10lu\n",A);
+      
+      treebits += T_[i]->getSize();
+      leafbits += B_[i]->getSize();
+      arraysize += A;
+  }
+  printf("T space (MBytes): %0.1f\n", 1.0*treebits/1024/1024);
+  printf("B space (MBytes): %0.1f\n", 1.0*leafbits/1024/1024);
+  printf("A space (MBytes): %0.1f\n", 1.0*arraysize/1024/1024);
+  printf("Total space (MBytes): %0.1f\n", 1.0*treebits/1024/1024 + 1.0*leafbits/1024/1024 + 1.0*arraysize/1024/1024);
 }
 
 /*

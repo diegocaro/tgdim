@@ -79,7 +79,7 @@ class MXCompactQtree: public CompactQtree {
         __setdefaultvalues();
     }
     
-    void stats() const;
+    virtual void stats() const;
     
 
     void all(Point<uint> p, size_t z, int level, vector<Point<uint> > &vpall);

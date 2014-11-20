@@ -806,6 +806,18 @@ void MXCompactQtree::all(Point<uint> p, size_t z, int level, vector<Point<uint> 
     }
 }
 
+void MXCompactQtree::stats() const {  
+  size_t treebits=0;
+  printf(" l  k  d  k^d\t");
+  printf("%10s\t%10s\t%10s\t%10s\t%s\n", "|T|","T.1s","T.1s/|T|", "T.bytes","T.cratio");
+  for(int i = 0; i < depth_; i++) {
+      printf("%2d %2d %2d %3d\t", i, k_[i],dims_[i],children_[i]);
+      printf("%10lu\t%10lu\t%.2f\t%10lu\t%.2f\n", T_[i]->getLength(), T_[i]->countOnes(),1.0*T_[i]->countOnes()/T_[i]->getLength() ,T_[i]->getSize(), 1.0*T_[i]->getSize()*8/T_[i]->getLength());
+      treebits += T_[i]->getSize();
+  }
+  printf("T space (MBytes): %0.1f\n", 1.0*treebits/1024/1024);
+}
+
 /*
  template <typename T>
  void MXCompactQtree<T>::save(ofstream & f) const

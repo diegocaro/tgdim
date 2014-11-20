@@ -42,6 +42,8 @@ public:
 	virtual void all(vector<Point<uint> > &vpall) =0;
 
 	virtual size_t range(Point<uint> &from, Point<uint> &to,vector<Point<uint> > &vpall, bool pushval=true)=0;
+  
+  virtual void stats() const=0;
 };
 
 

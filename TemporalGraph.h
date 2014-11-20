@@ -99,6 +99,10 @@ class TemporalGraph {
   }
   ;
 
+  void stats() {
+    qt_->stats();
+  }
+
   virtual void save(ofstream &f)=0;
 
   //interface to query a temporal graph

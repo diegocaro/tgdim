@@ -438,15 +438,15 @@ int main(int argc, char *argv[]) {
     case ePRBlack:
       cq = new PRBCompactQtree(vp,bs,bb,opts.k1,opts.k2,opts.lk1,opts.lki);
       break;
-    case ePRWhite:
-      cq = new PRWCompactQtree(vp,bs,bb,opts.k1,opts.k2,opts.lk1,opts.lki);
-      break;
+//    case ePRWhite:
+//      cq = new PRWCompactQtree(vp,bs,bb,opts.k1,opts.k2,opts.lk1,opts.lki);
+//      break;
     case eMXDepth:
       cq = new MXCompactQtree(vp,bs,opts.k1,opts.k2,opts.lk1,opts.lki);
       break;
-    case eMXFixed:
-      cq = new MXCompactQtreeFixed(vp,bs,bb,opts.k1,opts.k2,opts.lk1,opts.lki,opts.lf);
-      break;
+//    case eMXFixed:
+//      cq = new MXCompactQtreeFixed(vp,bs,bb,opts.k1,opts.k2,opts.lk1,opts.lki,opts.lf);
+//      break;
   }
 
 

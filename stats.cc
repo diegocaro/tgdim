@@ -1,0 +1,29 @@
+#include <cstdio>
+
+#include <point.h>
+#include <CompactQtree.h>
+
+#include "TemporalGraph.h"
+
+int main(int argc, char ** argv) {
+        char * fileName;
+        ifstream f;
+
+        if (argc < 2) {
+                printf("Usage: %s <graphfile>\n", argv[0]);
+                exit(1);
+        }
+
+        fileName = argv[1];
+
+        f.open(fileName, ios::binary);
+        TemporalGraph *index;
+        
+        index =  TemporalGraph::load(f);
+
+        f.close();
+        
+        index->stats();
+        
+       return 0; 
+      }

@@ -58,6 +58,10 @@ set_target_properties (benchmark PROPERTIES COMPILE_DEFINITIONS "EXPERIMENTS")
 add_executable( checkans benchmark.cc arraysort.cc TemporalGraph.cc)
 target_link_libraries(checkans cqtree)
 
+add_executable( stats stats.cc TemporalGraph.cc)
+target_link_libraries(stats cqtree)
+
+
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         target_link_libraries(benchmark -lrt)
 	target_link_libraries(checkans -lrt)
