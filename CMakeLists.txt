@@ -108,5 +108,6 @@ target_link_libraries(leaves cqtree)
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     target_link_libraries(benchmark -lrt)
-	target_link_libraries(checkans -lrt)
+    target_link_libraries(checkans -lrt)
+    target_link_libraries(benchmark_time -lrt)
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
