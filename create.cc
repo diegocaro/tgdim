@@ -444,9 +444,9 @@ int main(int argc, char *argv[]) {
     case eMXDepth:
       cq = new MXCompactQtree(vp,bs,opts.k1,opts.k2,opts.lk1,opts.lki);
       break;
-//    case eMXFixed:
-//      cq = new MXCompactQtreeFixed(vp,bs,bb,opts.k1,opts.k2,opts.lk1,opts.lki,opts.lf);
-//      break;
+    case eMXFixed:
+      cq = new MXCompactQtreeFixed(vp,bs,bb,opts.k1,opts.k2,opts.lk1,opts.lki,opts.lf);
+      break;
   }
 
 
@@ -459,8 +459,13 @@ int main(int argc, char *argv[]) {
     abort();
   }
   for(size_t i=0; i < vp.size(); i++) {
-    if (i%10000==0)fprintf(stderr, "Checking data: %.2f%% \r", (float)i/contacts*100);
-    assert(vp[i] == vpall[i]);
+    if (i%1000==0)fprintf(stderr, "Checking data: %.2f%% \r", (float)i/contacts*100);
+    //assert(vp[i] == vpall[i]);
+    //printf("%d %d %d %d %d %d %d %d\n",vp[i][0],vpall[i][0],vp[i][1],vpall[i][1],vp[i][2],vpall[i][2],vp[i][3],vpall[i][3]);
+    if (vp[i] != vpall[i]) {
+        fprintf(stderr,"Construction failed\n");
+        abort();
+    }
   }
 
 

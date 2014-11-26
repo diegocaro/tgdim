@@ -9,7 +9,7 @@
 #define COMPACTQTREE_H_
 
 #include "utils.h"
-
+#include "count_ops.h"
 
 
 #include <vector>
@@ -43,14 +43,14 @@ public:
 
 	virtual size_t range(Point<uint> &from, Point<uint> &to,vector<Point<uint> > &vpall, bool pushval=true)=0;
   
-  virtual void stats() const=0;
+  virtual void stats_space() const=0;
 };
 
 
 } /* namespace cqtree_static */
 
 #include "MXCompactQtree.h"
-//#include "MXCompactQtreeFixed.h"
+#include "MXCompactQtreeFixed.h"
 #include "PRBCompactQtree.h"
 //#include "PRWCompactQtree.h"
 

@@ -16,7 +16,7 @@ CompactQtree * CompactQtree::load(ifstream & fp) {
     fp.seekg(pos-sizeof(uint));
     switch(r) {
       case MXQDPT_SAV: return new MXCompactQtree(fp);
-      //case MXQFIX_SAV: return new MXCompactQtreeFixed(fp);
+      case MXQFIX_SAV: return new MXCompactQtreeFixed(fp);
       case PRQBLK_SAV: return new PRBCompactQtree(fp);
       //case PRQWHT_SAV: return new PRWCompactQtree(fp);
     }

@@ -710,10 +710,11 @@ void MXCompactQtree::range(Point<uint> &p, size_t z, int level, Point<uint> &fro
     }
   }
 
-
     size_t y = 0;
 
     if (level == depth_-1) {
+
+        count_ops::bitmapT.access();
 
         if (T_[level]->access(z) == 0) return;
         if(pushval) {
@@ -728,6 +729,9 @@ void MXCompactQtree::range(Point<uint> &p, size_t z, int level, Point<uint> &fro
     else if (level == -1 || T_[level]->access(z) == 1) {
         if( level == -1 ) y = 0;
         else y = T_[level]->rank1(z-1) * children_[level+1];
+
+        count_ops::bitmapT.access();
+        count_ops::bitmapT.rank();
 
         uint nk=nk_[level+1];
         //printf("nk[%d]: %u\n", level+1, nk_[level+1]);
@@ -806,7 +810,7 @@ void MXCompactQtree::all(Point<uint> p, size_t z, int level, vector<Point<uint> 
     }
 }
 
-void MXCompactQtree::stats() const {  
+void MXCompactQtree::stats_space() const {  
   size_t treebits=0;
   printf(" l  k  d  k^d\t");
   printf("%10s\t%10s\t%10s\t%10s\t%s\n", "|T|","T.1s","T.1s/|T|", "T.bytes","T.cratio");

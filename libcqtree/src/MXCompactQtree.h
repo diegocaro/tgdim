@@ -79,7 +79,7 @@ class MXCompactQtree: public CompactQtree {
         __setdefaultvalues();
     }
     
-    virtual void stats() const;
+    virtual void stats_space() const;
     
 
     void all(Point<uint> p, size_t z, int level, vector<Point<uint> > &vpall);
@@ -93,7 +93,13 @@ class MXCompactQtree: public CompactQtree {
     virtual size_t range(Point<uint> &from, Point<uint> &to,vector<Point<uint> > &vpall, bool pushval=true){
       Point<uint> p(num_dims_);
       size_t items=0;
+
+      count_ops::bitmapT.clear();
+
       range(p, -1, -1, from,to,vpall,items,pushval);
+
+      count_ops::bitmapT.print();
+
       return items;
     }
 

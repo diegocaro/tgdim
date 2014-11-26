@@ -864,41 +864,42 @@ void PRBCompactQtree::all(Point<uint> p, size_t z, int level, vector<Point<uint>
 
 
 void PRBCompactQtree::range(Point<uint> &p, size_t z, int level, Point<uint> &from, Point<uint> &to, vector<Point<uint> > &vpall,size_t &items, bool pushval) {
-  if (level != -1 ) {
-    Point<uint> hi(p);
-    if (false == is_interleaved_) {
-      hi += nk_[level];
-    }
-    else {
-
-      if (rangedim_by_level_[level].first == 0) {
-
-        for (int j = rangedim_by_level_[level].first;
-            j < rangedim_by_level_[level].second; j++) {
-          hi[j] += nk_[level];
+    if (level != -1 ) {
+        Point<uint> hi(p);
+        if (false == is_interleaved_) {
+            hi += nk_[level];
         }
+        else {
 
-        for (int j = rangedim_by_level_[level].second; j < num_dims_; j++) {
-          hi[j] += (level==0)?maxvalue_:nk_[level - 1];
+            if (rangedim_by_level_[level].first == 0) {
+
+                for (int j = rangedim_by_level_[level].first;
+                        j < rangedim_by_level_[level].second; j++) {
+                    hi[j] += nk_[level];
+                }
+
+                for (int j = rangedim_by_level_[level].second; j < num_dims_; j++) {
+                    hi[j] += (level==0)?maxvalue_:nk_[level - 1];
+                }
+            } else {
+
+                //all are the same
+                for (int i = 0; i < num_dims_; i++) {
+                    hi[i] += nk_[level];
+                }
+
+            }
+
         }
-      } else {
-
-        //all are the same
-        for (int i = 0; i < num_dims_; i++) {
-          hi[i] += nk_[level];
+        if (!(p < to && from < hi)) {
+            return;
         }
-
-      }
-
     }
-    if (!(p < to && from < hi)) {
-      return;
-    }
-  }
 
     size_t y = 0;
 
     if (level == depth_-1) {
+        count_ops::bitmapT.access();
 
         if (T_[level]->access(z) == 0) return;
 
@@ -909,69 +910,74 @@ void PRBCompactQtree::range(Point<uint> &p, size_t z, int level, Point<uint> &fr
     }
 
     else if (level == -1 || T_[level]->access(z) == 1) {
-      if( level == -1 ) {
-        y = 0;
-      }
-      else {
-        size_t q = 0;
-        q = T_[level]->rank1(z-1);
-        if (B_[level]->access(q) == 1) {
-          // node is a leaf
-            size_t b = 0;
-            b = B_[level]->rank1(q-1);
+        count_ops::bitmapT.access();
 
-          Point<uint> c(p);
+        if( level == -1 ) {
+            y = 0;
+        }
+        else {
+            size_t q = 0;
 
-          if (false == is_interleaved_) {
-              for(int i=0; i < num_dims_; i++) {
-                            c[i] = p[i] + leaves_[level][i]->getField(b);
-                         }
-          }
-          else {
-              //k1 and k2 levels
-            if (level < levels_k1_ + levels_k2_) {
-                for(int i=0; i < num_dims_; i++) {
-                    c[i] = p[i] + leaves_[level][i]->getField(b);
-              }
-            }
-            else {
+            count_ops::bitmapT.rank();
 
-                if (0 == rangedim_by_level_[level].first) {
+            q = T_[level]->rank1(z-1);
 
+            count_ops::bitmapB.access();
 
-                    //less info on first levels
-                    if (level != depth_-2) {
-                        for(int i=0; i < rangedim_by_level_[level].second; i++) {
-                            c[i] = p[i] + leaves_[level][i]->getField(b);
-                        }
-                    }
+            if (B_[level]->access(q) == 1) {
+                // node is a leaf
+                size_t b = 0;
 
-                    for(int i=rangedim_by_level_[level].second; i < num_dims_; i++) {
+                count_ops::bitmapB.rank();
+
+                b = B_[level]->rank1(q-1);
+
+                Point<uint> c(p);
+
+                if (false == is_interleaved_) {
+                    for(int i=0; i < num_dims_; i++) {
                         c[i] = p[i] + leaves_[level][i]->getField(b);
                     }
                 }
                 else {
-                    for(int i=0; i < num_dims_; i++) {
-                        c[i] = p[i] + leaves_[level][i]->getField(b);
+                    //k1 and k2 levels
+                    if (level < levels_k1_ + levels_k2_) {
+                        for(int i=0; i < num_dims_; i++) {
+                            c[i] = p[i] + leaves_[level][i]->getField(b);
+                        }
                     }
-
+                    else {
+                        if (0 == rangedim_by_level_[level].first) {
+                            //less info on first levels
+                            if (level != depth_-2) {
+                                for(int i=0; i < rangedim_by_level_[level].second; i++) {
+                                    c[i] = p[i] + leaves_[level][i]->getField(b);
+                                }
+                            }
+                            for(int i=rangedim_by_level_[level].second; i < num_dims_; i++) {
+                                c[i] = p[i] + leaves_[level][i]->getField(b);
+                            }
+                        }
+                        else {
+                            for(int i=0; i < num_dims_; i++) {
+                                c[i] = p[i] + leaves_[level][i]->getField(b);
+                            }
+                        }
+                    }
                 }
+
+                if (from <= c && c < to) {
+                    if(pushval) vpall.push_back(c);
+                    items++;
+                }
+                return;
             }
-          }
-
-          if (from <= c && c < to) {
-              if(pushval) vpall.push_back(p);
-              items++;
-          }
-          return;
+            // if this is not a leaf
+            count_ops::bitmapB.rank();
+            y = (q - B_[level]->rank1(q)) * children_[level+1] ;
         }
-        // if this is not a leaf
-        y = (q - B_[level]->rank1(q)) * children_[level+1] ;
-
-      }
 
         uint nk=nk_[level+1];
-
 
         if (false == is_interleaved_) {
             //uint nk=n/k_[level+1];
@@ -983,7 +989,7 @@ void PRBCompactQtree::range(Point<uint> &p, size_t z, int level, Point<uint> &fr
 
                     //c[j] = p[j] + nk * ((i/mypow(k_[level+1], num_dims_-j-1))%k_[level+1]);
 
-                  c[j] = p[j] + nk * ((i/ kpower_per_level_dim_[num_dims_*(level+1)+j]  )%k_[level+1]);
+                    c[j] = p[j] + nk * ((i/ kpower_per_level_dim_[num_dims_*(level+1)+j]  )%k_[level+1]);
                 }
 
                 range(c, y + i, level+1, from, to, vpall, items, pushval);
@@ -1000,16 +1006,11 @@ void PRBCompactQtree::range(Point<uint> &p, size_t z, int level, Point<uint> &fr
 
                 range(c, y + i, level+1, from, to, vpall, items, pushval);
             }
-
-
-
         }
-
-
     }
 }
 
-void PRBCompactQtree::stats() const {
+void PRBCompactQtree::stats_space() const {
   size_t treebits=0;
   size_t leafbits=0;
   size_t arraysize=0;
@@ -1037,6 +1038,122 @@ void PRBCompactQtree::stats() const {
   printf("A space (MBytes): %0.1f\n", 1.0*arraysize/1024/1024);
   printf("Total space (MBytes): %0.1f\n", 1.0*treebits/1024/1024 + 1.0*leafbits/1024/1024 + 1.0*arraysize/1024/1024);
 }
+
+
+
+
+void PRBCompactQtree::print_leaves(Point<uint> p, size_t z, int level) {
+    size_t y = 0;
+
+    if (level == depth_-1) {
+
+        if (T_[level]->access(z) == 0) return;
+
+        // do not print last level
+        //p.print();
+
+        return;
+    }
+
+    else if (level == -1 || T_[level]->access(z) == 1) {
+      if( level == -1 ) {
+        y = 0;
+      }
+      else {
+        size_t q = 0;
+        q = T_[level]->rank1(z-1);
+        if (B_[level]->access(q) == 1) {
+          // node is a leaf
+            size_t b = 0;
+            b = B_[level]->rank1(q-1);
+
+          Point<uint> c(p);
+
+          if (false == is_interleaved_) {
+              for(int i=0; i < num_dims_; i++) {
+                            c[i] = leaves_[level][i]->getField(b);
+                         }
+          }
+          else {
+              //k1 and k2 levels
+            if (level < levels_k1_ + levels_k2_) {
+                for(int i=0; i < num_dims_; i++) {
+                    c[i] = leaves_[level][i]->getField(b);
+              }
+            }
+            else {
+
+                if (0 == rangedim_by_level_[level].first) {
+
+
+                    //less info on first levels
+                    if (level != depth_-2) {
+                        for(int i=0; i < rangedim_by_level_[level].second; i++) {
+                            c[i] = leaves_[level][i]->getField(b);
+                        }
+                    }
+
+                    for(int i=rangedim_by_level_[level].second; i < num_dims_; i++) {
+                        c[i] = leaves_[level][i]->getField(b);
+                    }
+                }
+                else {
+                    for(int i=0; i < num_dims_; i++) {
+                        c[i] = leaves_[level][i]->getField(b);
+                    }
+
+                }
+            }
+          }
+
+           //printf("%d ",depth_ - level);
+           c.print();
+
+          return;
+        }
+        // if this is not a leaf
+        y = (q - B_[level]->rank1(q)) * children_[level+1] ;
+
+      }
+
+        uint nk=nk_[level+1];
+
+
+        if (false == is_interleaved_) {
+            //uint nk=n/k_[level+1];
+
+            Point<uint> c(p);
+            for(int i=0; i < children_[level+1]; i++) {
+                for(int j=0; j < num_dims_; j++) {
+                    //c[j] = p[j] + nk * ((i/(1 << (c.num_dims()-j-1)) )%k_[level+1]);
+
+                    //c[j] = p[j] + nk * ((i/mypow(k_[level+1], num_dims_-j-1))%k_[level+1]);
+
+                  c[j] = p[j] + nk * ((i/ kpower_per_level_dim_[num_dims_*(level+1)+j]  )%k_[level+1]);
+                }
+
+                print_leaves(c, y + i, level+1);
+            }
+        }
+        else {
+            for(int i=0; i < children_[level+1]; i++) {
+                Point<uint> c(p);
+                for(int j=rangedim_by_level_[level+1].first; j < rangedim_by_level_[level+1].second; j++) {
+                    //printf("updating dim: %d\n", rangedim_by_level_[level+1].first + j);
+                    //c[rangedim_by_level_[level+1].first+j] += nk * ((i/mypow(k_[level+1], dims_[level+1]-j-1))%k_[level+1]);
+                    c[j] = p[j] + nk * ((i/ kpower_per_level_dim_[num_dims_*(level+1)+j]  )%k_[level+1]);
+                }
+
+                print_leaves(c, y + i, level+1);
+            }
+
+
+
+        }
+
+    }
+}
+
 
 /*
  template <typename T>

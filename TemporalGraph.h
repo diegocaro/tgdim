@@ -100,7 +100,18 @@ class TemporalGraph {
   ;
 
   void stats() {
-    qt_->stats();
+    qt_->stats_space();
+  }
+
+  void print_leaves() {
+
+
+    if (dynamic_cast<PRBCompactQtree*>(qt_)) {
+        ((PRBCompactQtree* )qt_ )->print_leaves();
+    }
+    else {
+        fprintf(stderr, "Input is not a PRB data structure\n");
+    }
   }
 
   virtual void save(ofstream &f)=0;

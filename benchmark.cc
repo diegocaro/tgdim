@@ -74,9 +74,9 @@ typedef struct squery {
 } TimeQuery;
 
 #define MAX_QUERIES 10000
-TimeQuery * readQueries(char * filename, int * nqueries) {
+TimeQuery * readQueries(FILE * queryFile, int * nqueries) {
         TimeQuery * ret = (TimeQuery *) malloc(MAX_QUERIES*sizeof(TimeQuery));
-        FILE * queryFile = fopen(filename, "r");
+
         int curn = 0;
         while(1) {
                 TimeQuery *query = &ret[curn];
@@ -140,7 +140,8 @@ int savegotFile = 0;
 
 int main(int argc, char ** argv) {
 
-        char * fileName;
+        char *fileName;
+        char *fileQueries;
 
         int totalres = 0;
         char * gotqueryFile = NULL;
@@ -150,7 +151,7 @@ int main(int argc, char ** argv) {
         uint gotres = 0;
 
         if (argc < 3) {
-                printf("Usage: %s <graphfile> <queryfile> [<gotqueryfile>]\n", argv[0]);
+                fprintf(stderr,"Usage: %s <graphfile> <queryfile> [<gotqueryfile>]\n", argv[0]);
                 exit(1);
         }
         if (argc == 4) {
@@ -159,20 +160,34 @@ int main(int argc, char ** argv) {
         }
 
         fileName = argv[1];
+        fileQueries = argv[2];
 
-
-
+        // Opening files
         f.open(fileName, ios::binary);
-        TemporalGraph *index;
-        
-        index =  TemporalGraph::load(f);
 
+        if (!f.is_open()) {
+            fprintf(stderr,"Error, data structure '%s' not found.\n",fileName);
+            exit(1);
+        }
+
+        FILE * g = fopen(fileQueries, "r");
+        if (g == NULL) {
+            fprintf(stderr,"Error, query file '%s' not found.\n", fileQueries);
+            exit(1);
+        }
+
+
+        TemporalGraph *index;
+        index =  TemporalGraph::load(f);
         f.close();
 
         gotreslist = (uint*)malloc(sizeof(unsigned int)*BUFFER);
 
         int nqueries = 0;
-        TimeQuery * queries = readQueries(argv[2], &nqueries);
+
+
+        TimeQuery * queries = readQueries(g, &nqueries);
+        fclose(g);
 
         int i;
 
@@ -180,10 +195,17 @@ int main(int argc, char ** argv) {
 	printf("We are checking the results... Experiments mode off.\n");
 #endif
 
+#ifndef TIMESAMPLE
         startClockTime();
+#endif
 
         for (i = 0; i < nqueries; i++) {
                 TimeQuery query = queries[i];
+
+#ifdef TIMESAMPLE
+        startClockTime();
+#endif
+
 
                 switch(query.type) {
                case EDGE: {
@@ -322,10 +344,14 @@ int main(int argc, char ** argv) {
                 totalres += *gotreslist;
 #endif
 
-
-
+#ifdef TIMESAMPLE
+                printf("%s\t%s\t%.3lf\t%u\n", fileName, fileQueries, 1.0*endClockTime()/1000, *gotreslist);
+#endif
 
         }
+
+#ifndef TIMESAMPLE
+
         unsigned long microsecs = endClockTime()/1000; //to microsecs
 
 //	printf("time = (%lf), %d queries, %lf micros/query, %lf micros/arista\n",
@@ -338,10 +364,11 @@ int main(int argc, char ** argv) {
 
 
         // datasets.structura query_input num_queries totaloutput timeperquery timeperoutput
-        printf("%s\t%s\t%ld\t%d\t%d\t%lf\t%lf\n", argv[1], argv[2],
+        printf("%s\t%s\t%ld\t%d\t%d\t%lf\t%lf\n", fileName, fileQueries,
                        microsecs, nqueries, totalres, (double)microsecs/nqueries, (double)microsecs/totalres);
 
         //destroyK2Tree(tree);
+#endif
 
         exit(0);
 }

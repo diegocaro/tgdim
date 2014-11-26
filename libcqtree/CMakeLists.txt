@@ -1,8 +1,37 @@
-cmake_minimum_required(VERSION 2.6.2)
-project(libcqtree CXX C)
+cmake_minimum_required(VERSION 2.8.11)
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(AppendCompilerFlags)
+
+project(libcqtree CXX)
 
 ### Flags for all
-SET(CMAKE_CXX_FLAGS "-std=c++11 -O3 -Wall -Wextra")
+option(CODE_COVERAGE "Set ON to add code coverage compile options" OFF)
+
+# C++11 compiler Check
+if(NOT CMAKE_CXX_COMPILER_VERSION) # work around for cmake versions smaller than 2.8.10
+    execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpversion OUTPUT_VARIABLE CMAKE_CXX_COMPILER_VERSION)
+endif()
+if(CMAKE_CXX_COMPILER MATCHES ".*clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+      set(CMAKE_COMPILER_IS_CLANGXX 1)
+endif()
+if( (CMAKE_COMPILER_IS_GNUCXX AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 4.7) OR
+    (CMAKE_COMPILER_IS_CLANGXX AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 3.2))
+  message(FATAL_ERROR "Your C++ compiler does not support C++11. Please install g++ 4.7 (or greater) or clang 3.2 (or greater)")
+else()
+  message(STATUS "Compiler is recent enough to support C++11.")
+endif()
+
+if( CMAKE_COMPILER_IS_GNUCXX )
+    append_cxx_compiler_flags("-std=c++11 -Wall -Wextra  -DNDEBUG" "GCC" CMAKE_CXX_FLAGS)
+    append_cxx_compiler_flags("-O3 -ffast-math -funroll-loops" "GCC" CMAKE_CXX_OPT_FLAGS)
+    if ( CODE_COVERAGE )
+        append_cxx_compiler_flags("-g -fprofile-arcs -ftest-coverage -lgcov" "GCC" CMAKE_CXX_FLAGS)
+    endif()
+else()
+    append_cxx_compiler_flags("-std=c++11 -DNDEBUG" "CLANG" CMAKE_CXX_FLAGS)
+    append_cxx_compiler_flags("-stdlib=libc++" "CLANG" CMAKE_CXX_FLAGS)
+    append_cxx_compiler_flags("-O3 -ffast-math -funroll-loops" "CLANG" CMAKE_CXX_OPT_FLAGS)
+endif()
 
 # Where .h files can be found.
 include_directories(
@@ -52,9 +81,9 @@ add_executable( runMXUnitTests test/mx_test.cc  )
 target_link_libraries(runMXUnitTests gtest gtest_main cqtree)
 add_test( runMXUnitTests runMXUnitTests )
 
-#add_executable( runMXFUnitTests test/mxf_test.cc  )
-#target_link_libraries(runMXFUnitTests gtest gtest_main cqtree)
-#add_test( runMXFUnitTests runMXFUnitTests )
+add_executable( runMXFUnitTests test/mxf_test.cc  )
+target_link_libraries(runMXFUnitTests gtest gtest_main cqtree)
+add_test( runMXFUnitTests runMXFUnitTests )
 
 add_executable( runPRBUnitTests test/prb_test.cc  )
 target_link_libraries(runPRBUnitTests gtest gtest_main cqtree)
@@ -66,7 +95,7 @@ add_test( runPRBUnitTests runPRBUnitTests )
 
 ### Common objects files in my project
 #add_library(cqtree src/utils.cc src/CompactQtree.cc src/MXCompactQtree.cc src/MXCompactQtreeFixed.cc src/PRBCompactQtree.cc src/PRWCompactQtree.cc )
-add_library(cqtree src/utils.cc src/CompactQtree.cc src/MXCompactQtree.cc src/PRBCompactQtree.cc)
+add_library(cqtree src/utils.cc src/CompactQtree.cc src/MXCompactQtree.cc src/MXCompactQtreeFixed.cc src/PRBCompactQtree.cc)
 
 target_include_directories(cqtree PUBLIC src)
 target_include_directories(cqtree PUBLIC include)

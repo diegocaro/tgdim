@@ -28,8 +28,8 @@ int main(int argc, char ** argv) {
         index =  TemporalGraph::load(f);
 
         f.close();
-        
-        index->stats();
+        // level c_1 c_2 c_3 c_4
+        index->print_leaves();
         
        return 0; 
       }

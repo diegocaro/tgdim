@@ -88,13 +88,21 @@ class PRBCompactQtree:public CompactQtree {
 
     }
 
-    virtual void stats() const;
+    virtual void stats_space() const;
 
     void range(Point<uint> &p, size_t z, int level, Point<uint> &from, Point<uint> &to, vector<Point<uint> > &vpall, size_t &items,bool pushval);
     virtual size_t range(Point<uint> &from, Point<uint> &to,vector<Point<uint> > &vpall, bool pushval=true){
       Point<uint> p(num_dims_);
       size_t items = 0;
+
+      count_ops::bitmapT.clear();
+      count_ops::bitmapB.clear();
+
       range(p, -1, -1, from,to,vpall,items,pushval);
+
+      count_ops::bitmapT.print("\t");
+      count_ops::bitmapB.print();
+
       return items;
     }
 
@@ -244,6 +252,11 @@ class PRBCompactQtree:public CompactQtree {
           }
     }
 
+    void print_leaves() {
+        Point<uint> p(num_dims_);
+        print_leaves(p, -1, -1);
+    }
+
  protected:
     void __setdefaultvalues() {
         depth_ = 0;
@@ -308,6 +321,9 @@ class PRBCompactQtree:public CompactQtree {
 
     void create(const std::vector<Point<uint> > &vp,
                 BitSequenceBuilder *bs, BitSequenceBuilder *bb);
+
+    void print_leaves(Point<uint> p, size_t z, int level);
+
 
     int levels_k1_;
     int levels_k2_; //int virtual_depth_k2_;
