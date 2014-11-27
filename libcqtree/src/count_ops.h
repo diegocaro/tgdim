@@ -12,7 +12,6 @@ namespace count_ops {
 
 #include <assert.h>
 
-#define COUNTOPS
 
 #ifdef COUNTOPS
 //// Using Singleton Pattern

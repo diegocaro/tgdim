@@ -68,7 +68,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
    
    message(STATUS "Counting rank/select/access operations")
    set_property (DIRECTORY libcqtree PROPERTY COMPILE_DEFINITIONS "COUNTOPS")
-   #    add_definitions( -DEXPERIMENTS )
+   add_definitions( -DCOUNTOPS=1 )
 endif()
 
 ### Default parametrs for release
