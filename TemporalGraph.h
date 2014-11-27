@@ -113,6 +113,9 @@ class TemporalGraph {
     if (dynamic_cast<PRBCompactQtree*>(qt_)) {
         ((PRBCompactQtree* )qt_ )->print_leaves();
     }
+    else if (dynamic_cast<PRB2CompactQtree*>(qt_)) {
+            ((PRB2CompactQtree* )qt_ )->print_leaves();
+        }
     else {
         fprintf(stderr, "Input is not a PRB data structure\n");
     }

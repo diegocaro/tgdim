@@ -265,8 +265,19 @@ class PRB2CompactQtree:public CompactQtree {
     }
 
     void print_leaves() {
-        Point<uint> p(num_dims_);
-        print_leaves(p, -1, -1);
+        //Point<uint> p(num_dims_);
+        //print_leaves(p, -1, -1);
+
+        for(int i = 0; i < depth_; i++) {
+            for(size_t j=0; j < leaves_per_level_[i]; j++) {
+                printf("%d", i);
+                for(int k=0; k < num_dims_; k++) {
+                    printf("\t%d", leaves_[i][k]->getField(j));
+                }
+                printf("\n");
+            }
+        }
+
     }
 
  protected:

@@ -350,7 +350,7 @@ int readopts(int argc, char **argv, struct opts *opts) {
   if (optind >= argc || (argc - optind) < 1 || dsflag == 0 || fflags == -1
       || (opts->lf == 0 && opts->ds == eMXFixed)) {
     fprintf(stderr,
-        "%s -s {MXD,MXF,PRB,PRW,PRB2} [-f k1:k2:lk1:lki:lf] [-g I,P,G] [-t RG,RRR,SD,SRRR15] [-b RG,RRR,SD,SRRR15] [-c RG,RRR,SD,SRRR15] [-i <inputfile>] <outputfile> \n",
+        "%s -s {MXD,MXF,PRB,PRW,PRB2} [-f k1,k2,lk1,lki,lf,F] [-g I,P,G] [-t RG,RRR,SD,SRRR15] [-b RG,RRR,SD,SRRR15] [-c RG,RRR,SD,SRRR15] [-i <inputfile>] <outputfile> \n",
         argv[0]);
     fprintf(stderr, "Expected data structure (-s):\n");
     fprintf(stderr, "\tMXD for MatriX Quadtree (automatic depth)\n");
