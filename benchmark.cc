@@ -200,6 +200,7 @@ int main(int argc, char ** argv) {
 #endif
 
         for (i = 0; i < nqueries; i++) {
+            *gotreslist = 0;
                 TimeQuery query = queries[i];
 
 #ifdef TIMESAMPLE

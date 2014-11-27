@@ -17,6 +17,7 @@ TemporalGraph* TemporalGraph::load(ifstream &fp) {
       case TG_INTERV: return new IntervalContactGraph(fp);
       case TG_GROWTH: return new GrowingContactGraph(fp);
       case TG_POINT: return new PointContactGraph(fp);
+      case TG_INTERVPRO: return new IntervalContactGraphImproved(fp);
     }
     return NULL;
   }

@@ -46,7 +46,9 @@ void printsettings(struct opts *opts) {
     case kPoint:
       printf("P Point Temporal Graph (3d)\n");
       break;
-
+    case kIntervalPro:
+          printf("R Interval Pro 4d+3d\n");
+          break;
   }
 
   switch (opts->ds) {
@@ -335,6 +337,10 @@ int readopts(int argc, char **argv, struct opts *opts) {
           INFO("Growing Temporal Graph");
           opts->typegraph = kGrowth;
         }
+        else if (strcmp(optarg, "R") == 0) {
+            INFO("Interval Pro");
+            opts->typegraph = kIntervalPro;
+          }
         break;
       case 'f':
         fflags = readflags(opts,optarg);
@@ -369,6 +375,7 @@ int readopts(int argc, char **argv, struct opts *opts) {
     fprintf(stderr, "\tI for Interval-contact Temporal Graph\n");
     fprintf(stderr, "\tP for Point-contact Temporal Graph\n");
     fprintf(stderr, "\tG for Growing Temporal Graph\n");
+    fprintf(stderr, "\tR for Interval Pro Graph\n");
 
     fprintf(stderr, "\nExpected input file -i input file can be set to '-' to read stdin\n");
 
@@ -415,6 +422,7 @@ int main(int argc, char *argv[]) {
   size_t readcontacts = 0;
   vector<Point<uint> > vp;
 
+  vector<Point<uint> > vpcurr;
   if (opts.typegraph == kInterval) {
     //4dim data
     Point<uint> c(4);
@@ -429,6 +437,31 @@ int main(int argc, char *argv[]) {
 
       vp.push_back(c);
     }
+  }
+  else if (opts.typegraph == kIntervalPro) {
+      //4dim data
+          Point<uint> c(4);
+          Point<uint> c3(3);
+          while(EOF != fscanf(infile,"%u %u %u %u", &c[0], &c[1], &c[2], &c[3] )) {
+            readcontacts++;
+            if (readcontacts%10000==0)fprintf(stderr, "Reading data: %.2f%% \r", (float)readcontacts/contacts*100);
+
+            assert(c[0] < nodes);
+            assert(c[1] < nodes);
+            assert(c[2] < lifetime);
+            assert(c[3] < lifetime);
+
+            if (c[3] == lifetime-1) {
+                c3[0]=c[0];
+                c3[1]=c[1];
+                c3[2]=c[2];
+
+                vpcurr.push_back(c3);
+            }
+            else {
+                vp.push_back(c);
+            }
+          }
   }
   else {
     //3dim data
@@ -535,7 +568,6 @@ int main(int argc, char *argv[]) {
           break;
   }
 
-
   CompactQtree *cq;
 
   switch(opts.ds) {
@@ -575,12 +607,11 @@ int main(int argc, char *argv[]) {
     }
   }
 
-
   TemporalGraph *tg;
 
   switch(opts.typegraph) {
       case kInterval:
-          tg = new IntervalContactGraph();
+        tg = new IntervalContactGraph();
       break;
       case kGrowth:
         tg = new GrowingContactGraph();
@@ -588,27 +619,90 @@ int main(int argc, char *argv[]) {
       case kPoint:
         tg = new PointContactGraph();
         break;
+      case kIntervalPro:
+          tg = new IntervalContactGraphImproved();
+        break;
   }
 
+    if (opts.typegraph == kIntervalPro) {
+        CompactQtree *cqcurr;
+
+        switch(opts.ds) {
+          case ePRBlack:
+              cqcurr = new PRBCompactQtree(vpcurr,bs,bb,opts.k1,opts.k2,opts.lk1,opts.lki);
+            break;
+          case ePRB2Black:
+              cqcurr = new PRB2CompactQtree(vpcurr,bs,bb,bc,opts.k1,opts.k2,opts.F,opts.lk1,opts.lki);
+                break;
+      //    case ePRWhite:
+      //      cq = new PRWCompactQtree(vp,bs,bb,opts.k1,opts.k2,opts.lk1,opts.lki);
+      //      break;
+          case eMXDepth:
+              cqcurr = new MXCompactQtree(vpcurr,bs,opts.k1,opts.k2,opts.lk1,opts.lki);
+            break;
+          case eMXFixed:
+              cqcurr = new MXCompactQtreeFixed(vpcurr,bs,bb,opts.k1,opts.k2,opts.lk1,opts.lki,opts.lf);
+            break;
+        }
 
 
-  ofstream file;
-  LOG("Saving graph file in '%s'", opts.outfile);
-  
-  fprintf(stderr, "Saving data structure\n");
-  file.open(opts.outfile, ios::binary);
-  
-  tg->setDs(cq);
-  tg->setInfo(nodes,edges,lifetime,contacts);
-  
-  tg->save(file);
 
-  file.close();
 
-  delete bb;
-  delete bs;
+        //First check points...
+        vector<Point<uint> > vpallcurr;
+        cqcurr->all(vpallcurr);
 
-  delete tg;
+        if (vpcurr.size() != vpallcurr.size()) {
+          fprintf(stderr, "Error: data from data structure doesnt match the input (current graph) \n");
+          abort();
+        }
+        for(size_t i=0; i < vpcurr.size(); i++) {
+          if (i%1000==0)fprintf(stderr, "Checking data: %.2f%% \r", (float)i/contacts*100);
+          //assert(vp[i] == vpall[i]);
+          //printf("%d %d %d %d %d %d %d %d\n",vp[i][0],vpall[i][0],vp[i][1],vpall[i][1],vp[i][2],vpall[i][2],vp[i][3],vpall[i][3]);
+          if (vpcurr[i] != vpallcurr[i]) {
+              fprintf(stderr,"Construction failed (current graph)\n");
+              abort();
+          }
+        }
+
+
+        IntervalContactGraph *tgpast = new IntervalContactGraph();
+        GrowingContactGraph *tgcurr = new GrowingContactGraph();
+
+        tgpast->setInfo(nodes,edges,lifetime,vp.size());
+        tgcurr->setInfo(nodes,edges,lifetime,vpcurr.size());
+
+        tgpast->setDs(cq);
+        tgcurr->setDs(cqcurr);
+
+        ((IntervalContactGraphImproved *)tg)->setGraphs(tgpast,tgcurr);
+
+
+    }
+    else {
+      tg->setDs(cq);
+    }
+
+    ofstream file;
+         LOG("Saving graph file in '%s'", opts.outfile);
+
+         fprintf(stderr, "Saving data structure\n");
+         file.open(opts.outfile, ios::binary);
+
+
+         tg->setInfo(nodes,edges,lifetime,contacts);
+
+         tg->save(file);
+
+         file.close();
+
+         delete bb;
+         delete bs;
+
+         delete tg;
+
+
 
   return 0;
 

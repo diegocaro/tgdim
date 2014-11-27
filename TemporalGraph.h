@@ -26,7 +26,8 @@ enum bitseq {
 enum TypeGraph {
   kInterval,
   kGrowth,
-  kPoint
+  kPoint,
+  kIntervalPro
 };
 
 enum typeds {
@@ -61,6 +62,7 @@ struct opts {
 #define TG_INTERV 3
 #define TG_GROWTH 4
 #define TG_POINT 5
+#define TG_INTERVPRO 6
 
 using namespace cqtree_static;
 
@@ -218,13 +220,14 @@ class IntervalContactGraph : public TemporalGraph {
 
 
 #ifdef EXPERIMENTS
-      *res = qt_->range(from,to,vp,false);
+      *res += qt_->range(from,to,vp,false);
 #else
       qt_->range(from,to,vp,true);
-        *res = vp.size();
+        //*res = vp.size();
       for (size_t i = 0; i < vp.size(); i++) {
-        res[i + 1] = vp[i][1];
+        res[i + 1 + *res] = vp[i][1];
       }
+      *res += vp.size();
 #endif
   }
   virtual void direct_strong(uint u, uint tstart, uint tend, uint *res) {
@@ -244,14 +247,15 @@ class IntervalContactGraph : public TemporalGraph {
       to[3] = tend;
 
 #ifdef EXPERIMENTS
-      *res = qt_->range(from,to,vp,false);
+      *res += qt_->range(from,to,vp,false);
 #else
       qt_->range(from,to,vp,true);
-      *res = vp.size();
-          for (size_t i = 0; i < vp.size(); i++) {
-            res[i + 1] = vp[i][1];
-          }
-      #endif
+        //*res = vp.size();
+      for (size_t i = 0; i < vp.size(); i++) {
+        res[i + 1 + *res] = vp[i][1];
+      }
+      *res += vp.size();
+#endif
   }
 
   virtual void reverse_point(uint v, uint t, uint *res) {
@@ -275,14 +279,15 @@ class IntervalContactGraph : public TemporalGraph {
       to[3] = lifetime_;
 
 #ifdef EXPERIMENTS
-      *res = qt_->range(from,to,vp,false);
+      *res += qt_->range(from,to,vp,false);
 #else
       qt_->range(from,to,vp,true);
-      *res = vp.size();
-          for (size_t i = 0; i < vp.size(); i++) {
-            res[i + 1] = vp[i][0];
-          }
-      #endif
+        //*res = vp.size();
+      for (size_t i = 0; i < vp.size(); i++) {
+        res[i + 1 + *res] = vp[i][0];
+      }
+      *res += vp.size();
+#endif
   }
   virtual void reverse_strong(uint v, uint tstart, uint tend, uint *res) {
     vp.clear();
@@ -304,11 +309,12 @@ class IntervalContactGraph : public TemporalGraph {
       *res = qt_->range(from,to,vp,false);
 #else
       qt_->range(from,to,vp,true);
-      *res = vp.size();
-          for (size_t i = 0; i < vp.size(); i++) {
-            res[i + 1] = vp[i][0];
-          }
-      #endif
+        //*res = vp.size();
+      for (size_t i = 0; i < vp.size(); i++) {
+        res[i + 1 + *res] = vp[i][0];
+      }
+      *res += vp.size();
+#endif
   }
 
   virtual int edge_point(uint u, uint v, uint t) {
@@ -459,13 +465,14 @@ class GrowingContactGraph : public TemporalGraph {
       to[2] = t+1;
 
 #ifdef EXPERIMENTS
-      *res = qt_->range(from,to,vp,false);
+      *res += qt_->range(from,to,vp,false);
 #else
       qt_->range(from,to,vp,true);
-      *res = vp.size();
+      //*res = vp.size();
           for (size_t i = 0; i < vp.size(); i++) {
-            res[i + 1] = vp[i][1];
+            res[i + 1 + *res] = vp[i][1];
           }
+          *res += vp.size();
       #endif
   }
   virtual void direct_strong(uint u, uint tstart, uint tend, uint *res) {
@@ -492,13 +499,14 @@ class GrowingContactGraph : public TemporalGraph {
       to[2] = t+1;
 
 #ifdef EXPERIMENTS
-      *res = qt_->range(from,to,vp,false);
+      *res += qt_->range(from,to,vp,false);
 #else
       qt_->range(from,to,vp,true);
-      *res = vp.size();
+      //*res = vp.size();
           for (size_t i = 0; i < vp.size(); i++) {
-            res[i + 1] = vp[i][0];
+            res[i + 1 + *res] = vp[i][0];
           }
+          *res += vp.size();
       #endif
   }
 
@@ -643,14 +651,14 @@ class PointContactGraph : public TemporalGraph {
       to[2] = tend;
 
 #ifdef EXPERIMENTS
-      *res = qt_->range(from,to,vp,false);
+      *res += qt_->range(from,to,vp,false);
 #else
       qt_->range(from,to,vp,true);
-      *res = vp.size();
-
+      //*res = vp.size();
           for (size_t i = 0; i < vp.size(); i++) {
-            res[i + 1] = vp[i][1];
+            res[i + 1 + *res] = vp[i][0];
           }
+          *res += vp.size();
       #endif
   }
   virtual void direct_strong(uint u, uint tstart, uint tend, uint *res) {
@@ -683,14 +691,14 @@ class PointContactGraph : public TemporalGraph {
       to[2] = tend;
 
 #ifdef EXPERIMENTS
-      *res = qt_->range(from,to,vp,false);
+      *res += qt_->range(from,to,vp,false);
 #else
       qt_->range(from,to,vp,true);
-      *res = vp.size();
-
+      //*res = vp.size();
           for (size_t i = 0; i < vp.size(); i++) {
-            res[i + 1] = vp[i][0];
+            res[i + 1 + *res] = vp[i][1];
           }
+          *res += vp.size();
       #endif
   }
   virtual void reverse_strong(uint v, uint tstart, uint tend, uint *res) {
@@ -775,5 +783,118 @@ class PointContactGraph : public TemporalGraph {
   }
 
 };
+
+
+class IntervalContactGraphImproved : public TemporalGraph {
+ public:
+    IntervalContactGraphImproved() {
+  }
+  ;
+
+  ~IntervalContactGraphImproved() {
+      if (past_!=NULL) delete past_;
+      if (curr_!=NULL) delete curr_;
+      past_=NULL;
+      curr_=NULL;
+  }
+  ;
+
+  // Load & Save
+  IntervalContactGraphImproved(ifstream &f) {
+    uint type = loadValue<uint>(f);
+    // TODO:throw an exception!
+    if (type != TG_INTERVPRO) {
+      abort();
+    }
+
+    loadValue(f, nodes_);
+    loadValue(f, edges_);
+    loadValue(f, lifetime_);
+    loadValue(f, contacts_);
+    loadValue(f, opts_);
+
+    past_ = new IntervalContactGraph(f);
+    curr_ = new GrowingContactGraph(f);
+
+    qt_ = NULL;
+  }
+
+  void save(ofstream &f) {
+    uint wr = TG_INTERVPRO;
+    saveValue(f, wr);
+    saveValue(f, nodes_);
+    saveValue(f, edges_);
+    saveValue(f, lifetime_);
+    saveValue(f, contacts_);
+    saveValue(f, opts_);
+
+    past_->save(f);
+    curr_->save(f);
+  }
+
+ void setGraphs(IntervalContactGraph *past, GrowingContactGraph *curr) {
+    past_ = past;
+    curr_ = curr;
+
+}
+
+  /// Interface
+
+  virtual void direct_point(uint u, uint t, uint *res) {
+    past_->direct_point(u,t,res);
+    curr_->direct_point(u,t,res);
+  }
+
+  virtual void direct_weak(uint u, uint tstart, uint tend, uint *res) {
+      past_->direct_weak(u,tstart,tend,res);
+      curr_->direct_weak(u,tstart,tend,res);
+  }
+  virtual void direct_strong(uint u, uint tstart, uint tend, uint *res) {
+      past_->direct_strong(u,tstart,tend,res);
+      curr_->direct_strong(u,tstart,tend,res);
+  }
+
+  virtual void reverse_point(uint v, uint t, uint *res) {
+      past_->reverse_point(v,t,res);
+      curr_->reverse_point(v,t,res);
+  }
+
+  virtual void reverse_weak(uint v, uint tstart, uint tend, uint *res) {
+    past_->reverse_weak(v,tstart,tend,res);
+    curr_->reverse_weak(v,tstart,tend,res);
+  }
+  virtual void reverse_strong(uint v, uint tstart, uint tend, uint *res) {
+    past_->reverse_strong(v,tstart,tend,res);
+    curr_->reverse_strong(v,tstart,tend,res);
+  }
+
+  virtual int edge_point(uint u, uint v, uint t) {
+    return (past_->edge_point(u,v,t) || curr_->edge_point(u,v,t));
+  }
+
+  virtual int edge_weak(uint u, uint v, uint tstart, uint tend) {
+      return (past_->edge_weak(u,v,tstart,tend) || curr_->edge_weak(u,v,tstart,tend));
+  }
+  virtual int edge_strong(uint u, uint v, uint tstart, uint tend) {
+      return (past_->edge_strong(u,v,tstart,tend) || curr_->edge_strong(u,v,tstart,tend));
+  }
+  virtual int edge_next(uint u, uint v, uint t) {
+    //return cqtree->edge_next(u,v,t);
+    return 0;
+  }
+
+  virtual unsigned long snapshot(uint t) {
+      return past_->snapshot(t) + curr_->snapshot(t);
+  }
+
+  virtual unsigned long contacts() {
+      return past_->contacts() + curr_->contacts();
+  }
+
+  IntervalContactGraph *past_;
+  GrowingContactGraph *curr_;
+
+};
+
 
 #endif /* TEMPORALGRAPH_H_ */
