@@ -118,11 +118,11 @@ class RamModel {
 
 class RamModel {
  public:
-    void RamModel(const char *name) {}
+    RamModel(const char *name) {}
     void rank(size_t k=1) {}
     void access(size_t k=1) {}
     void select(size_t k=1) {}
-    void print() {}
+    void print(const char *b="\n") {}
     void clear() {}
 };
 
