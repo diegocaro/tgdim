@@ -34,11 +34,14 @@ enum typeds {
   ePRWhite,
   eMXDepth,
   eMXFixed,
+  ePRB2Black
 };
 
 struct opts {
   enum bitseq bs;  //bits for T bitmaps (tree)
   enum bitseq bb;  //bits for B bitmaps (leaves)
+  enum bitseq bc;  //bits for C bitmaps (count leaves)
+
   enum typeds ds;  //type of compact qtree
   const char *outfile;
 
@@ -49,6 +52,7 @@ struct opts {
 
   int k1;
   int k2;
+  int F;
   int lk1;  //levels for k1
   int lki;  //levels for ki
   int lf;  //levels for fixed mx

@@ -10,7 +10,8 @@
 //#include "MXCompactQtree.h"
 //#include "MXCompactQtreeFixed.h"
 //#include "PRBCompactQtree.h"
-#include "PRWCompactQtree.h"
+//#include "PRWCompactQtree.h"
+#include "PRB2CompactQtree.h"
 
 using namespace cqtree_static;
 using namespace cqtree_utils;
@@ -41,10 +42,11 @@ int main() {
 
     assert(contacts == vp.size());
     BitSequenceBuilderRG rg(20);
-    PRWCompactQtree a(vp, &rg, &rg, 4,2,1,0);
+    //PRWCompactQtree a(vp, &rg, &rg, 4,2,1,0);
     //MXCompactQtree a(vp, &rg, 4,2,0,0);
     //MXCompactQtreeFixed a(vp, &rg, &rg, 4,2,0,0);
     //PRBCompactQtree a(vp, &rg, &rg, 4,2,1,0);
+    PRB2CompactQtree a(vp, &rg, &rg, 2,2,0,0);
     size_t items=0;
 
     vector<Point<uint> > vpall;

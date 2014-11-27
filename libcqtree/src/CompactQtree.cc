@@ -18,6 +18,7 @@ CompactQtree * CompactQtree::load(ifstream & fp) {
       case MXQDPT_SAV: return new MXCompactQtree(fp);
       case MXQFIX_SAV: return new MXCompactQtreeFixed(fp);
       case PRQBLK_SAV: return new PRBCompactQtree(fp);
+      case PRQBLK2_SAV: return new PRB2CompactQtree(fp);
       //case PRQWHT_SAV: return new PRWCompactQtree(fp);
     }
     return NULL;

@@ -131,7 +131,7 @@ class RamModel {
 
 static RamModel bitmapT("T");
 static RamModel bitmapB("B");
-
+static RamModel bitmapC("C");
 }
 
 
