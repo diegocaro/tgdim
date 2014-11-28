@@ -35,6 +35,42 @@
 using namespace cds_static;
 using namespace cqtree_static;
 
+
+
+BitSequenceBuilder* getBSBuilder(string e) {
+    BitSequenceBuilder *bs=NULL;
+    //factor=2 => overhead 50%
+    //factor=3 => overhead 33%
+    //factor=4 => overhead 25%
+    //factor=20=> overhead 5%
+    if (e == "RG5") {
+        bs = new BitSequenceBuilderRG(20);  // by default, 5% of extra space for bitmaps
+    } else if (e == "RG25") {
+        bs = new BitSequenceBuilderRG(4);  //  25% of extra space for bitmaps
+    } else if (e == "RG33") {
+        bs = new BitSequenceBuilderRG(3);  //33% of extra space for bitmaps
+    } else if (e == "RRR") {
+        bs = new BitSequenceBuilderRRR(32);  // DEFAULT_SAMPLING for RRR is 32
+    } else if (e == "SD") {
+        bs = new BitSequenceBuilderSDArray();  // ?
+    } else if (e == "SRRR15") {
+        bs = new BitSequenceBuilder_SDSL_RRR_15();
+    } else if (e == "SRRR31") {
+        bs = new BitSequenceBuilder_SDSL_RRR_31();
+    } else if (e == "SRRR63") {
+        bs = new BitSequenceBuilder_SDSL_RRR_63();
+    } else if (e == "SRRR127") {
+        bs = new BitSequenceBuilder_SDSL_RRR_127();
+    } else if (e == "SRRR255") {
+        bs = new BitSequenceBuilder_SDSL_RRR_255();
+    } else {
+        return NULL;
+    }
+
+    return bs;
+}
+
+
 void printsettings(struct opts *opts) {
   switch (opts->typegraph) {
     case kGrowth:
@@ -69,6 +105,14 @@ void printsettings(struct opts *opts) {
       break;
   }
 
+//  printf("params_char = '%s'\n",opts->params_char);
+//  for(map<string,string>::iterator it=opts->params.begin(); it != opts->params.end(); ++it) {
+//      cout << "params[" << it->first << "] = " << it->second << endl;
+//  }
+  printf("T: %s\n",opts->params["T"].c_str());
+  printf("B: %s\n",opts->params["B"].c_str());
+  printf("C: %s\n",opts->params["C"].c_str());
+
   printf("k1: %d\n",opts->k1);
   printf("k2: %d\n",opts->k2);
 
@@ -78,315 +122,136 @@ void printsettings(struct opts *opts) {
 
   printf("F: %d\n", opts->F);
 
-  switch (opts->bb) {
-    case eRG:
-      printf("libcds RG for T bits\n");
-      break;
-    case eRRR:
-      printf("libcds RRR for T bits\n");
-      break;
-    case eSD:
-      printf("libcds SDarray for T bits\n");
-      break;
-    case eSDSL_RRR15:
-   	 printf("sdsl RRR (bs=15) for T bits\n");
-	break;
-    case eSDSL_RRR31:
-   	 printf("sdsl RRR (bs=31) for T bits\n");
-	break;
-    case eSDSL_RRR63:
-   	 printf("sdsl RRR (bs=63) for T bits\n");
-	break;
-    case eSDSL_RRR127:
-   	 printf("sdsl RRR (bs=127) for T bits\n");
-	break;
-    case eSDSL_RRR255:
-   	 printf("sdsl RRR (bs=255) for T bits\n");
-	break;
-  }
-
-  switch (opts->bs) {
-    case eRG:
-      printf("RG for B bits\n");
-      break;
-    case eRRR:
-      printf("RRR for B bits\n");
-      break;
-    case eSD:
-      printf("SDarray for B bits\n");
-      break;
-      case eSDSL_RRR15:
-     	 printf("sdsl RRR (bs=15) for B bits\n");
-  	break;
-      case eSDSL_RRR31:
-     	 printf("sdsl RRR (bs=31) for B bits\n");
-  	break;
-      case eSDSL_RRR63:
-     	 printf("sdsl RRR (bs=63) for B bits\n");
-  	break;
-      case eSDSL_RRR127:
-     	 printf("sdsl RRR (bs=127) for B bits\n");
-  	break;
-      case eSDSL_RRR255:
-     	 printf("sdsl RRR (bs=255) for B bits\n");
-  	break;
-  }
-
-  switch (opts->bc) {
-    case eRG:
-      printf("RG for C bits\n");
-      break;
-    case eRRR:
-      printf("RRR for C bits\n");
-      break;
-    case eSD:
-      printf("SDarray for C bits\n");
-      break;
-      case eSDSL_RRR15:
-         printf("sdsl RRR (bs=15) for C bits\n");
-    break;
-      case eSDSL_RRR31:
-         printf("sdsl RRR (bs=31) for C bits\n");
-    break;
-      case eSDSL_RRR63:
-         printf("sdsl RRR (bs=63) for C bits\n");
-    break;
-      case eSDSL_RRR127:
-         printf("sdsl RRR (bs=127) for C bits\n");
-    break;
-      case eSDSL_RRR255:
-         printf("sdsl RRR (bs=255) for C bits\n");
-    break;
-  }
-
 
   printf("Reading input file '%s'\n",opts->infile);
 
 }
-int readflags(struct opts *opts, char *flags) {
-  // "k1,k2,lk1,lkf,lf"
-  vector<string> f;
-  tokenize(flags,f,',');
+void readflags(struct opts *opts, const char *flags) {
+    strcpy(opts->params_char,flags);
+    vector<string> s;
+    tokenize(flags,s,',');
 
-  if (f.size() < 4) {
-    return -1; //error
-  }
-
-  opts->k1 = atoi(f[0].c_str());
-  opts->k2 = atoi(f[1].c_str());
-  opts->lk1 = atoi(f[2].c_str());
-  opts->lki = atoi(f[3].c_str());
-
-  if (f.size() >= 5) {
-      opts->lf = atoi(f[4].c_str());
-      opts->F = atoi(f[5].c_str());
+    for(int i = 0; i < s.size(); i++) {
+        vector<string> u;
+        tokenize(s[i],u,':');
+        opts->params[u[0]] = u[1];
     }
 
-  return f.size();
+    opts->k1 = atoi(opts->params["k1"].c_str());
+    opts->k2 = atoi(opts->params["k2"].c_str());
+    opts->lk1 = atoi(opts->params["lk1"].c_str());
+    opts->lki = atoi(opts->params["lki"].c_str());
+    opts->lf = atoi(opts->params["lf"].c_str());
+    opts->F = atoi(opts->params["F"].c_str());
 }
 
 int readopts(int argc, char **argv, struct opts *opts) {
-  int o;
+    int o;
 
-  int fflags = 0;
-  int dsflag = 0;
-  // Default options
-  opts->infile = "-";
+    int dsflag = 0;
 
-  opts->bs = eRG;
-  opts->bb = eRG;
-  opts->bc = eRG;
+    // Default options
+    opts->infile = "-";
 
-  opts->typegraph = kInterval;
+    const char *def_params = "T:RG5,B:RG5,C:RG5,k1:4,k2:2,lk1:0,lki:0,F:2,lf:1";
+    readflags(opts, def_params);
 
-  opts->k1 = 4;
-  opts->k2 = 2;
+    opts->typegraph = kInterval;
 
-  opts->lk1 = 0;
-  opts->lki = 0;
-
-  opts->F = 2;
-
-  opts->lf = 1;
-
-  while ((o = getopt(argc, argv, "t:b:c:s:g:f:i:")) != -1) {
-    switch (o) {
-      case 't':
-        if (strcmp(optarg, "RG") == 0) {
-          INFO("Using RG for T bitmaps");
-          opts->bs = eRG;
-        } else if (strcmp(optarg, "RRR") == 0) {
-          INFO("Using RRR for T bitmaps");
-          opts->bs = eRRR;
-        } else if (strcmp(optarg, "SD") == 0) {
-          INFO("Using SDarray for T bitmaps");
-          opts->bs = eSD;
-        } else if (strcmp(optarg, "SRRR15") == 0) {
-            INFO("Using SDSL RRR (bs=15) for T bitmaps");
-            opts->bs = eSDSL_RRR15;
+    while ((o = getopt(argc, argv, "s:g:f:i:")) != -1) {
+        switch (o) {
+            case 's':
+                dsflag = 1;
+                if (strcmp(optarg, "PRW") == 0) {
+                    INFO("Using PRWhite");
+                    opts->ds = ePRWhite;
+                } else if (strcmp(optarg, "PRB") == 0) {
+                    INFO("Using PRBlack");
+                    opts->ds = ePRBlack;
+                } else if (strcmp(optarg, "MXD") == 0) {
+                    INFO("Using MXDepth");
+                    opts->ds = eMXDepth;
+                } else if (strcmp(optarg, "MXF") == 0) {
+                    INFO("Using MXFixed");
+                    opts->ds = eMXFixed;
+                } else if (strcmp(optarg, "PRB2") == 0) {
+                    INFO("Using PRB2Black");
+                    opts->ds = ePRB2Black;
+                } else {
+                    dsflag = 0;
+                }
+                break;
+            case 'g':
+                if (strcmp(optarg, "I") == 0) {
+                    INFO("Interval-contact Temporal Graph");
+                    opts->typegraph = kInterval;
+                } else if (strcmp(optarg, "P") == 0) {
+                    INFO("Point-contact Temporal Graph");
+                    opts->typegraph = kPoint;
+                } else if (strcmp(optarg, "G") == 0) {
+                    INFO("Growing Temporal Graph");
+                    opts->typegraph = kGrowth;
+                } else if (strcmp(optarg, "R") == 0) {
+                    INFO("Interval Pro");
+                    opts->typegraph = kIntervalPro;
+                }
+                break;
+            case 'f':
+                readflags(opts, optarg);
+                break;
+            case 'i':
+                opts->infile = optarg;
+                break;
+            default: /* '?' */
+                break;
         }
-		else if (strcmp(optarg, "SRRR31") == 0) {
-            INFO("Using SDSL RRR (bs=31) for T bitmaps");
-            opts->bs = eSDSL_RRR31;
-        }
-		else if (strcmp(optarg, "SRRR63") == 0) {
-			INFO("Using SDSL RRR (bs=63) for T bitmaps");
-			opts->bs = eSDSL_RRR63;
-		}
-		else if (strcmp(optarg, "SRRR127") == 0) {
-			INFO("Using SDSL RRR (bs=127) for T bitmaps");
-			opts->bs = eSDSL_RRR127;
-		}
-		else if (strcmp(optarg, "SRRR255") == 0) {
-			INFO("Using SDSL RRR (bs=255) for T bitmaps");
-			opts->bs = eSDSL_RRR255;
-		}
-        break;
-      case 'b':
-        if (strcmp(optarg, "RG") == 0) {
-          INFO("Using RG for B bitmaps");
-          opts->bb = eRG;
-        } else if (strcmp(optarg, "RRR") == 0) {
-          INFO("Using RRR for B bitmaps");
-          opts->bb = eRRR;
-        } else if (strcmp(optarg, "SD") == 0) {
-          INFO("Using SDarray for B bitmaps");
-          opts->bb = eSD;
-        } else if (strcmp(optarg, "SRRR15") == 0) {
-            INFO("Using SDSL RRR (bs=15) for B bitmaps");
-            opts->bb = eSDSL_RRR15;
-        }
-		else if (strcmp(optarg, "SRRR31") == 0) {
-            INFO("Using SDSL RRR (bs=31) for B bitmaps");
-            opts->bb = eSDSL_RRR31;
-        }
-		else if (strcmp(optarg, "SRRR63") == 0) {
-			INFO("Using SDSL RRR (bs=63) for B bitmaps");
-			opts->bb = eSDSL_RRR63;
-		}
-		else if (strcmp(optarg, "SRRR127") == 0) {
-			INFO("Using SDSL RRR (bs=127) for B bitmaps");
-			opts->bb = eSDSL_RRR127;
-		}
-		else if (strcmp(optarg, "SRRR255") == 0) {
-			INFO("Using SDSL RRR (bs=255) for B bitmaps");
-			opts->bb = eSDSL_RRR255;
-		}
-        break;
-      case 'c':
-         if (strcmp(optarg, "RG") == 0) {
-           INFO("Using RG for C bitmaps");
-           opts->bc = eRG;
-         } else if (strcmp(optarg, "RRR") == 0) {
-           INFO("Using RRR for C bitmaps");
-           opts->bc = eRRR;
-         } else if (strcmp(optarg, "SD") == 0) {
-           INFO("Using SDarray for C bitmaps");
-           opts->bc = eSD;
-         } else if (strcmp(optarg, "SRRR15") == 0) {
-             INFO("Using SDSL RRR (bs=15) for C bitmaps");
-             opts->bc = eSDSL_RRR15;
-         }
-         else if (strcmp(optarg, "SRRR31") == 0) {
-             INFO("Using SDSL RRR (bs=31) for C bitmaps");
-             opts->bc = eSDSL_RRR31;
-         }
-         else if (strcmp(optarg, "SRRR63") == 0) {
-             INFO("Using SDSL RRR (bs=63) for C bitmaps");
-             opts->bc = eSDSL_RRR63;
-         }
-         else if (strcmp(optarg, "SRRR127") == 0) {
-             INFO("Using SDSL RRR (bs=127) for C bitmaps");
-             opts->bc = eSDSL_RRR127;
-         }
-         else if (strcmp(optarg, "SRRR255") == 0) {
-             INFO("Using SDSL RRR (bs=255) for C bitmaps");
-             opts->bc = eSDSL_RRR255;
-         }
-         break;
-      case 's':
-        dsflag = 1;
-        if (strcmp(optarg, "PRW") == 0) {
-          INFO("Using PRWhite");
-          opts->ds = ePRWhite;
-        } else if (strcmp(optarg, "PRB") == 0) {
-          INFO("Using PRBlack");
-          opts->ds = ePRBlack;
-        } else if (strcmp(optarg, "MXD") == 0) {
-          INFO("Using MXDepth");
-          opts->ds = eMXDepth;
-        } else if (strcmp(optarg, "MXF") == 0) {
-          INFO("Using MXFixed");
-          opts->ds = eMXFixed;
-        } else if (strcmp(optarg, "PRB2") == 0) {
-            INFO("Using PRB2Black");
-            opts->ds = ePRB2Black;
-        }
-        else {
-          dsflag = 0;
-        }
-        break;
-      case 'g':
-        if (strcmp(optarg, "I") == 0) {
-          INFO("Interval-contact Temporal Graph");
-          opts->typegraph = kInterval;
-        } else if (strcmp(optarg, "P") == 0) {
-          INFO("Point-contact Temporal Graph");
-          opts->typegraph = kPoint;
-        } else if (strcmp(optarg, "G") == 0) {
-          INFO("Growing Temporal Graph");
-          opts->typegraph = kGrowth;
-        }
-        else if (strcmp(optarg, "R") == 0) {
-            INFO("Interval Pro");
-            opts->typegraph = kIntervalPro;
-          }
-        break;
-      case 'f':
-        fflags = readflags(opts,optarg);
-        break;
-      case 'i':
-        opts->infile = optarg;
-        break;
-      default: /* '?' */
-        break;
     }
-  }
 
-  if (optind >= argc || (argc - optind) < 1 || dsflag == 0 || fflags == -1
-      || (opts->lf == 0 && opts->ds == eMXFixed)) {
-    fprintf(stderr,
-        "%s -s {MXD,MXF,PRB,PRW,PRB2} [-f k1,k2,lk1,lki,lf,F] [-g I,P,G] [-t RG,RRR,SD,SRRR15] [-b RG,RRR,SD,SRRR15] [-c RG,RRR,SD,SRRR15] [-i <inputfile>] <outputfile> \n",
-        argv[0]);
-    fprintf(stderr, "Expected data structure (-s):\n");
-    fprintf(stderr, "\tMXD for MatriX Quadtree (automatic depth)\n");
-    fprintf(stderr, "\tMXF for MatriX Quadtree Fixed Depth\n");
-    fprintf(stderr, "\tPRB for Point Region Quadtree Leaves as Black Nodes\n");
-    fprintf(stderr, "\tPRB2 for Point Region Quadtree Leaves as Black Nodes (variable)\n");
-    fprintf(stderr, "\tPRW for Point Region Quadtree Leaves as White Nodes\n");
+    opts->bs = getBSBuilder(opts->params["T"]);
+    opts->bb = getBSBuilder(opts->params["B"]);
+    opts->bc = getBSBuilder(opts->params["C"]);
 
-    fprintf(stderr, "\nExpected data structure flags (-f k1,k2,lk1,lki,lf,F):\n");
-    fprintf(stderr,  "\t lk1 set the number of levels using k1\n");
-    fprintf(stderr,  "\t lk1 set the number of levels using half dimensions\n");
-    fprintf(stderr,  "\t lf set the number of fixed levels (MXF only)\n");
-    fprintf(stderr,  "\t F set the maximum number of leaves (PRB2 only)\n");
+    if (optind >= argc || (argc - optind) < 1 || dsflag == 0 || opts->bs == NULL || opts->bb == NULL || opts->bc == NULL
+            || (opts->lf == 0 && opts->ds == eMXFixed)) {
+        fprintf(stderr,
+                "%s -s {MXD,MXF,PRB,PRW,PRB2} [-f k1,k2,lk1,lki,lf,F] [-g I,P,G] [-i <inputfile>] <outputfile> \n",
+                argv[0]);
+        fprintf(stderr, "Expected data structure (-s):\n");
+        fprintf(stderr, "\tMXD for MatriX Quadtree (automatic depth)\n");
+        fprintf(stderr, "\tMXF for MatriX Quadtree Fixed Depth\n");
+        fprintf(stderr,
+                "\tPRB for Point Region Quadtree Leaves as Black Nodes\n");
+        fprintf(stderr,
+                "\tPRB2 for Point Region Quadtree Leaves as Black Nodes (variable)\n");
+        fprintf(stderr,
+                "\tPRW for Point Region Quadtree Leaves as White Nodes\n");
 
-    fprintf(stderr, "\nExpected type of graph (-g):\n");
-    fprintf(stderr, "\tI for Interval-contact Temporal Graph\n");
-    fprintf(stderr, "\tP for Point-contact Temporal Graph\n");
-    fprintf(stderr, "\tG for Growing Temporal Graph\n");
-    fprintf(stderr, "\tR for Interval Pro Graph\n");
+        fprintf(stderr,
+                "\nExpected data structure flags (-f k1:2,k2:2,lk1:0,lki:1,lf:2,F:2,T:RG,B:RG,C:RG):\n");
+        fprintf(stderr, "\t lk1 set the number of levels using k1\n");
+        fprintf(stderr,
+                "\t lk1 set the number of levels using half dimensions\n");
+        fprintf(stderr, "\t lf set the number of fixed levels (MXF only)\n");
+        fprintf(stderr, "\t F set the maximum number of leaves (PRB2 only)\n");
+        fprintf(stderr, "\t T,B and C can be of type  {RG,RRR,SD,SRRR15}\n");
 
-    fprintf(stderr, "\nExpected input file -i input file can be set to '-' to read stdin\n");
+        fprintf(stderr, "\nExpected type of graph (-g):\n");
+        fprintf(stderr, "\tI for Interval-contact Temporal Graph\n");
+        fprintf(stderr, "\tP for Point-contact Temporal Graph\n");
+        fprintf(stderr, "\tG for Growing Temporal Graph\n");
+        fprintf(stderr, "\tR for Interval Pro Graph\n");
 
-    fprintf(stderr, "\nExpected argument after options\n");
-    fprintf(stderr, "\t<outputfile> destination file\n");
-    exit(EXIT_FAILURE);
-  }
+        fprintf(stderr,
+                "\nExpected input file -i input file can be set to '-' to read stdin\n");
 
-  opts->outfile = argv[optind];
+        fprintf(stderr, "\nExpected argument after options\n");
+        fprintf(stderr, "\t<outputfile> destination file\n");
+        exit(EXIT_FAILURE);
+    }
 
-  return optind;
+    opts->outfile = argv[optind];
+
+    return optind;
 
 }
 
@@ -482,109 +347,23 @@ int main(int argc, char *argv[]) {
   fclose(infile);
   assert(readcontacts == contacts);
 
-
-
-  BitSequenceBuilder *bs=NULL;
-  switch(opts.bs) {
-  case eRG:
-	  bs = new BitSequenceBuilderRG(20); // by default, 5% of extra space for bitmaps
-	  break;
-  case eRRR:
-	  bs = new BitSequenceBuilderRRR(32); // DEFAULT_SAMPLING for RRR is 32
-	  break;
-  case eSD:
-      bs = new BitSequenceBuilderSDArray(); // ?
-      break;
-  case eSDSL_RRR15:
-      bs = new BitSequenceBuilder_SDSL_RRR_15();
-	  break;
-	  case eSDSL_RRR31:
-	  bs = new BitSequenceBuilder_SDSL_RRR_31();
-	  break;
-	  case eSDSL_RRR63:
-	  bs = new BitSequenceBuilder_SDSL_RRR_63();
-	  break;
-	  case eSDSL_RRR127:
-	  bs = new BitSequenceBuilder_SDSL_RRR_127();
-	  break;
-	  case eSDSL_RRR255:
-	  bs = new BitSequenceBuilder_SDSL_RRR_255();
-	  break;
-  }
-
-  BitSequenceBuilder *bb=NULL;
-  switch(opts.bb) {
-  case eRG:
-    bb = new BitSequenceBuilderRG(20); // by default, 5% of extra space for bitmaps
-    break;
-  case eRRR:
-    bb = new BitSequenceBuilderRRR(32); // DEFAULT_SAMPLING for RRR is 32
-    break;
-  case eSD:
-      bb = new BitSequenceBuilderSDArray(); // ?
-      break;
-	  case eSDSL_RRR15:
-	      bb = new BitSequenceBuilder_SDSL_RRR_15();
-		  break;
-		  case eSDSL_RRR31:
-		  bb = new BitSequenceBuilder_SDSL_RRR_31();
-		  break;
-		  case eSDSL_RRR63:
-		  bb = new BitSequenceBuilder_SDSL_RRR_63();
-		  break;
-		  case eSDSL_RRR127:
-		  bb = new BitSequenceBuilder_SDSL_RRR_127();
-		  break;
-		  case eSDSL_RRR255:
-		  bb = new BitSequenceBuilder_SDSL_RRR_255();
-		  break;
-  }
-
-  BitSequenceBuilder *bc=NULL;
-  switch(opts.bc) {
-  case eRG:
-    bc = new BitSequenceBuilderRG(20); // by default, 5% of extra space for bitmaps
-    break;
-  case eRRR:
-      bc = new BitSequenceBuilderRRR(32); // DEFAULT_SAMPLING for RRR is 32
-    break;
-  case eSD:
-      bc = new BitSequenceBuilderSDArray(); // ?
-      break;
-      case eSDSL_RRR15:
-          bc = new BitSequenceBuilder_SDSL_RRR_15();
-          break;
-          case eSDSL_RRR31:
-              bc = new BitSequenceBuilder_SDSL_RRR_31();
-          break;
-          case eSDSL_RRR63:
-              bc = new BitSequenceBuilder_SDSL_RRR_63();
-          break;
-          case eSDSL_RRR127:
-              bc = new BitSequenceBuilder_SDSL_RRR_127();
-          break;
-          case eSDSL_RRR255:
-              bc = new BitSequenceBuilder_SDSL_RRR_255();
-          break;
-  }
-
   CompactQtree *cq;
 
   switch(opts.ds) {
     case ePRBlack:
-      cq = new PRBCompactQtree(vp,bs,bb,opts.k1,opts.k2,opts.lk1,opts.lki);
+      cq = new PRBCompactQtree(vp,opts.bs,opts.bb,opts.k1,opts.k2,opts.lk1,opts.lki);
       break;
     case ePRB2Black:
-          cq = new PRB2CompactQtree(vp,bs,bb,bc,opts.k1,opts.k2,opts.F,opts.lk1,opts.lki);
+          cq = new PRB2CompactQtree(vp,opts.bs,opts.bb,opts.bc,opts.k1,opts.k2,opts.F,opts.lk1,opts.lki);
           break;
 //    case ePRWhite:
 //      cq = new PRWCompactQtree(vp,bs,bb,opts.k1,opts.k2,opts.lk1,opts.lki);
 //      break;
     case eMXDepth:
-      cq = new MXCompactQtree(vp,bs,opts.k1,opts.k2,opts.lk1,opts.lki);
+      cq = new MXCompactQtree(vp,opts.bs,opts.k1,opts.k2,opts.lk1,opts.lki);
       break;
     case eMXFixed:
-      cq = new MXCompactQtreeFixed(vp,bs,bb,opts.k1,opts.k2,opts.lk1,opts.lki,opts.lf);
+      cq = new MXCompactQtreeFixed(vp,opts.bs,opts.bb,opts.k1,opts.k2,opts.lk1,opts.lki,opts.lf);
       break;
   }
 
@@ -629,19 +408,19 @@ int main(int argc, char *argv[]) {
 
         switch(opts.ds) {
           case ePRBlack:
-              cqcurr = new PRBCompactQtree(vpcurr,bs,bb,opts.k1,opts.k2,opts.lk1,opts.lki);
+              cqcurr = new PRBCompactQtree(vpcurr,opts.bs,opts.bb,opts.k1,opts.k2,opts.lk1,opts.lki);
             break;
           case ePRB2Black:
-              cqcurr = new PRB2CompactQtree(vpcurr,bs,bb,bc,opts.k1,opts.k2,opts.F,opts.lk1,opts.lki);
+              cqcurr = new PRB2CompactQtree(vpcurr,opts.bs,opts.bb,opts.bc,opts.k1,opts.k2,opts.F,opts.lk1,opts.lki);
                 break;
       //    case ePRWhite:
       //      cq = new PRWCompactQtree(vp,bs,bb,opts.k1,opts.k2,opts.lk1,opts.lki);
       //      break;
           case eMXDepth:
-              cqcurr = new MXCompactQtree(vpcurr,bs,opts.k1,opts.k2,opts.lk1,opts.lki);
+              cqcurr = new MXCompactQtree(vpcurr,opts.bs,opts.k1,opts.k2,opts.lk1,opts.lki);
             break;
           case eMXFixed:
-              cqcurr = new MXCompactQtreeFixed(vpcurr,bs,bb,opts.k1,opts.k2,opts.lk1,opts.lki,opts.lf);
+              cqcurr = new MXCompactQtreeFixed(vpcurr,opts.bs,opts.bb,opts.k1,opts.k2,opts.lk1,opts.lki,opts.lf);
             break;
         }
 
@@ -696,9 +475,6 @@ int main(int argc, char *argv[]) {
          tg->save(file);
 
          file.close();
-
-         delete bb;
-         delete bs;
 
          delete tg;
 

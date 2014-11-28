@@ -12,17 +12,6 @@
 
 #include <CompactQtree.h>
 
-enum bitseq {
-  eRG, //libcds
-  eRRR, //libcds
-  eSD, //libcds
-  eSDSL_RRR15, //sdsl RRR blocksize 15
-  eSDSL_RRR31,
-  eSDSL_RRR63,
-  eSDSL_RRR127,
-  eSDSL_RRR255
-};
-
 enum TypeGraph {
   kInterval,
   kGrowth,
@@ -39,17 +28,21 @@ enum typeds {
 };
 
 struct opts {
-  enum bitseq bs;  //bits for T bitmaps (tree)
-  enum bitseq bb;  //bits for B bitmaps (leaves)
-  enum bitseq bc;  //bits for C bitmaps (count leaves)
+  BitSequenceBuilder *bs;  //bits for T bitmaps (tree)
+  BitSequenceBuilder *bb;  //bits for B bitmaps (leaves)
+  BitSequenceBuilder *bc;  //bits for C bitmaps (count leaves)
 
   enum typeds ds;  //type of compact qtree
+  enum TypeGraph typegraph;
+
   const char *outfile;
 
   /* Name of input file.  May be "-".  */
   const char *infile;
 
-  enum TypeGraph typegraph;
+  /* string parameters*/
+  char params_char[255];
+  map<string,string> params;
 
   int k1;
   int k2;
