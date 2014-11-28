@@ -1,9 +1,13 @@
 TYPEGRAPH=$1
-PARAMS=$2
-INPUT=$3
-OUTPUT=$4
+BITT=$2
+BITB=$3
+BITC=$4
+INPUT=$5
+OUTPUT=$6
 
-echo Params $PARAMS
+echo BitmapT $BITT
+echo BitmapB $BITB
+echo BitmapC $BITC
 echo Typegraph $TYPEGRAPH
 echo Reading $INPUT
 
@@ -12,10 +16,10 @@ LEVELS=`python -c "import math; h = '$HEADER'.split(); print int(math.ceil(math.
 
 #for ((lf=4; lf <= $LEVELS; lf+=4 ))
 #do
-#    OUTFILE=$OUTPUT-$PARAMS.mxf
+#    OUTFILE=$OUTPUT-2,2,0,0,$lf,0-$BITT-$BITB.mxf
 #	if [ ! -f "$OUTFILE" ]; then
 #    echo Creating $OUTFILE
-#    gzcat $INPUT | ./create -s MXF -g $TYPEGRAPH -f $PARAMS $OUTFILE
+#    gzcat $INPUT | ./create -s MXF -g $TYPEGRAPH -f k1:2,k2:2,lk1:0,lki:$lki,lf:0,F:0,T:$BITT,B:$BITB,C:$BITC $OUTFILE
 #	fi
 #done
 
@@ -23,30 +27,30 @@ for ((l=0; l <= $LEVELS; l+=4 ))
 do
     lki=$((l*2))
     
-    OUTFILE=$OUTPUT-$PARAMS.mxd
+    OUTFILE=$OUTPUT-2,2,0,$lki,0,0-$BITT-$BITB.mxd
 	if [ ! -f "$OUTFILE" ]; then
 		echo Creating $OUTFILE
-		gzcat $INPUT | ./create -s MXD -g $TYPEGRAPH -f $PARAMS $OUTFILE
+		gzcat $INPUT | ./create -s MXD -g $TYPEGRAPH -f k1:2,k2:2,lk1:0,lki:$lki,lf:0,F:0,T:$BITT,B:$BITB,C:$BITC $OUTFILE
 	fi
 	
-    OUTFILE=$OUTPUT-$PARAMS.prb
+    OUTFILE=$OUTPUT-2,2,0,$lki,0,0-$BITT-$BITB.prb
     if [ ! -f "$OUTFILE" ]; then
 		echo Creating $OUTFILE
-		gzcat $INPUT | ./create -s PRB -g $TYPEGRAPH -f $PARAMS $OUTFILE
+		gzcat $INPUT | ./create -s PRB -g $TYPEGRAPH -f k1:2,k2:2,lk1:0,lki:$lki,lf:0,F:0,T:$BITT,B:$BITB,C:$BITC $OUTFILE
 	fi
 	
     for((F=2; F <= 16; F+=2 ))
     do
-        OUTFILE=$OUTPUT-$PARAMS.prb2
+        OUTFILE=$OUTPUT-2,2,0,$lki,0,$F-$BITT-$BITB-$BITC.prb2
 		if [ ! -f "$OUTFILE" ]; then
         	echo Creating $OUTFILE
-			gzcat $INPUT | ./create -s PRB2 -g $TYPEGRAPH -f $PARAMS $OUTFILE
+			gzcat $INPUT | ./create -s PRB2 -g $TYPEGRAPH -f k1:2,k2:2,lk1:0,lki:$lki,lf:0,F:$F,T:$BITT,B:$BITB,C:$BITC $OUTFILE
 		fi
     done
 	
 #    OUTFILE=$OUTPUT-2,2,0,$lki,0,0-$BITT-$BITB.prw
 #	if [ ! -f "$OUTFILE" ]; then
 #    echo Creating $OUTFILE
-#    gzcat $INPUT | ./create -s PRW -t $BITT -b $BITB -g $TYPEGRAPH -f 2,2,0,$lki,0,0 $OUTFILE
+#    gzcat $INPUT | ./create -s PRW -g $TYPEGRAPH -f k1:2,k2:2,lk1:0,lki:$lki,lf:0,F:0,T:$BITT,B:$BITB,C:$BITC $OUTFILE
 #	fi
 done
