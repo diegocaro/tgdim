@@ -39,18 +39,40 @@ do
     	echo "gzcat $INPUT | ./create -s PRB -g $TYPEGRAPH -f k1:2,k2:2,lk1:0,lki:$lki,lf:0,F:0,T:$BITT,B:$BITB,C:$BITC $OUTFILE"
 	fi
 	
-    for ((F=2; F <= 16; F += 2))
-    do
-        OUTFILE=$OUTPUT-2,2,0,$lki,0,$F-$BITT-$BITB-$BITC.prb2
-        if [ ! -f "$OUTFILE" ]; then
-			echo echo "Creating $OUTFILE"
-        	echo "gzcat $INPUT | ./create -s PRB2 -g $TYPEGRAPH -f k1:2,k2:2,lk1:0,lki:$lki,lf:0,F:$F,T:$BITT,B:$BITB,C:$BITC $OUTFILE"
-		fi
-    done
+#    for ((F=2; F <= 16; F += 2))
+#    do
+#        OUTFILE=$OUTPUT-2,2,0,$lki,0,$F-$BITT-$BITB-$BITC.prb2
+#        if [ ! -f "$OUTFILE" ]; then
+#			echo echo "Creating $OUTFILE"
+#        	echo "gzcat $INPUT | ./create -s PRB2 -g $TYPEGRAPH -f k1:2,k2:2,lk1:0,lki:$lki,lf:0,F:$F,T:$BITT,B:$BITB,C:$BITC $OUTFILE"
+#		fi
+#    done
     
 #   OUTFILE=$OUTPUT-2,2,0,$lki,0,0-$BITT-$BITB.prw
 #	if [ ! -f "$OUTFILE" ]; then
 #    echo echo "Creating $OUTFILE"
 #    echo "gzcat $INPUT | ./create -s PRW -g $TYPEGRAPH -f k1:2,k2:2,lk1:0,lki:$lki,lf:0,F:0,T:$BITT,B:$BITB,C:$BITC $OUTFILE"
 #	fi
+done
+
+
+for((F=2; F <= 16; F+=2 ))
+do
+    OUTFILE=$OUTPUT-2,2,0,0,0,$F-$BITT-$BITB-$BITC.prb2
+	if [ ! -f "$OUTFILE" ]; then
+    	echo echo Creating $OUTFILE
+		echo "gzcat $INPUT | ./create -s PRB2 -g $TYPEGRAPH -f k1:2,k2:2,lk1:0,lki:0,lf:0,F:$F,T:$BITT,B:$BITB,C:$BITC $OUTFILE"
+	fi
+	
+    OUTFILE=$OUTPUT-2,2,0,$(( LEVELS/2 )),0,$F-$BITT-$BITB-$BITC.prb2
+	if [ ! -f "$OUTFILE" ]; then
+    	echo echo Creating $OUTFILE
+		echo "gzcat $INPUT | ./create -s PRB2 -g $TYPEGRAPH -f k1:2,k2:2,lk1:0,lki:$(( LEVELS/2 )),lf:0,F:$F,T:$BITT,B:$BITB,C:$BITC $OUTFILE"
+	fi
+	
+    OUTFILE=$OUTPUT-2,2,0,$LEVELS,0,$F-$BITT-$BITB-$BITC.prb2
+	if [ ! -f "$OUTFILE" ]; then
+    	echo echo Creating $OUTFILE
+		echo "gzcat $INPUT | ./create -s PRB2 -g $TYPEGRAPH -f k1:2,k2:2,lk1:0,lki:$LEVELS,lf:0,F:$F,T:$BITT,B:$BITB,C:$BITC $OUTFILE"
+	fi
 done
