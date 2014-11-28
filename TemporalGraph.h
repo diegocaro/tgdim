@@ -784,7 +784,8 @@ class PointContactGraph : public TemporalGraph {
 
 };
 
-
+// @TODO this can be improved..., is ugly the way I mixed up the classes
+// to get an itnerval and growing graph
 class IntervalContactGraphImproved : public TemporalGraph {
  public:
     IntervalContactGraphImproved() {
