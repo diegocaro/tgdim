@@ -64,7 +64,7 @@ BitSequenceBuilder* getBSBuilder(string e) {
     } else if (e == "SRRR255") {
         bs = new BitSequenceBuilder_SDSL_RRR_255();
     } else {
-        fprintf(stderr, "Error: bitmap '%s' not found.\n",e);
+        fprintf(stderr, "Error: bitmap '%s' not found.\n",e.c_str());
         return NULL;
     }
 
