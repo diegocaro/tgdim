@@ -44,11 +44,11 @@ BitSequenceBuilder* getBSBuilder(string e) {
     //factor=4 => overhead 25%
     //factor=20=> overhead 5%
     if (e == "RG5") {
-        bs = new BitSequenceBuilderRG(20);  // by default, 5% of extra space for bitmaps
+        bs = new BitSequenceBuilderRG(20);  // by default, 5% of extra space for bitmaps -- cada 20*32=640 bits
     } else if (e == "RG25") {
-        bs = new BitSequenceBuilderRG(4);  //  25% of extra space for bitmaps
+        bs = new BitSequenceBuilderRG(4);  //  25% of extra space for bitmaps -- cada 4*32=128 bits
     } else if (e == "RG33") {
-        bs = new BitSequenceBuilderRG(3);  //33% of extra space for bitmaps
+        bs = new BitSequenceBuilderRG(3);  //33% of extra space for bitmaps -- cada 3*32=96 bits
     } else if (e == "RRR") {
         bs = new BitSequenceBuilderRRR(32);  // DEFAULT_SAMPLING for RRR is 32
     } else if (e == "SD") {
@@ -63,7 +63,14 @@ BitSequenceBuilder* getBSBuilder(string e) {
         bs = new BitSequenceBuilder_SDSL_RRR_127();
     } else if (e == "SRRR255") {
         bs = new BitSequenceBuilder_SDSL_RRR_255();
-    } else {
+    } else if (e == "SIL512") {
+        bs = new BitSequenceBuilder_SDSL_IL_512(); //interleaved block size cada 512
+    } else if (e == "SIL1024") {
+        bs = new BitSequenceBuilder_SDSL_IL_1024(); //interleaved block size cada 1024
+    } else if (e == "SIL128") {
+        bs = new BitSequenceBuilder_SDSL_IL_128(); //interleaved block size cada 128 bits
+    }
+    else {
         fprintf(stderr, "Error: bitmap '%s' not found.\n",e.c_str());
         return NULL;
     }
