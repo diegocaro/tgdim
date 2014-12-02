@@ -230,29 +230,29 @@ MXCompactQtree::MXCompactQtree(vector<Point<uint> > &vp,
     //maxvalue_ = mypow(k1_,levels_k1_) * mypow(k2_,levels_k2_);
     LOG("max value: %u",maxvalue_);
 
-    printf("Sorting...\n");
-    // we need to sort, this is why we cannot set "vector<T> &vp" to be const.
-    if ((levels_k1_ == 0 && k2_ == 2 ) || (k1_==2 && k2_==2)) {
-        bool is_sorted = true;
-        for (size_t i = 1; i < vp.size(); i++) {
-            if (Point<uint>::cmpmorton(vp[i - 1], vp[i]) == false) {
-                is_sorted = false;
-                break;
-            }
-        }
-
-        if (!is_sorted) {
-            std::sort(vp.begin(), vp.end(), Point<uint>::cmpmorton);  //sorting using morton only for k=2
-        }
-        else {
-            printf("Sequence is sorted!\n");
-        }
-    }
-    else {
-    // but as we are using different values of k and more modifications...
-      std::sort(vp.begin(), vp.end(),Less(*this));
-    }
-    printf("Done!\n");
+//    printf("Sorting...\n");
+//    // we need to sort, this is why we cannot set "vector<T> &vp" to be const.
+//    if ((levels_k1_ == 0 && k2_ == 2 ) || (k1_==2 && k2_==2)) {
+//        bool is_sorted = true;
+//        for (size_t i = 1; i < vp.size(); i++) {
+//            if (Point<uint>::cmpmorton(vp[i - 1], vp[i]) == false) {
+//                is_sorted = false;
+//                break;
+//            }
+//        }
+//
+//        if (!is_sorted) {
+//            std::sort(vp.begin(), vp.end(), Point<uint>::cmpmorton);  //sorting using morton only for k=2
+//        }
+//        else {
+//            printf("Sequence is sorted!\n");
+//        }
+//    }
+//    else {
+//    // but as we are using different values of k and more modifications...
+//      std::sort(vp.begin(), vp.end(),Less(*this));
+//    }
+//    printf("Done!\n");
 
     // remove duplicated elements
     vector<Point<uint> >::iterator last = unique(vp.begin(), vp.end());
@@ -495,8 +495,8 @@ void MXCompactQtree::create(const std::vector<Point<uint> > &vp,
 //}
 
 
-
-void MXCompactQtree::build(const std::vector<Point<uint> > &vp,
+// this method uses counting sort
+void MXCompactQtree::build(std::vector<Point<uint> > &vp,
                             BitSequenceBuilder *bs) {
     struct Node z;
     queue<struct Node> q;
@@ -514,15 +514,16 @@ void MXCompactQtree::build(const std::vector<Point<uint> > &vp,
     curr_nodes.insert(curr_nodes.begin(), depth_, 0);
 
     int curr_level = 0;
+
+
+    size_t start[max_children_ + 1];
+    size_t end[max_children_ + 1];
+
     while (!q.empty()) {
         z = q.front();
         q.pop();
 
         //ktreenodes += 1;
-
-        r[0] = z.lo;
-        r[children_[z.level]] = z.hi;
-
         if (curr_level != z.level) {
             curr_level = z.level;
             T_.push_back( bs->build((uint*)bt->data(), bt->length()));
@@ -532,16 +533,62 @@ void MXCompactQtree::build(const std::vector<Point<uint> > &vp,
             bt = new bitvector(T_[curr_level-1]->countOnes()*children_[curr_level]);
         }
 
+        r[0] = z.lo;
+        r[children_[z.level]] = z.hi;
 
-        //printf("r[%d] = %lu\n",0,r[0]);
-        for (int j = 1; j < children_[z.level]; j++) {
-            //r[j] = rank(vp, j, depth_- z.level - 1, z.lo, z.hi - 1);
-            r[j] = rank(vp, j, z.level, z.lo, z.hi - 1);
-            //printf("r[%d] = %lu\n",j,r[j]);
+        for(int i = 0; i < children_[z.level]+1; i++) {
+            start[i] = 0;
         }
-        //printf("r[%d] = %lu\n",children_[z.level],r[children_[z.level]]);
 
-        //printf("r: %d %d %d %d %d\n", r[0], r[1], r[2], r[3], r[4]);
+        // Count.
+        for (size_t i = z.lo; i < z.hi; ++i) {
+            start[code(vp[i],z.level)] += 1;
+        }
+
+        // Compute partial sums.
+        size_t sum = z.lo;
+        for (int bin = 0; bin < children_[z.level]; ++bin) {
+            int tmp = start[bin];
+            start[bin] = sum;
+            end[bin]   = sum;
+            sum += tmp;
+        }
+        start[children_[z.level]] = z.hi;
+
+        for(int i = 1; i < children_[z.level]; i++) {
+            r[i] = start[i];
+        }
+
+        // Move elements.
+        int cur_bin = 0;
+        int bin = 0;
+        for (size_t i = z.lo; i < z.hi; ++i) {
+            if(i%1000000==0) fprintf(stderr,"Progress: %.2f\r",1.0*((z.level)*vp.size()+i)/(depth_*vp.size())*100);
+
+            // set the bin for position i
+            while (i >= start[cur_bin+1]) { ++cur_bin; }
+            if (i < end[cur_bin]) {
+                // Element has already been processed.
+                continue;
+            }
+
+            //move the object i to the correct bin in pos j=end[bin]++
+            bin = code(vp[i],z.level);
+
+            while (bin != cur_bin) {
+                size_t j = end[bin]++;
+                // Swap bin and a[j]
+                //printf("Moving i %lu <-> j %lu\n",i,j);
+                //Point<uint> tmp (vp[j]);
+                //vp[j] = vp[i];
+                //vp[i] = tmp;
+                std::swap(vp[i],vp[j]);
+                bin = code(vp[i],z.level);
+            }
+            //printf("moving\n");
+            //a[i] = bin;
+            ++end[cur_bin];
+        }
 
         for (int j = 1; j < children_[z.level] + 1; j++) {
             if (r[j] - r[j - 1] > 0) {
@@ -574,7 +621,84 @@ void MXCompactQtree::build(const std::vector<Point<uint> > &vp,
     }
 }
 
-
+// Old method
+//void MXCompactQtree::build(const std::vector<Point<uint> > &vp,
+//                            BitSequenceBuilder *bs) {
+//    struct Node z;
+//    queue<struct Node> q;
+//    size_t r[max_children_ + 1];
+//
+//    z.level = 0;
+//    z.lo = 0;
+//    z.hi = vp.size();
+//
+//    q.push(z);
+//
+//    bitvector *bt = new bitvector(children_[0]);
+//
+//    vector<size_t> curr_nodes;
+//    curr_nodes.insert(curr_nodes.begin(), depth_, 0);
+//
+//    int curr_level = 0;
+//    while (!q.empty()) {
+//        z = q.front();
+//        q.pop();
+//
+//        //ktreenodes += 1;
+//
+//        r[0] = z.lo;
+//        r[children_[z.level]] = z.hi;
+//
+//        if (curr_level != z.level) {
+//            curr_level = z.level;
+//            T_.push_back( bs->build((uint*)bt->data(), bt->length()));
+//
+//            delete bt;
+//
+//            bt = new bitvector(T_[curr_level-1]->countOnes()*children_[curr_level]);
+//        }
+//
+//
+//        //printf("r[%d] = %lu\n",0,r[0]);
+//        for (int j = 1; j < children_[z.level]; j++) {
+//            //r[j] = rank(vp, j, depth_- z.level - 1, z.lo, z.hi - 1);
+//            r[j] = rank(vp, j, z.level, z.lo, z.hi - 1);
+//            //printf("r[%d] = %lu\n",j,r[j]);
+//        }
+//        //printf("r[%d] = %lu\n",children_[z.level],r[children_[z.level]]);
+//
+//        //printf("r: %d %d %d %d %d\n", r[0], r[1], r[2], r[3], r[4]);
+//
+//        for (int j = 1; j < children_[z.level] + 1; j++) {
+//            if (r[j] - r[j - 1] > 0) {
+//                struct Node t;
+//                t.lo = r[j - 1];
+//
+//                t.hi = r[j];
+//
+//                t.level = z.level + 1;
+//
+//                if (z.level < depth_ - 1)
+//                    q.push(t);
+//
+//                //printf("set bit T %lu\n", (ktreenodes-1)*childs_ + j-1);
+//                //printf("set bit T_[%d] %lu\n", z.level, curr_nodes[z.level] + j - 1);
+//                bt->bitset(curr_nodes[z.level] + j - 1);
+//            }
+//        }
+//
+//        curr_nodes[z.level] += children_[z.level];
+//
+//    }
+//
+//    T_.push_back( bs->build((uint*)bt->data(), bt->length()));
+//    delete bt;
+//
+//    //updates nodes_by_level_
+//    for(int i=0; i < depth_; i++) {
+//        nodes_by_level_.push_back(curr_nodes[i]);
+//    }
+//}
 
 
 

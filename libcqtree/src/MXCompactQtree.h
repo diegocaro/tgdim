@@ -279,7 +279,7 @@ class MXCompactQtree: public CompactQtree {
     void create(const std::vector<Point<uint> > &vp,
                 BitSequenceBuilder *bs);
 
-    void build(const std::vector<Point<uint> > &vp,
+    void build(std::vector<Point<uint> > &vp,
                     BitSequenceBuilder *bs);
 
 
