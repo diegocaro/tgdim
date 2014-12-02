@@ -34,28 +34,28 @@ class PRB2CompactQtree:public CompactQtree {
       int level;
   };
 
-    struct Less {
-            Less(const PRB2CompactQtree& cl) : c(cl) {
-//                printf("depth: %d\n",c.depth_);
-//                for(int i = 0; i < c.depth_; i++) {
-//                    printf("k_[%d] = %d\n",i,c.k_[i]);
-//                    printf("nk_[%d] = %d\n",i,c.nk_[i]);
+//    struct Less {
+//            Less(const PRB2CompactQtree& cl) : c(cl) {
+////                printf("depth: %d\n",c.depth_);
+////                for(int i = 0; i < c.depth_; i++) {
+////                    printf("k_[%d] = %d\n",i,c.k_[i]);
+////                    printf("nk_[%d] = %d\n",i,c.nk_[i]);
+////                }
+//            }
+//            bool operator () (const Point<uint> &x, const Point<uint> &y) {
+//                for(int i=0; i < c.depth_; i++) {
+//                    for(int j=c.rangedim_by_level_[i].first; j < c.rangedim_by_level_[i].second; j++) {
+//                        int a=(x[j]/c.nk_[i])%c.k_[i];
+//                        int b=(y[j]/c.nk_[i])%c.k_[i];
+//
+//                        if (a!=b) return (a < b);
+//                    }
 //                }
-            }
-            bool operator () (const Point<uint> &x, const Point<uint> &y) {
-                for(int i=0; i < c.depth_; i++) {
-                    for(int j=c.rangedim_by_level_[i].first; j < c.rangedim_by_level_[i].second; j++) {
-                        int a=(x[j]/c.nk_[i])%c.k_[i];
-                        int b=(y[j]/c.nk_[i])%c.k_[i];
-
-                        if (a!=b) return (a < b);
-                    }
-                }
-                return false;
-            }
-
-            const PRB2CompactQtree& c;
-        };
+//                return false;
+//            }
+//
+//            const PRB2CompactQtree& c;
+//        };
 
  public:
     PRB2CompactQtree() {
@@ -340,7 +340,7 @@ class PRB2CompactQtree:public CompactQtree {
     }
 
 
-    void get_stats(const std::vector<Point<uint> > &vp);
+    void get_stats(std::vector<Point<uint> > &vp);
 
     void create(const std::vector<Point<uint> > &vp,
                 BitSequenceBuilder *bs, BitSequenceBuilder *bb, BitSequenceBuilder *bc);
