@@ -79,8 +79,8 @@ public:
     bool access(size_t i) { return _rrr[i];}
     size_t rank1(size_t i) { return _rank1_rrr(i+1); }
     size_t rank0(size_t i) { return _rank0_rrr(i+1); }
-    size_t select1(size_t i) { return _select1_rrr(i+1); }
-    size_t select0(size_t i) { return _select0_rrr(i+1); }
+    size_t select1(size_t i) { return _select1_rrr(i); }
+    size_t select0(size_t i) { return _select0_rrr(i); }
 
     void save_stream(ofstream &f) const {
         _rrr.serialize(f);
@@ -350,8 +350,8 @@ public:
     bool access(size_t i) { return _bv[i];}
     size_t rank1(size_t i) { return _rank1_bv(i+1); }
     size_t rank0(size_t i) { return _rank0_bv(i+1); }
-    size_t select1(size_t i) { return _select1_bv(i+1); }
-    size_t select0(size_t i) { return _select0_bv(i+1); }
+    size_t select1(size_t i) { return _select1_bv(i); }
+    size_t select0(size_t i) { return _select0_bv(i); }
 
     void save_stream(ofstream &f) const {
         _bv.serialize(f);
