@@ -68,11 +68,11 @@ BitSequenceBuilder* getBSBuilder(string e) {
     } else if (e == "SRRR255") {
         bs = new BitSequenceBuilder_SDSL_RRR_255();
     } else if (e == "SIL512") {
-        bs = new BitSequenceBuilder_SDSL_IL_512(); //interleaved block size cada 512
+        bs = new BitSequenceBuilder_SDSL_IL_512(); //interleaved block size cada 512 -> 12.5%
     } else if (e == "SIL1024") {
-        bs = new BitSequenceBuilder_SDSL_IL_1024(); //interleaved block size cada 1024
+        bs = new BitSequenceBuilder_SDSL_IL_1024(); //interleaved block size cada 1024 -> 6.25%
     } else if (e == "SIL128") {
-        bs = new BitSequenceBuilder_SDSL_IL_128(); //interleaved block size cada 128 bits
+        bs = new BitSequenceBuilder_SDSL_IL_128(); //interleaved block size cada 128 bits -> 0.5%
     }
     else {
         fprintf(stderr, "Error: bitmap '%s' not found.\n",e.c_str());

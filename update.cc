@@ -10,12 +10,7 @@
 #include <time.h>
 #include <stdlib.h>
 
-#include "timing.h"
 #include "debug.h"
-#include "arraysort.h"
-
-#include <point.h>
-#include <CompactQtree.h>
 
 #include "TemporalGraph.h"
 
