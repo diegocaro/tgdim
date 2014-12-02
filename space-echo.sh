@@ -27,11 +27,11 @@ for ((l=0; l <= $LEVELS; l+=4 ))
 do
     lki=$((l*2))
     
-    OUTFILE=$OUTPUT-2,2,0,$lki,0,0-$BITT-$BITB.mxd
-	if [ ! -f "$OUTFILE" ]; then
-		echo echo "Creating $OUTFILE"
-    	echo "gzcat $INPUT | ./create -s MXD -g $TYPEGRAPH -f k1:2,k2:2,lk1:0,lki:$lki,lf:0,F:0,T:$BITT,B:$BITB,C:$BITC $OUTFILE"
-	fi
+#    OUTFILE=$OUTPUT-2,2,0,$lki,0,0-$BITT-$BITB.mxd
+#	if [ ! -f "$OUTFILE" ]; then
+#		echo echo "Creating $OUTFILE"
+#    	echo "gzcat $INPUT | ./create -s MXD -g $TYPEGRAPH -f k1:2,k2:2,lk1:0,lki:$lki,lf:0,F:0,T:$BITT,B:$BITB,C:$BITC $OUTFILE"
+#	fi
 	
     OUTFILE=$OUTPUT-2,2,0,$lki,0,0-$BITT-$BITB.prb
     if [ ! -f "$OUTFILE" ]; then
@@ -56,7 +56,7 @@ do
 done
 
 
-for((F=2; F <= 16; F+=2 ))
+for((F=2; F <= 16; F+=4 ))
 do
     OUTFILE=$OUTPUT-2,2,0,0,0,$F-$BITT-$BITB-$BITC.prb2
 	if [ ! -f "$OUTFILE" ]; then
