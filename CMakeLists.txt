@@ -77,9 +77,10 @@ endif()
 #   message(STATUS "Makefile for Release mode")
 #endif()
 
+add_executable( update update.cc TemporalGraph.cc)
+target_link_libraries(update cqtree)
 
-
-add_executable( create create.cc )
+add_executable( create create.cc TemporalGraph.cc)
 target_link_libraries(create cqtree)
 
 add_executable( sort sort.cc )

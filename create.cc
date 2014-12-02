@@ -37,46 +37,7 @@ using namespace cqtree_static;
 
 
 
-BitSequenceBuilder* getBSBuilder(string e) {
-    BitSequenceBuilder *bs=NULL;
-    //factor=2 => overhead 50%
-    //factor=3 => overhead 33%
-    //factor=4 => overhead 25%
-    //factor=20=> overhead 5%
-    if (e == "RG5") {
-        bs = new BitSequenceBuilderRG(20);  // by default, 5% of extra space for bitmaps -- cada 20*32=640 bits
-    } else if (e == "RG25") {
-        bs = new BitSequenceBuilderRG(4);  //  25% of extra space for bitmaps -- cada 4*32=128 bits
-    } else if (e == "RG33") {
-        bs = new BitSequenceBuilderRG(3);  //33% of extra space for bitmaps -- cada 3*32=96 bits
-    } else if (e == "RRR") {
-        bs = new BitSequenceBuilderRRR(32);  // DEFAULT_SAMPLING for RRR is 32
-    } else if (e == "SD") {
-        bs = new BitSequenceBuilderSDArray();  // ?
-    } else if (e == "SRRR15") {
-        bs = new BitSequenceBuilder_SDSL_RRR_15();
-    } else if (e == "SRRR31") {
-        bs = new BitSequenceBuilder_SDSL_RRR_31();
-    } else if (e == "SRRR63") {
-        bs = new BitSequenceBuilder_SDSL_RRR_63();
-    } else if (e == "SRRR127") {
-        bs = new BitSequenceBuilder_SDSL_RRR_127();
-    } else if (e == "SRRR255") {
-        bs = new BitSequenceBuilder_SDSL_RRR_255();
-    } else if (e == "SIL512") {
-        bs = new BitSequenceBuilder_SDSL_IL_512(); //interleaved block size cada 512
-    } else if (e == "SIL1024") {
-        bs = new BitSequenceBuilder_SDSL_IL_1024(); //interleaved block size cada 1024
-    } else if (e == "SIL128") {
-        bs = new BitSequenceBuilder_SDSL_IL_128(); //interleaved block size cada 128 bits
-    }
-    else {
-        fprintf(stderr, "Error: bitmap '%s' not found.\n",e.c_str());
-        return NULL;
-    }
 
-    return bs;
-}
 
 
 void printsettings(struct opts *opts) {
@@ -133,24 +94,6 @@ void printsettings(struct opts *opts) {
 
   printf("Reading input file '%s'\n",opts->infile);
 
-}
-void readflags(struct opts *opts, const char *flags) {
-    strcpy(opts->params_char,flags);
-    vector<string> s;
-    tokenize(flags,s,',');
-
-    for(int i = 0; i < s.size(); i++) {
-        vector<string> u;
-        tokenize(s[i],u,':');
-        opts->params[u[0]] = u[1];
-    }
-
-    opts->k1 = atoi(opts->params["k1"].c_str());
-    opts->k2 = atoi(opts->params["k2"].c_str());
-    opts->lk1 = atoi(opts->params["lk1"].c_str());
-    opts->lki = atoi(opts->params["lki"].c_str());
-    opts->lf = atoi(opts->params["lf"].c_str());
-    opts->F = atoi(opts->params["F"].c_str());
 }
 
 int readopts(int argc, char **argv, struct opts *opts) {

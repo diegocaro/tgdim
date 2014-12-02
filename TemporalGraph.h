@@ -59,6 +59,97 @@ struct opts {
 
 using namespace cqtree_static;
 
+void readflags(struct opts *opts, const char *flags);
+BitSequenceBuilder* getBSBuilder(string e);
+uint *getBitmap(BitSequence *bs);
+
+
+class UpdateMXCompactQtree: public MXCompactQtree {
+    public:
+  void updateBitmaps(BitSequenceBuilder *bt) {
+      uint *btemp;
+      size_t len;
+
+      for(int i = 0; i < depth_; i++ ) {
+          fprintf(stderr, "New bitmaps at level %d\n",i);
+
+          btemp = getBitmap(T_[i]);
+          len = T_[i]->getLength();
+
+
+          delete T_[i];
+          T_[i] = bt->build(btemp, T_[i]->getLength());
+          delete btemp;
+      }
+  }
+};
+
+class UpdatePRBCompactQtree: public PRBCompactQtree {
+    public:
+  void updateBitmaps(BitSequenceBuilder *bt,BitSequenceBuilder *bb) {
+      uint *btemp;
+      size_t len;
+
+      for(int i = 0; i < depth_; i++ ) {
+          fprintf(stderr, "New bitmaps at level %d\n",i);
+
+          btemp = getBitmap(T_[i]);
+          len = T_[i]->getLength();
+
+
+          delete T_[i];
+          T_[i] = bt->build(btemp, T_[i]->getLength());
+          delete btemp;
+
+
+
+          btemp = getBitmap(B_[i]);
+          len = B_[i]->getLength();
+
+          delete B_[i];
+          B_[i] = bb->build(btemp, B_[i]->getLength());
+          delete btemp;
+      }
+  }
+};
+
+  class UpdatePRB2CompactQtree: public PRB2CompactQtree {
+  public:
+    void updateBitmaps(BitSequenceBuilder *bt,BitSequenceBuilder *bb, BitSequenceBuilder *bc) {
+        uint *btemp;
+        size_t len;
+
+        for(int i = 0; i < depth_; i++ ) {
+            fprintf(stderr, "New bitmaps at level %d\n",i);
+
+            btemp = getBitmap(T_[i]);
+            len = T_[i]->getLength();
+
+
+            delete T_[i];
+            T_[i] = bt->build(btemp, T_[i]->getLength());
+            delete btemp;
+
+
+
+            btemp = getBitmap(B_[i]);
+            len = B_[i]->getLength();
+
+            delete B_[i];
+            B_[i] = bb->build(btemp, B_[i]->getLength());
+            delete btemp;
+
+            btemp = getBitmap(C_[i]);
+            len = C_[i]->getLength();
+
+            delete C_[i];
+            C_[i] = bb->build(btemp, C_[i]->getLength());
+            delete btemp;
+        }
+    }
+};
+
+
 //TODO Add Interval operations
 class TemporalGraph {
  public:
@@ -93,10 +184,10 @@ class TemporalGraph {
     contacts_ = contacts;
   }
 
-  void setOpts(struct opts &opts) {
-    opts_ = opts;
-  }
-  ;
+//  void setOpts(struct opts &opts) {
+//    opts_ = opts;
+//  }
+//  ;
 
   void stats() {
     qt_->stats_space();
@@ -114,6 +205,22 @@ class TemporalGraph {
     else {
         fprintf(stderr, "Input is not a PRB data structure\n");
     }
+  }
+
+  void updateBitmaps(BitSequenceBuilder *bt, BitSequenceBuilder *bb, BitSequenceBuilder *bc) {
+      if (dynamic_cast<PRBCompactQtree*>(qt_)) {
+          ((UpdatePRBCompactQtree* )qt_ )->updateBitmaps(bt,bb);
+      }
+      else if (dynamic_cast<PRB2CompactQtree*>(qt_)) {
+              ((UpdatePRB2CompactQtree* )qt_ )->updateBitmaps(bt,bb,bc);
+          }
+      else if (dynamic_cast<MXCompactQtree*>(qt_)) {
+         ((UpdateMXCompactQtree* )qt_ )->updateBitmaps(bt);
+     }
+      else {
+          fprintf(stderr, "CompactQtree class cannot be updated to new bitmaps.\n");
+          return;
+      }
   }
 
   virtual void save(ofstream &f)=0;
@@ -142,7 +249,7 @@ class TemporalGraph {
   uint contacts_;
 
   CompactQtree *qt_;
-  struct opts opts_;
+  //struct opts opts_;
   vector<Point<uint> > vp;
 };
 
@@ -172,7 +279,7 @@ class IntervalContactGraph : public TemporalGraph {
     loadValue(f, edges_);
     loadValue(f, lifetime_);
     loadValue(f, contacts_);
-    loadValue(f, opts_);
+    //loadValue(f, opts_);
     qt_ = CompactQtree::load(f);
   }
 
@@ -183,7 +290,7 @@ class IntervalContactGraph : public TemporalGraph {
     saveValue(f, edges_);
     saveValue(f, lifetime_);
     saveValue(f, contacts_);
-    saveValue(f, opts_);
+    //saveValue(f, opts_);
 
     qt_->save(f);
   }
@@ -424,7 +531,7 @@ class GrowingContactGraph : public TemporalGraph {
     loadValue(f, edges_);
     loadValue(f, lifetime_);
     loadValue(f, contacts_);
-    loadValue(f, opts_);
+    //loadValue(f, opts_);
     qt_ = CompactQtree::load(f);
   }
 
@@ -435,7 +542,7 @@ class GrowingContactGraph : public TemporalGraph {
     saveValue(f, edges_);
     saveValue(f, lifetime_);
     saveValue(f, contacts_);
-    saveValue(f, opts_);
+    //saveValue(f, opts_);
 
     qt_->save(f);
   }
@@ -606,7 +713,7 @@ class PointContactGraph : public TemporalGraph {
     loadValue(f, edges_);
     loadValue(f, lifetime_);
     loadValue(f, contacts_);
-    loadValue(f, opts_);
+    //loadValue(f, opts_);
     qt_ = CompactQtree::load(f);
   }
 
@@ -617,7 +724,7 @@ class PointContactGraph : public TemporalGraph {
     saveValue(f, edges_);
     saveValue(f, lifetime_);
     saveValue(f, contacts_);
-    saveValue(f, opts_);
+    //saveValue(f, opts_);
 
     qt_->save(f);
   }
@@ -805,7 +912,7 @@ class IntervalContactGraphImproved : public TemporalGraph {
     loadValue(f, edges_);
     loadValue(f, lifetime_);
     loadValue(f, contacts_);
-    loadValue(f, opts_);
+    //loadValue(f, opts_);
 
     past_ = new IntervalContactGraph(f);
     curr_ = new GrowingContactGraph(f);
@@ -820,7 +927,7 @@ class IntervalContactGraphImproved : public TemporalGraph {
     saveValue(f, edges_);
     saveValue(f, lifetime_);
     saveValue(f, contacts_);
-    saveValue(f, opts_);
+    //saveValue(f, opts_);
 
     past_->save(f);
     curr_->save(f);
