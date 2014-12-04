@@ -78,7 +78,7 @@ class UpdateMXCompactQtree: public MXCompactQtree {
 
 
           delete T_[i];
-          T_[i] = bt->build(btemp, T_[i]->getLength());
+          T_[i] = bt->build(btemp, len);
           delete btemp;
       }
   }
@@ -98,7 +98,7 @@ class UpdatePRBCompactQtree: public PRBCompactQtree {
 
 
           delete T_[i];
-          T_[i] = bt->build(btemp, T_[i]->getLength());
+          T_[i] = bt->build(btemp, len);
           delete btemp;
 
 
@@ -107,7 +107,7 @@ class UpdatePRBCompactQtree: public PRBCompactQtree {
           len = B_[i]->getLength();
 
           delete B_[i];
-          B_[i] = bb->build(btemp, B_[i]->getLength());
+          B_[i] = bb->build(btemp, len);
           delete btemp;
       }
   }
@@ -127,7 +127,7 @@ class UpdatePRBCompactQtree: public PRBCompactQtree {
 
 
             delete T_[i];
-            T_[i] = bt->build(btemp, T_[i]->getLength());
+            T_[i] = bt->build(btemp, len);
             delete btemp;
 
 
@@ -136,14 +136,14 @@ class UpdatePRBCompactQtree: public PRBCompactQtree {
             len = B_[i]->getLength();
 
             delete B_[i];
-            B_[i] = bb->build(btemp, B_[i]->getLength());
+            B_[i] = bb->build(btemp, len);
             delete btemp;
 
             btemp = getBitmap(C_[i]);
             len = C_[i]->getLength();
 
             delete C_[i];
-            C_[i] = bb->build(btemp, C_[i]->getLength());
+            C_[i] = bb->build(btemp, len);
             delete btemp;
         }
     }

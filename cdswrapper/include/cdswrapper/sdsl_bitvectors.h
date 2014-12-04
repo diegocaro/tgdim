@@ -93,6 +93,10 @@ public:
         return ret;
     }
 
+    size_t getLength() {
+        return _rrr.size();
+    }
+
 protected:
     rrr_vector<block_size> _rrr;
     typename rrr_vector<block_size>::rank_1_type _rank1_rrr;
@@ -133,6 +137,7 @@ public:
     }
 
     virtual size_t getSize() const {return 0;}
+    virtual size_t getLength() const {return bv->getLength();}
 
     virtual bool access(const size_t i) const { return bv->access(i);}
     virtual size_t rank1(const size_t i) const { return bv->rank1(i); }
@@ -175,6 +180,7 @@ public:
     }
 
     virtual size_t getSize() const {return 0;}
+    virtual size_t getLength() const {return bv->getLength();}
 
     virtual bool access(const size_t i) const { return bv->access(i);}
     virtual size_t rank1(const size_t i) const { return bv->rank1(i); }
@@ -218,6 +224,7 @@ public:
     }
 
     virtual size_t getSize() const {return 0;}
+    virtual size_t getLength() const {return bv->getLength();}
 
     virtual bool access(const size_t i) const { return bv->access(i);}
     virtual size_t rank1(const size_t i) const { return bv->rank1(i); }
@@ -260,6 +267,7 @@ public:
     }
 
     virtual size_t getSize() const {return 0;}
+    virtual size_t getLength() const {return bv->getLength();}
 
     virtual bool access(const size_t i) const { return bv->access(i);}
     virtual size_t rank1(const size_t i) const { return bv->rank1(i); }
@@ -303,6 +311,7 @@ public:
     }
 
     virtual size_t getSize() const {return 0;}
+    virtual size_t getLength() const {return bv->getLength();}
 
     virtual bool access(const size_t i) const { return bv->access(i);}
     virtual size_t rank1(const size_t i) const { return bv->rank1(i); }
@@ -364,6 +373,10 @@ public:
         return ret;
     }
 
+    size_t getLength() {
+        return _bv.size();
+    }
+
 protected:
     BV _bv;
     typename BV::rank_1_type _rank1_bv;
@@ -405,6 +418,7 @@ public:
     }
 
     virtual size_t getSize() const {return 0;}
+    virtual size_t getLength() const {return bv->getLength();}
 
     virtual bool access(const size_t i) const { return bv->access(i);}
     virtual size_t rank1(const size_t i) const { return bv->rank1(i); }
@@ -448,6 +462,7 @@ public:
     }
 
     virtual size_t getSize() const {return 0;}
+    virtual size_t getLength() const {return bv->getLength();}
 
     virtual bool access(const size_t i) const { return bv->access(i);}
     virtual size_t rank1(const size_t i) const { return bv->rank1(i); }
@@ -491,6 +506,7 @@ public:
     }
 
     virtual size_t getSize() const {return 0;}
+    virtual size_t getLength() const {return bv->getLength();}
 
     virtual bool access(const size_t i) const { return bv->access(i);}
     virtual size_t rank1(const size_t i) const { return bv->rank1(i); }
