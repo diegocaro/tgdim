@@ -54,6 +54,9 @@ void printsettings(struct opts *opts) {
     case kIntervalGrowth:
           printf("R Interval Growth 4d+3d\n");
           break;
+    case kIntervalPoint:
+        printf("T Interval Point 4d+3d\n");
+          break;
   }
 
   switch (opts->ds) {
@@ -145,6 +148,9 @@ int readopts(int argc, char **argv, struct opts *opts) {
                 } else if (strcmp(optarg, "R") == 0) {
                     INFO("Interval Growth");
                     opts->typegraph = kIntervalGrowth;
+                }else if (strcmp(optarg, "T") == 0) {
+                    INFO("Interval Point");
+                    opts->typegraph = kIntervalPoint;
                 }
                 break;
             case 'f':
@@ -191,6 +197,7 @@ int readopts(int argc, char **argv, struct opts *opts) {
         fprintf(stderr, "\tP for Point-contact Temporal Graph\n");
         fprintf(stderr, "\tG for Growing Temporal Graph\n");
         fprintf(stderr, "\tR for Interval Growth Graph\n");
+        fprintf(stderr, "\tT for Interval Point Graph\n");
 
         fprintf(stderr,
                 "\nExpected input file -i input file can be set to '-' to read stdin\n");
@@ -238,7 +245,8 @@ int main(int argc, char *argv[]) {
   size_t readcontacts = 0;
   vector<Point<uint> > vp;
 
-  vector<Point<uint> > vpcurr;
+  vector<Point<uint> > vp3dim;
+
   if (opts.typegraph == kInterval) {
     //4dim data
     Point<uint> c(4);
@@ -272,7 +280,32 @@ int main(int argc, char *argv[]) {
                 c3[1]=c[1];
                 c3[2]=c[2];
 
-                vpcurr.push_back(c3);
+                vp3dim.push_back(c3);
+            }
+            else {
+                vp.push_back(c);
+            }
+          }
+  }
+  else if (opts.typegraph == kIntervalPoint) {
+      //4dim data
+          Point<uint> c(4);
+          Point<uint> c3(3);
+          while(EOF != fscanf(infile,"%u %u %u %u", &c[0], &c[1], &c[2], &c[3] )) {
+            readcontacts++;
+            if (readcontacts%10000==0)fprintf(stderr, "Reading data: %.2f%% \r", (float)readcontacts/contacts*100);
+
+            assert(c[0] < nodes);
+            assert(c[1] < nodes);
+            assert(c[2] < lifetime);
+            assert(c[3] < lifetime);
+
+            if (c[2]+1 == c[3]) {
+                c3[0]=c[0];
+                c3[1]=c[1];
+                c3[2]=c[2];
+
+                vp3dim.push_back(c3);
             }
             else {
                 vp.push_back(c);
@@ -368,8 +401,11 @@ int main(int argc, char *argv[]) {
         tg = new PointContactGraph();
         break;
       case kIntervalGrowth:
-          tg = new IntervalContactGraphImproved();
+          tg = new IntervalContactGraphGrowth();
         break;
+      case kIntervalPoint:
+                tg = new IntervalContactGraphPoint();
+              break;
   }
 
     if (opts.typegraph == kIntervalGrowth) {
@@ -377,19 +413,19 @@ int main(int argc, char *argv[]) {
 
         switch(opts.ds) {
           case ePRBlack:
-              cqcurr = new PRBCompactQtree(vpcurr,opts.bs,opts.bb,opts.k1,opts.k2,opts.lk1,opts.lki);
+              cqcurr = new PRBCompactQtree(vp3dim,opts.bs,opts.bb,opts.k1,opts.k2,opts.lk1,opts.lki);
             break;
           case ePRB2Black:
-              cqcurr = new PRB2CompactQtree(vpcurr,opts.bs,opts.bb,opts.bc,opts.k1,opts.k2,opts.F,opts.lk1,opts.lki);
+              cqcurr = new PRB2CompactQtree(vp3dim,opts.bs,opts.bb,opts.bc,opts.k1,opts.k2,opts.F,opts.lk1,opts.lki);
                 break;
       //    case ePRWhite:
       //      cq = new PRWCompactQtree(vp,bs,bb,opts.k1,opts.k2,opts.lk1,opts.lki);
       //      break;
           case eMXDepth:
-              cqcurr = new MXCompactQtree(vpcurr,opts.bs,opts.k1,opts.k2,opts.lk1,opts.lki);
+              cqcurr = new MXCompactQtree(vp3dim,opts.bs,opts.k1,opts.k2,opts.lk1,opts.lki);
             break;
           case eMXFixed:
-              cqcurr = new MXCompactQtreeFixed(vpcurr,opts.bs,opts.bb,opts.k1,opts.k2,opts.lk1,opts.lki,opts.lf);
+              cqcurr = new MXCompactQtreeFixed(vp3dim,opts.bs,opts.bb,opts.k1,opts.k2,opts.lk1,opts.lki,opts.lf);
             break;
         }
 
@@ -397,18 +433,19 @@ int main(int argc, char *argv[]) {
 
 
         //First check points...
-        vector<Point<uint> > vpallcurr;
-        cqcurr->all(vpallcurr);
+        vector<Point<uint> > vpall3d;
+        cqcurr->all(vpall3d);
 
-        if (vpcurr.size() != vpallcurr.size()) {
+        if (vp3dim.size() != vpall3d.size()) {
           fprintf(stderr, "Error: data from data structure doesnt match the input (current graph) \n");
+          fprintf(stderr, "Expected size: %lu\nActual size: %lu\n",vp3dim.size(), vpall3d.size());
           abort();
         }
-        for(size_t i=0; i < vpcurr.size(); i++) {
-          if (i%1000==0)fprintf(stderr, "Checking data: %.2f%% \r", (float)i/contacts*100);
+        for(size_t i=0; i < vp3dim.size(); i++) {
+          if (i%1000==0)fprintf(stderr, "Checking data: %.2f%% \r", (float)i/vp3dim.size()*100);
           //assert(vp[i] == vpall[i]);
           //printf("%d %d %d %d %d %d %d %d\n",vp[i][0],vpall[i][0],vp[i][1],vpall[i][1],vp[i][2],vpall[i][2],vp[i][3],vpall[i][3]);
-          if (vpcurr[i] != vpallcurr[i]) {
+          if (vp3dim[i] != vpall3d[i]) {
               fprintf(stderr,"Construction failed (current graph)\n");
               abort();
           }
@@ -419,12 +456,69 @@ int main(int argc, char *argv[]) {
         GrowingContactGraph *tgcurr = new GrowingContactGraph();
 
         tgpast->setInfo(nodes,edges,lifetime,vp.size());
-        tgcurr->setInfo(nodes,edges,lifetime,vpcurr.size());
+        tgcurr->setInfo(nodes,edges,lifetime,vp3dim.size());
 
         tgpast->setDs(cq);
         tgcurr->setDs(cqcurr);
 
-        ((IntervalContactGraphImproved *)tg)->setGraphs(tgpast,tgcurr);
+        ((IntervalContactGraphGrowth *)tg)->setGraphs(tgpast,tgcurr);
+
+
+    }
+    else if (opts.typegraph == kIntervalPoint) {
+        CompactQtree *cq3d;
+
+        switch(opts.ds) {
+          case ePRBlack:
+              cq3d = new PRBCompactQtree(vp3dim,opts.bs,opts.bb,opts.k1,opts.k2,opts.lk1,opts.lki);
+            break;
+          case ePRB2Black:
+              cq3d = new PRB2CompactQtree(vp3dim,opts.bs,opts.bb,opts.bc,opts.k1,opts.k2,opts.F,opts.lk1,opts.lki);
+                break;
+      //    case ePRWhite:
+      //      cq = new PRWCompactQtree(vp,bs,bb,opts.k1,opts.k2,opts.lk1,opts.lki);
+      //      break;
+          case eMXDepth:
+              cq3d = new MXCompactQtree(vp3dim,opts.bs,opts.k1,opts.k2,opts.lk1,opts.lki);
+            break;
+          case eMXFixed:
+              cq3d = new MXCompactQtreeFixed(vp3dim,opts.bs,opts.bb,opts.k1,opts.k2,opts.lk1,opts.lki,opts.lf);
+            break;
+        }
+
+
+
+
+        //First check points...
+        vector<Point<uint> > vpall3d;
+        cq3d->all(vpall3d);
+
+        if (vp3dim.size() != vpall3d.size()) {
+          fprintf(stderr, "Error: data from data structure doesnt match the input (point graph) \n");
+          fprintf(stderr, "Expected size: %lu\nActual size: %lu\n",vp3dim.size(), vpall3d.size());
+          abort();
+        }
+        for(size_t i=0; i < vp3dim.size(); i++) {
+          if (i%1000==0)fprintf(stderr, "Checking data: %.2f%% \r", (float)i/vp3dim.size()*100);
+          //assert(vp[i] == vpall[i]);
+          //printf("%d %d %d %d %d %d %d %d\n",vp[i][0],vpall[i][0],vp[i][1],vpall[i][1],vp[i][2],vpall[i][2],vp[i][3],vpall[i][3]);
+          if (vp3dim[i] != vpall3d[i]) {
+              fprintf(stderr,"Construction failed (point graph)\n");
+              abort();
+          }
+        }
+
+
+        IntervalContactGraph *tginterval = new IntervalContactGraph();
+        PointContactGraph *tgpoint = new PointContactGraph();
+
+        tginterval->setInfo(nodes,edges,lifetime,vp.size());
+        tgpoint->setInfo(nodes,edges,lifetime,vp3dim.size());
+
+        tginterval->setDs(cq);
+        tgpoint->setDs(cq3d);
+
+        ((IntervalContactGraphPoint *)tg)->setGraphs(tginterval,tgpoint);
 
 
     }

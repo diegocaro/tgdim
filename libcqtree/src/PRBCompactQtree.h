@@ -159,6 +159,7 @@ class PRBCompactQtree:public CompactQtree {
                   if(type!=PRQBLK_SAV) {
                     abort();
                   }
+        loadValue(f,items_);
         loadValue(f,levels_k1_);
         loadValue(f,levels_k2_);
         loadValue(f,levels_ki_);
@@ -208,6 +209,8 @@ class PRBCompactQtree:public CompactQtree {
     virtual void save(ofstream &f) const {
       uint wr = PRQBLK_SAV;
             cds_utils::saveValue(f,wr);
+
+        cds_utils::saveValue(f,items_);
         cds_utils::saveValue(f,levels_k1_);
         cds_utils::saveValue(f,levels_k2_);
         cds_utils::saveValue(f,levels_ki_);
@@ -304,27 +307,27 @@ class PRBCompactQtree:public CompactQtree {
         }
     }*/
 
-
-    size_t rank(const std::vector<Point<uint> > &vp, int key, uint level,
-                long lo, long hi) const {
-        if (hi < lo)
-            return lo;  //this is because we are using size_t instead of int as indices
-        long mid = lo + (hi - lo) / 2;
-
-        //printf("%u %u\n", vp[mid].getMorton(level), code(vp[mid], depth_-level-1));
-
-        //printf("lo: %u - hi: %u\n", lo, hi);
-        // printf("vp_[%u].get(%u) = %u\n", mid, level, vp_[mid].get(level));
-        if (code(vp[mid],level) == key
-                && (mid == 0 || (mid > 0 && code(vp[mid-1],level) != key))) {
-            //printf("found in %u\n", mid);
-            return mid;
-        } else if (key <= code(vp[mid],level)) {
-            return rank(vp, key, level, lo, mid - 1);
-        } else {  // if (key > keys[mid])
-            return rank(vp, key, level, mid + 1, hi);
-        }
-    }
+// Not used anymore
+//    size_t rank(const std::vector<Point<uint> > &vp, int key, uint level,
+//                long lo, long hi) const {
+//        if (hi < lo)
+//            return lo;  //this is because we are using size_t instead of int as indices
+//        long mid = lo + (hi - lo) / 2;
+//
+//        //printf("%u %u\n", vp[mid].getMorton(level), code(vp[mid], depth_-level-1));
+//
+//        //printf("lo: %u - hi: %u\n", lo, hi);
+//        // printf("vp_[%u].get(%u) = %u\n", mid, level, vp_[mid].get(level));
+//        if (code(vp[mid],level) == key
+//                && (mid == 0 || (mid > 0 && code(vp[mid-1],level) != key))) {
+//            //printf("found in %u\n", mid);
+//            return mid;
+//        } else if (key <= code(vp[mid],level)) {
+//            return rank(vp, key, level, lo, mid - 1);
+//        } else {  // if (key > keys[mid])
+//            return rank(vp, key, level, mid + 1, hi);
+//        }
+//    }
 
 
     void get_stats(std::vector<Point<uint> > &vp);
@@ -334,7 +337,7 @@ class PRBCompactQtree:public CompactQtree {
 
     void print_leaves(Point<uint> p, size_t z, int level);
 
-
+    size_t items_;
     int levels_k1_;
     int levels_k2_; //int virtual_depth_k2_;
     int levels_ki_; //int virtual_depth_ki_;// levels interleaved

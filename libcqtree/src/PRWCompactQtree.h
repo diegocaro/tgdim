@@ -130,6 +130,8 @@ class PRWCompactQtree:public CompactQtree {
                   if(type!=PRQWHT_SAV) {
                     abort();
                   }
+
+        loadValue(f,items_);
         loadValue(f,levels_k1_);
         loadValue(f,levels_k2_);
         loadValue(f,levels_ki_);
@@ -179,7 +181,7 @@ class PRWCompactQtree:public CompactQtree {
     virtual void save(ofstream &f) const {
       uint wr = PRQWHT_SAV;
            cds_utils::saveValue(f,wr);
-
+           cds_utils::saveValue(f,items_);
         cds_utils::saveValue(f,levels_k1_);
         cds_utils::saveValue(f,levels_k2_);
         cds_utils::saveValue(f,levels_ki_);
@@ -285,6 +287,7 @@ class PRWCompactQtree:public CompactQtree {
     void create(const std::vector<Point<uint> > &vp,
                 BitSequenceBuilder *bs,BitSequenceBuilder *bb);
 
+    size_t items_;
     int levels_k1_;
     int levels_k2_; //int virtual_depth_k2_;
     int levels_ki_; //int virtual_depth_ki_;// levels interleaved

@@ -16,7 +16,8 @@ enum TypeGraph {
   kInterval,
   kGrowth,
   kPoint,
-  kIntervalGrowth
+  kIntervalGrowth,
+  kIntervalPoint
 };
 
 enum typeds {
@@ -55,7 +56,9 @@ struct opts {
 #define TG_INTERV 3
 #define TG_GROWTH 4
 #define TG_POINT 5
-#define TG_INTERVPRO 6
+#define TG_INTERVGROW 6
+#define TG_INTERVPOINT 7
+
 
 using namespace cqtree_static;
 
@@ -886,13 +889,13 @@ class PointContactGraph : public TemporalGraph {
 
 // @TODO this can be improved..., is ugly the way I mixed up the classes
 // to get an itnerval and growing graph
-class IntervalContactGraphImproved : public TemporalGraph {
+class IntervalContactGraphGrowth : public TemporalGraph {
  public:
-    IntervalContactGraphImproved() {
+    IntervalContactGraphGrowth() {
   }
   ;
 
-  ~IntervalContactGraphImproved() {
+  ~IntervalContactGraphGrowth() {
       if (past_!=NULL) delete past_;
       if (curr_!=NULL) delete curr_;
       past_=NULL;
@@ -901,10 +904,10 @@ class IntervalContactGraphImproved : public TemporalGraph {
   ;
 
   // Load & Save
-  IntervalContactGraphImproved(ifstream &f) {
+  IntervalContactGraphGrowth(ifstream &f) {
     uint type = loadValue<uint>(f);
     // TODO:throw an exception!
-    if (type != TG_INTERVPRO) {
+    if (type != TG_INTERVGROW) {
       abort();
     }
 
@@ -921,7 +924,7 @@ class IntervalContactGraphImproved : public TemporalGraph {
   }
 
   void save(ofstream &f) {
-    uint wr = TG_INTERVPRO;
+    uint wr = TG_INTERVGROW;
     saveValue(f, wr);
     saveValue(f, nodes_);
     saveValue(f, edges_);
@@ -994,6 +997,119 @@ class IntervalContactGraphImproved : public TemporalGraph {
 
   IntervalContactGraph *past_;
   GrowingContactGraph *curr_;
+
+};
+
+// @TODO this can be improved..., is ugly the way I mixed up the classes
+// to get an itnerval and point graph
+class IntervalContactGraphPoint : public TemporalGraph {
+ public:
+    IntervalContactGraphPoint() {
+  }
+  ;
+
+  ~IntervalContactGraphPoint() {
+      if (interval_!=NULL) delete interval_;
+      if (point_!=NULL) delete point_;
+      interval_=NULL;
+      point_=NULL;
+  }
+  ;
+
+  // Load & Save
+  IntervalContactGraphPoint(ifstream &f) {
+    uint type = loadValue<uint>(f);
+    // TODO:throw an exception!
+    if (type != TG_INTERVPOINT) {
+      abort();
+    }
+
+    loadValue(f, nodes_);
+    loadValue(f, edges_);
+    loadValue(f, lifetime_);
+    loadValue(f, contacts_);
+    //loadValue(f, opts_);
+
+    interval_ = new IntervalContactGraph(f);
+    point_ = new PointContactGraph(f);
+
+    qt_ = NULL;
+  }
+
+  void save(ofstream &f) {
+    uint wr = TG_INTERVPOINT;
+    saveValue(f, wr);
+    saveValue(f, nodes_);
+    saveValue(f, edges_);
+    saveValue(f, lifetime_);
+    saveValue(f, contacts_);
+    //saveValue(f, opts_);
+
+    interval_->save(f);
+    point_->save(f);
+  }
+
+ void setGraphs(IntervalContactGraph *interval, PointContactGraph *point) {
+    interval_ = interval;
+    point_ = point;
+
+}
+
+  /// Interface
+
+  virtual void direct_point(uint u, uint t, uint *res) {
+    interval_->direct_point(u,t,res);
+    point_->direct_point(u,t,res);
+  }
+
+  virtual void direct_weak(uint u, uint tstart, uint tend, uint *res) {
+      interval_->direct_weak(u,tstart,tend,res);
+      point_->direct_weak(u,tstart,tend,res);
+  }
+  virtual void direct_strong(uint u, uint tstart, uint tend, uint *res) {
+      interval_->direct_strong(u,tstart,tend,res);
+      point_->direct_strong(u,tstart,tend,res);
+  }
+
+  virtual void reverse_point(uint v, uint t, uint *res) {
+      interval_->reverse_point(v,t,res);
+      point_->reverse_point(v,t,res);
+  }
+
+  virtual void reverse_weak(uint v, uint tstart, uint tend, uint *res) {
+    interval_->reverse_weak(v,tstart,tend,res);
+    point_->reverse_weak(v,tstart,tend,res);
+  }
+  virtual void reverse_strong(uint v, uint tstart, uint tend, uint *res) {
+    interval_->reverse_strong(v,tstart,tend,res);
+    point_->reverse_strong(v,tstart,tend,res);
+  }
+
+  virtual int edge_point(uint u, uint v, uint t) {
+    return (interval_->edge_point(u,v,t) || point_->edge_point(u,v,t));
+  }
+
+  virtual int edge_weak(uint u, uint v, uint tstart, uint tend) {
+      return (interval_->edge_weak(u,v,tstart,tend) || point_->edge_weak(u,v,tstart,tend));
+  }
+  virtual int edge_strong(uint u, uint v, uint tstart, uint tend) {
+      return (interval_->edge_strong(u,v,tstart,tend) || point_->edge_strong(u,v,tstart,tend));
+  }
+  virtual int edge_next(uint u, uint v, uint t) {
+    //return cqtree->edge_next(u,v,t);
+    return 0;
+  }
+
+  virtual unsigned long snapshot(uint t) {
+      return interval_->snapshot(t) + point_->snapshot(t);
+  }
+
+  virtual unsigned long contacts() {
+      return interval_->contacts() + point_->contacts();
+  }
+
+  IntervalContactGraph *interval_;
+  PointContactGraph *point_;
 
 };
 

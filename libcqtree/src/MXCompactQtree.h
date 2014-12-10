@@ -150,6 +150,8 @@ class MXCompactQtree: public CompactQtree {
             if(type!=MXQDPT_SAV) {
               abort();
             }
+
+        loadValue(f,items_);
         loadValue(f,levels_k1_);
         loadValue(f,levels_k2_);
         loadValue(f,levels_ki_);
@@ -185,6 +187,8 @@ class MXCompactQtree: public CompactQtree {
     virtual void save(ofstream &f) const {
       uint wr = MXQDPT_SAV;
       cds_utils::saveValue(f,wr);
+
+        cds_utils::saveValue(f,items_);
 
         cds_utils::saveValue(f,levels_k1_);
         cds_utils::saveValue(f,levels_k2_);
@@ -251,7 +255,7 @@ class MXCompactQtree: public CompactQtree {
         }
     }*/
 
-
+/* not used anymore
     size_t rank(const std::vector<Point<uint> > &vp, int key, uint level,
                 long lo, long hi) const {
         if (hi < lo)
@@ -272,16 +276,17 @@ class MXCompactQtree: public CompactQtree {
             return rank(vp, key, level, mid + 1, hi);
         }
     }
+*/
 
-
-    void get_stats(const std::vector<Point<uint> > &vp);
-
-    void create(const std::vector<Point<uint> > &vp,
-                BitSequenceBuilder *bs);
+//    void get_stats(const std::vector<Point<uint> > &vp);
+//
+//    void create(const std::vector<Point<uint> > &vp,
+//                BitSequenceBuilder *bs);
 
     void build(std::vector<Point<uint> > &vp,
                     BitSequenceBuilder *bs);
 
+    size_t items_; //number of points
 
     int levels_k1_;
     int levels_k2_; //int virtual_depth_k2_;

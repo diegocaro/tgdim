@@ -147,6 +147,8 @@ class MXCompactQtreeFixed:public CompactQtree {
                   if(type!=MXQFIX_SAV) {
                     abort();
                   }
+
+        loadValue(f,items_);
         loadValue(f,levels_k1_);
         loadValue(f,levels_k2_);
         loadValue(f,levels_ki_);
@@ -189,7 +191,9 @@ class MXCompactQtreeFixed:public CompactQtree {
 
     virtual void save(ofstream &f) const {
       uint wr = MXQFIX_SAV;
-            cds_utils::saveValue(f,wr);
+        cds_utils::saveValue(f,wr);
+
+        cds_utils::saveValue(f,items_);
         cds_utils::saveValue(f,levels_k1_);
         cds_utils::saveValue(f,levels_k2_);
         cds_utils::saveValue(f,levels_ki_);
@@ -271,6 +275,8 @@ class MXCompactQtreeFixed:public CompactQtree {
                 BitSequenceBuilder *bs, BitSequenceBuilder *bb);
     void build(const std::vector<Point<uint> > &vp,
                     BitSequenceBuilder *bs, BitSequenceBuilder *bb);
+
+    size_t items_; //number of points
 
     int levels_k1_;
     int levels_k2_; //int virtual_depth_k2_;

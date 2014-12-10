@@ -250,7 +250,7 @@ PRWCompactQtree::PRWCompactQtree(vector<Point<uint> > &vp,
     vector<Point<uint> >::iterator last = unique(vp.begin(), vp.end());
     vp.erase(last, vp.end());
 
-
+    items_ = vp.size();
     get_stats(vp);
 
     size_t treebits=0;

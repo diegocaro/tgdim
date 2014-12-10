@@ -249,10 +249,11 @@ PRB2CompactQtree::PRB2CompactQtree(vector<Point<uint> > &vp,
 //    }
 //    printf("Done!\n");
 
-    // remove duplicated elements
-    vector<Point<uint> >::iterator last = unique(vp.begin(), vp.end());
-    vp.erase(last, vp.end());
+//    // remove duplicated elements
+//    vector<Point<uint> >::iterator last = unique(vp.begin(), vp.end());
+//    vp.erase(last, vp.end());
 
+    items_ = vp.size();
 
     get_stats(vp);
 
@@ -913,7 +914,9 @@ void PRB2CompactQtree::all(Point<uint> p, size_t z, int level, vector<Point<uint
         if (T_[level]->access(z) == 0) return;
 
         vpall.push_back(p);
-
+        if (vpall.size()%100000 == 0) {
+            fprintf(stderr, "Progress: %.2f%% \r", (float)vpall.size()/items_*100);
+        }
         return;
     }
 
@@ -984,6 +987,9 @@ void PRB2CompactQtree::all(Point<uint> p, size_t z, int level, vector<Point<uint
               }
 
                vpall.push_back(c);
+               if (vpall.size()%100000 == 0) {
+                   fprintf(stderr, "Progress: %.2f%% \r", (float)vpall.size()/items_*100);
+               }
           }
           return;
         }

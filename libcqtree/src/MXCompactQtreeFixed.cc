@@ -276,6 +276,8 @@ MXCompactQtreeFixed::MXCompactQtreeFixed(vector<Point<uint> > &vp,
 //
 //    create(vp, bs, bb);
 
+    items_ = vp.size();
+
     build(vp,bs,bb);
     size_t treebits=0;
     for(int i = 0; i < depth_; i++) {
@@ -694,7 +696,9 @@ void MXCompactQtreeFixed::all(Point<uint> p, size_t z, int level, vector<Point<u
 
             }
             vpall.push_back(c);
-
+            if (vpall.size()%100000 == 0) {
+                fprintf(stderr, "Progress: %.2f%% \r", (float)vpall.size()/items_*100);
+            }
 
         }
         return;

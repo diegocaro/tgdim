@@ -253,11 +253,11 @@ MXCompactQtree::MXCompactQtree(vector<Point<uint> > &vp,
 //      std::sort(vp.begin(), vp.end(),Less(*this));
 //    }
 //    printf("Done!\n");
-
-    // remove duplicated elements
-    vector<Point<uint> >::iterator last = unique(vp.begin(), vp.end());
-    vp.erase(last, vp.end());
-
+//
+//    // remove duplicated elements
+//    vector<Point<uint> >::iterator last = unique(vp.begin(), vp.end());
+//    vp.erase(last, vp.end());
+//
 //    get_stats(vp);
 //
 //    size_t treebits=0;
@@ -270,6 +270,8 @@ MXCompactQtree::MXCompactQtree(vector<Point<uint> > &vp,
 //    if (NULL != bs) {
 //        create(vp, bs);
 //    }
+
+    items_ = vp.size();
 
     if (NULL != bs) {
         build(vp,bs);
@@ -284,131 +286,131 @@ MXCompactQtree::MXCompactQtree(vector<Point<uint> > &vp,
         printf("Total size T: %lu\n", treebits);
     }
 }
-
-void MXCompactQtree::get_stats(const std::vector<Point<uint> > &vp) {
-    struct Node z;
-    queue<struct Node> q;
-    size_t r[max_children_ + 1];
-
-    z.level = 0;
-    z.lo = 0;
-    z.hi = vp.size();
-    q.push(z);
-
-    vector<uint> entries;
-    entries.insert(entries.begin(), depth_, 0);
-
-    nodes_by_level_.insert(nodes_by_level_.begin(), depth_, 0);
-
-    //int ktreenodes=0;
-    while (!q.empty()) {
-        z = q.front();
-        q.pop();
-
-        r[0] = z.lo;
-        r[children_[z.level]] = z.hi;
-        //ktreenodes+=1;
-        nodes_by_level_[z.level] += children_[z.level];
-
-        for (int j = 1; j < children_[z.level]; j++)
-            //r[j] = rank(vp, j, depth_- z.level - 1, z.lo, z.hi - 1);
-            r[j] = rank(vp, j, z.level, z.lo, z.hi - 1);
-
-        //printf("r: %d %d %d %d\n", r[0], r[1], r[2], r[3]);
-
-        for (int j = 1; j < children_[z.level] + 1; j++) {
-            if (r[j] - r[j - 1] > 0) {
-                struct Node t;
-                t.lo = r[j - 1];
-
-                t.hi = r[j];
-
-                t.level = z.level + 1;
-
-                if (z.level < depth_ - 1)
-                    q.push(t);
-                //printf("set bit %u\n", (ktreenodes-1)*childs_ + j-1);
-
-            }
-        }
-    }
-}
-
-void MXCompactQtree::create(const std::vector<Point<uint> > &vp,
-                            BitSequenceBuilder *bs) {
-    struct Node z;
-    queue<struct Node> q;
-    size_t r[max_children_ + 1];
-
-    //int leaves[depth_];
-    //for(int i=0; i < depth_; i++) leaves[i]=0;
-    //int childs[depth_];
-    //for(int i=0; i < depth_; i++) childs[i]=0;
-
-    z.level = 0;
-    z.lo = 0;
-    z.hi = vp.size();
-
-    q.push(z);
-
-    //ulong ktreenodes = 0;
-
-    vector<uint*> treebits;
-    for(int i = 0; i < depth_; i++) {
-        treebits.push_back(new uint[nodes_by_level_[i] / W + 1]);
-        fill_n(treebits[i], nodes_by_level_[i] / W + 1, 0); //fill with zeroes
-    }
-
-    vector<size_t> curr_nodes;
-    curr_nodes.insert(curr_nodes.begin(), depth_, 0);
-
-    while (!q.empty()) {
-        z = q.front();
-        q.pop();
-
-        //ktreenodes += 1;
-
-        r[0] = z.lo;
-        r[children_[z.level]] = z.hi;
-
-        //printf("r[%d] = %lu\n",0,r[0]);
-        for (int j = 1; j < children_[z.level]; j++) {
-            //r[j] = rank(vp, j, depth_- z.level - 1, z.lo, z.hi - 1);
-            r[j] = rank(vp, j, z.level, z.lo, z.hi - 1);
-            //printf("r[%d] = %lu\n",j,r[j]);
-        }
-        //printf("r[%d] = %lu\n",children_[z.level],r[children_[z.level]]);
-
-        //printf("r: %d %d %d %d %d\n", r[0], r[1], r[2], r[3], r[4]);
-
-        for (int j = 1; j < children_[z.level] + 1; j++) {
-            if (r[j] - r[j - 1] > 0) {
-                struct Node t;
-                t.lo = r[j - 1];
-
-                t.hi = r[j];
-
-                t.level = z.level + 1;
-
-                if (z.level < depth_ - 1)
-                    q.push(t);
-
-                //printf("set bit T %lu\n", (ktreenodes-1)*childs_ + j-1);
-                //printf("set bit T_[%d] %lu\n", z.level, curr_nodes[z.level] + j - 1);
-                cds_utils::bitset(treebits[z.level], curr_nodes[z.level] + j - 1);
-            }
-        }
-
-        curr_nodes[z.level] += children_[z.level];
-
-    }
-
-    //building bitmaps for T and cleaning
-    for(int i = 0; i < depth_; i++) {
-        T_.push_back( bs->build(treebits[i], nodes_by_level_[i]));
-        delete [] treebits[i];
-    }
-}
+//
+//void MXCompactQtree::get_stats(const std::vector<Point<uint> > &vp) {
+//    struct Node z;
+//    queue<struct Node> q;
+//    size_t r[max_children_ + 1];
+//
+//    z.level = 0;
+//    z.lo = 0;
+//    z.hi = vp.size();
+//    q.push(z);
+//
+//    vector<uint> entries;
+//    entries.insert(entries.begin(), depth_, 0);
+//
+//    nodes_by_level_.insert(nodes_by_level_.begin(), depth_, 0);
+//
+//    //int ktreenodes=0;
+//    while (!q.empty()) {
+//        z = q.front();
+//        q.pop();
+//
+//        r[0] = z.lo;
+//        r[children_[z.level]] = z.hi;
+//        //ktreenodes+=1;
+//        nodes_by_level_[z.level] += children_[z.level];
+//
+//        for (int j = 1; j < children_[z.level]; j++)
+//            //r[j] = rank(vp, j, depth_- z.level - 1, z.lo, z.hi - 1);
+//            r[j] = rank(vp, j, z.level, z.lo, z.hi - 1);
+//
+//        //printf("r: %d %d %d %d\n", r[0], r[1], r[2], r[3]);
+//
+//        for (int j = 1; j < children_[z.level] + 1; j++) {
+//            if (r[j] - r[j - 1] > 0) {
+//                struct Node t;
+//                t.lo = r[j - 1];
+//
+//                t.hi = r[j];
+//
+//                t.level = z.level + 1;
+//
+//                if (z.level < depth_ - 1)
+//                    q.push(t);
+//                //printf("set bit %u\n", (ktreenodes-1)*childs_ + j-1);
+//
+//            }
+//        }
+//    }
+//}
+//
+//void MXCompactQtree::create(const std::vector<Point<uint> > &vp,
+//                            BitSequenceBuilder *bs) {
+//    struct Node z;
+//    queue<struct Node> q;
+//    size_t r[max_children_ + 1];
+//
+//    //int leaves[depth_];
+//    //for(int i=0; i < depth_; i++) leaves[i]=0;
+//    //int childs[depth_];
+//    //for(int i=0; i < depth_; i++) childs[i]=0;
+//
+//    z.level = 0;
+//    z.lo = 0;
+//    z.hi = vp.size();
+//
+//    q.push(z);
+//
+//    //ulong ktreenodes = 0;
+//
+//    vector<uint*> treebits;
+//    for(int i = 0; i < depth_; i++) {
+//        treebits.push_back(new uint[nodes_by_level_[i] / W + 1]);
+//        fill_n(treebits[i], nodes_by_level_[i] / W + 1, 0); //fill with zeroes
+//    }
+//
+//    vector<size_t> curr_nodes;
+//    curr_nodes.insert(curr_nodes.begin(), depth_, 0);
+//
+//    while (!q.empty()) {
+//        z = q.front();
+//        q.pop();
+//
+//        //ktreenodes += 1;
+//
+//        r[0] = z.lo;
+//        r[children_[z.level]] = z.hi;
+//
+//        //printf("r[%d] = %lu\n",0,r[0]);
+//        for (int j = 1; j < children_[z.level]; j++) {
+//            //r[j] = rank(vp, j, depth_- z.level - 1, z.lo, z.hi - 1);
+//            r[j] = rank(vp, j, z.level, z.lo, z.hi - 1);
+//            //printf("r[%d] = %lu\n",j,r[j]);
+//        }
+//        //printf("r[%d] = %lu\n",children_[z.level],r[children_[z.level]]);
+//
+//        //printf("r: %d %d %d %d %d\n", r[0], r[1], r[2], r[3], r[4]);
+//
+//        for (int j = 1; j < children_[z.level] + 1; j++) {
+//            if (r[j] - r[j - 1] > 0) {
+//                struct Node t;
+//                t.lo = r[j - 1];
+//
+//                t.hi = r[j];
+//
+//                t.level = z.level + 1;
+//
+//                if (z.level < depth_ - 1)
+//                    q.push(t);
+//
+//                //printf("set bit T %lu\n", (ktreenodes-1)*childs_ + j-1);
+//                //printf("set bit T_[%d] %lu\n", z.level, curr_nodes[z.level] + j - 1);
+//                cds_utils::bitset(treebits[z.level], curr_nodes[z.level] + j - 1);
+//            }
+//        }
+//
+//        curr_nodes[z.level] += children_[z.level];
+//
+//    }
+//
+//    //building bitmaps for T and cleaning
+//    for(int i = 0; i < depth_; i++) {
+//        T_.push_back( bs->build(treebits[i], nodes_by_level_[i]));
+//        delete [] treebits[i];
+//    }
+//}
 
 
 // this usess more memory!!
@@ -896,7 +898,7 @@ void MXCompactQtree::all(Point<uint> p, size_t z, int level, vector<Point<uint> 
             vpall.push_back(p);
 
         if (vpall.size()%100000 == 0) {
-            fprintf(stderr, "Progress: %.2f%% \r", (float)vpall.size()/T_[depth_-1]->countOnes()*100);
+            fprintf(stderr, "Progress: %.2f%% \r", (float)vpall.size()/items_*100);
         }
 
         return;
