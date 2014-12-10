@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.11)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
 include(AppendCompilerFlags)
+include(RemoveFlags)
 
 project(tgcq CXX)
 
@@ -22,16 +24,23 @@ else()
 endif()
 
 if( CMAKE_COMPILER_IS_GNUCXX )
-    append_cxx_compiler_flags("-std=c++11 -Wall -Wextra  -DNDEBUG" "GCC" CMAKE_CXX_FLAGS)
+    #append_cxx_compiler_flags("-std=c++11 -Wall -Wextra  -DNDEBUG" "GCC" CMAKE_CXX_FLAGS)
+    append_cxx_compiler_flags("-std=c++11 -Wall -Wextra" "GCC" CMAKE_CXX_FLAGS)
     append_cxx_compiler_flags("-O3 -ffast-math -funroll-loops" "GCC" CMAKE_CXX_OPT_FLAGS)
     if ( CODE_COVERAGE )
         append_cxx_compiler_flags("-g -fprofile-arcs -ftest-coverage -lgcov" "GCC" CMAKE_CXX_FLAGS)
     endif()
 else()
-    append_cxx_compiler_flags("-std=c++11 -DNDEBUG" "CLANG" CMAKE_CXX_FLAGS)
+    #append_cxx_compiler_flags("-std=c++11 -DNDEBUG" "CLANG" CMAKE_CXX_FLAGS)
+    append_cxx_compiler_flags("-std=c++11" "CLANG" CMAKE_CXX_FLAGS)
     append_cxx_compiler_flags("-stdlib=libc++" "CLANG" CMAKE_CXX_FLAGS)
     append_cxx_compiler_flags("-O3 -ffast-math -funroll-loops" "CLANG" CMAKE_CXX_OPT_FLAGS)
 endif()
+
+remove_cxx_flag("-DNDEBUG")
+message(STATUS "Flags:" ${CMAKE_CXX_FLAGS_RELEASE})
+
+
 
 # Where .h files can be found.
 #include_directories(
