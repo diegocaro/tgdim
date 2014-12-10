@@ -279,7 +279,7 @@ int main(int argc, char *argv[]) {
             }
           }
   }
-  else {
+  else if (opts.typegraph == kPoint){
     //3dim data
     Point<uint> c(3);
     uint dummy;
@@ -290,10 +290,27 @@ int main(int argc, char *argv[]) {
       assert(c[0] < nodes);
       assert(c[1] < nodes);
       assert(c[2] < lifetime);
+      assert(c[2]+1 == dummy);
 
       vp.push_back(c);
     }
   }
+  else if (opts.typegraph == kGrowth){
+      //3dim data
+      Point<uint> c(3);
+      uint dummy;
+      while(EOF != fscanf(infile,"%u %u %u %u", &c[0], &c[1], &c[2], &dummy )) {
+        readcontacts++;
+        if (readcontacts%10000==0)fprintf(stderr, "Reading data: %.2f%% \r", (float)readcontacts/contacts*100);
+
+        assert(c[0] < nodes);
+        assert(c[1] < nodes);
+        assert(c[2] < lifetime);
+        assert(dummy == lifetime-1);
+
+        vp.push_back(c);
+      }
+    }
 
   fclose(infile);
   assert(readcontacts == contacts);
