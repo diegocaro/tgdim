@@ -16,7 +16,7 @@ enum TypeGraph {
   kInterval,
   kGrowth,
   kPoint,
-  kIntervalPro
+  kIntervalGrowth
 };
 
 enum typeds {

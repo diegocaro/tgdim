@@ -51,8 +51,8 @@ void printsettings(struct opts *opts) {
     case kPoint:
       printf("P Point Temporal Graph (3d)\n");
       break;
-    case kIntervalPro:
-          printf("R Interval Pro 4d+3d\n");
+    case kIntervalGrowth:
+          printf("R Interval Growth 4d+3d\n");
           break;
   }
 
@@ -143,8 +143,8 @@ int readopts(int argc, char **argv, struct opts *opts) {
                     INFO("Growing Temporal Graph");
                     opts->typegraph = kGrowth;
                 } else if (strcmp(optarg, "R") == 0) {
-                    INFO("Interval Pro");
-                    opts->typegraph = kIntervalPro;
+                    INFO("Interval Growth");
+                    opts->typegraph = kIntervalGrowth;
                 }
                 break;
             case 'f':
@@ -190,7 +190,7 @@ int readopts(int argc, char **argv, struct opts *opts) {
         fprintf(stderr, "\tI for Interval-contact Temporal Graph\n");
         fprintf(stderr, "\tP for Point-contact Temporal Graph\n");
         fprintf(stderr, "\tG for Growing Temporal Graph\n");
-        fprintf(stderr, "\tR for Interval Pro Graph\n");
+        fprintf(stderr, "\tR for Interval Growth Graph\n");
 
         fprintf(stderr,
                 "\nExpected input file -i input file can be set to '-' to read stdin\n");
@@ -254,7 +254,7 @@ int main(int argc, char *argv[]) {
       vp.push_back(c);
     }
   }
-  else if (opts.typegraph == kIntervalPro) {
+  else if (opts.typegraph == kIntervalGrowth) {
       //4dim data
           Point<uint> c(4);
           Point<uint> c3(3);
@@ -367,12 +367,12 @@ int main(int argc, char *argv[]) {
       case kPoint:
         tg = new PointContactGraph();
         break;
-      case kIntervalPro:
+      case kIntervalGrowth:
           tg = new IntervalContactGraphImproved();
         break;
   }
 
-    if (opts.typegraph == kIntervalPro) {
+    if (opts.typegraph == kIntervalGrowth) {
         CompactQtree *cqcurr;
 
         switch(opts.ds) {
