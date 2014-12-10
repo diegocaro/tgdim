@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
   fclose(infile);
   assert(readcontacts == contacts);
   
-  fprintf(stderr, "\nChecking if sorted");
+  fprintf(stderr, "\nChecking if sorted\n");
   bool is_sorted = true;
   for( size_t i=1; i < vp.size(); i++) {
       if (Point<uint>::cmpmorton(vp[i-1], vp[i]) == false) {
@@ -60,11 +60,20 @@ int main(int argc, char *argv[]) {
   }
   
   if(!is_sorted) {
-	  fprintf(stderr, "\rSorting");
+	  fprintf(stderr, "Sorting\n");
 	  sort(vp.begin(), vp.end(), Point<uint>::cmpmorton);
   }
   
-  fprintf(stderr, "\rDone");  
+  fprintf(stderr, "Deleting duplicated entries\n");
+
+  fprintf(stderr,"Old size: %lu\n", vp.size());
+  typename vector<Point<uint>>::iterator last = unique(vp.begin(), vp.end());
+  vp.erase(last, vp.end());
+  fprintf(stderr,"Actual size: %lu\n", vp.size());
+
+  contacts = vp.size();
+
+  fprintf(stderr, "Printing data\n");
   
   printf("%u %u %u %u\n",nodes,edges,lifetime,contacts);
   for(vector<Point<uint> >::iterator it=vp.begin(); it != vp.end(); ++it) {
