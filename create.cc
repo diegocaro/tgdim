@@ -348,6 +348,8 @@ int main(int argc, char *argv[]) {
   fclose(infile);
   assert(readcontacts == contacts);
 
+  fprintf(stderr, "Contacts read\n");
+
   CompactQtree *cq;
 
   switch(opts.ds) {
