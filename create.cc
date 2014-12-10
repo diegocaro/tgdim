@@ -325,6 +325,7 @@ int main(int argc, char *argv[]) {
 
   if (vp.size() != vpall.size()) {
     fprintf(stderr, "Error: data from data structure doesnt match the input\n");
+    fprintf(stderr, "Expected size: %lu\nActual size: %lu\n",vp.size(), vpall.size());
     abort();
   }
   for(size_t i=0; i < vp.size(); i++) {
