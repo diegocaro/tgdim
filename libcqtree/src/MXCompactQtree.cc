@@ -894,6 +894,11 @@ void MXCompactQtree::all(Point<uint> p, size_t z, int level, vector<Point<uint> 
 
         if (T_[level]->access(z) == 0) return;
             vpall.push_back(p);
+
+        if (vpall.size()%100000 == 0) {
+            fprintf(stderr, "Progress: %.2f%% \r", (float)vpall.size()/T_[depth_-1]->countOnes()*100);
+        }
+
         return;
     }
 
