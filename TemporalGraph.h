@@ -210,20 +210,24 @@ class TemporalGraph {
     }
   }
 
-  void updateBitmaps(BitSequenceBuilder *bt, BitSequenceBuilder *bb, BitSequenceBuilder *bc) {
-      if (dynamic_cast<PRBCompactQtree*>(qt_)) {
-          ((UpdatePRBCompactQtree* )qt_ )->updateBitmaps(bt,bb);
+  void updateCQBitmaps(CompactQtree *q, BitSequenceBuilder *bt, BitSequenceBuilder *bb, BitSequenceBuilder *bc) {
+      if (dynamic_cast<PRBCompactQtree*>(q)) {
+          ((UpdatePRBCompactQtree* )q )->updateBitmaps(bt,bb);
       }
-      else if (dynamic_cast<PRB2CompactQtree*>(qt_)) {
-              ((UpdatePRB2CompactQtree* )qt_ )->updateBitmaps(bt,bb,bc);
+      else if (dynamic_cast<PRB2CompactQtree*>(q)) {
+              ((UpdatePRB2CompactQtree* )q )->updateBitmaps(bt,bb,bc);
           }
-      else if (dynamic_cast<MXCompactQtree*>(qt_)) {
-         ((UpdateMXCompactQtree* )qt_ )->updateBitmaps(bt);
+      else if (dynamic_cast<MXCompactQtree*>(q)) {
+         ((UpdateMXCompactQtree* )q )->updateBitmaps(bt);
      }
       else {
           fprintf(stderr, "CompactQtree class cannot be updated to new bitmaps.\n");
           return;
       }
+  }
+
+  virtual void updateBitmaps(BitSequenceBuilder *bt, BitSequenceBuilder *bb, BitSequenceBuilder *bc) {
+      updateCQBitmaps(qt_,bt,bb,bc);
   }
 
   virtual void save(ofstream &f)=0;
@@ -631,8 +635,8 @@ class GrowingContactGraph : public TemporalGraph {
       from[2] = 0;
 
 
-      to[0] = nodes_;
-      to[1] = nodes_;
+      to[0] = u+1;
+      to[1] = v+1;
       to[2] = t+1;
 
       qt_->range(from,to,vp,true);
@@ -942,6 +946,11 @@ class IntervalContactGraphGrowth : public TemporalGraph {
 
 }
 
+ virtual void updateBitmaps(BitSequenceBuilder *bt, BitSequenceBuilder *bb, BitSequenceBuilder *bc) {
+     past_->updateBitmaps(bt,bb,bc);
+     curr_->updateBitmaps(bt,bb,bc);
+ }
+
   /// Interface
 
   virtual void direct_point(uint u, uint t, uint *res) {
@@ -1055,6 +1064,10 @@ class IntervalContactGraphPoint : public TemporalGraph {
 
 }
 
+ virtual void updateBitmaps(BitSequenceBuilder *bt, BitSequenceBuilder *bb, BitSequenceBuilder *bc) {
+     interval_->updateBitmaps(bt,bb,bc);
+     point_->updateBitmaps(bt,bb,bc);
+ }
   /// Interface
 
   virtual void direct_point(uint u, uint t, uint *res) {
