@@ -10,7 +10,7 @@
 
 #include "CompactQtree.h"
 #include "utils.h"
-
+#include <cdswrapper/sdsl_bitvectors.h>
 // Libcds
 #include <libcdsBasics.h>
 #include <BitSequenceBuilder.h>
@@ -193,15 +193,15 @@ class PRB2CompactQtree:public CompactQtree {
        loadVector(f, kpower_per_level_dim_);
 
        for(int i = 0; i < depth_; i++) {
-           T_.push_back(BitSequence::load(f));
+           T_.push_back(NewBitSequence::load(f));
        }
 
        for(int i = 0; i < depth_; i++) {
-           B_.push_back(BitSequence::load(f));
+           B_.push_back(NewBitSequence::load(f));
        }
 
        for(int i = 0; i < depth_; i++) {
-           C_.push_back(BitSequence::load(f));
+           C_.push_back(NewBitSequence::load(f));
        }
 
        leaves_ = new Array**[depth_];
