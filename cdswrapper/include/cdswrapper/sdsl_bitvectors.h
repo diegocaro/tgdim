@@ -97,13 +97,16 @@ public:
         return _rrr.size();
     }
 
+    size_t getSize() {
+        return size_in_bytes(_rrr);
+    }
+
 protected:
     rrr_vector<block_size> _rrr;
     typename rrr_vector<block_size>::rank_1_type _rank1_rrr;
     typename rrr_vector<block_size>::rank_0_type _rank0_rrr;
     typename rrr_vector<block_size>::select_1_type _select1_rrr;
     typename rrr_vector<block_size>::select_0_type _select0_rrr;
-
 };
 
 class SDSL_RRR_15 : public BitSequence {
@@ -127,6 +130,8 @@ public:
         }
         SDSL_RRR_15 *ret = new SDSL_RRR_15();
         ret->bv = _SDSL_RRR<15>::load_stream(f);
+        ret->length = ret->bv->getLength();
+        ret->ones = ret->bv->rank1(ret->length-1);
         return ret;
     }
 
@@ -137,7 +142,6 @@ public:
     }
 
     virtual size_t getSize() const {return 0;}
-    virtual size_t getLength() const {return bv->getLength();}
 
     virtual bool access(const size_t i) const { return bv->access(i);}
     virtual size_t rank1(const size_t i) const { return bv->rank1(i); }
@@ -170,6 +174,8 @@ public:
         }
         SDSL_RRR_31 *ret = new SDSL_RRR_31();
         ret->bv = _SDSL_RRR<31>::load_stream(f);
+        ret->length = ret->bv->getLength();
+        ret->ones = ret->bv->rank1(ret->length-1);
         return ret;
     }
 
@@ -179,8 +185,7 @@ public:
         bv->save_stream(f);
     }
 
-    virtual size_t getSize() const {return 0;}
-    virtual size_t getLength() const {return bv->getLength();}
+    virtual size_t getSize() const {return bv->getSize();}
 
     virtual bool access(const size_t i) const { return bv->access(i);}
     virtual size_t rank1(const size_t i) const { return bv->rank1(i); }
@@ -214,6 +219,8 @@ public:
         }
         SDSL_RRR_63 *ret = new SDSL_RRR_63();
         ret->bv = _SDSL_RRR<63>::load_stream(f);
+        ret->length = ret->bv->getLength();
+        ret->ones = ret->bv->rank1(ret->length-1);
         return ret;
     }
 
@@ -223,8 +230,7 @@ public:
         bv->save_stream(f);
     }
 
-    virtual size_t getSize() const {return 0;}
-    virtual size_t getLength() const {return bv->getLength();}
+    virtual size_t getSize() const {return bv->getSize();}
 
     virtual bool access(const size_t i) const { return bv->access(i);}
     virtual size_t rank1(const size_t i) const { return bv->rank1(i); }
@@ -257,6 +263,8 @@ public:
         }
         SDSL_RRR_127 *ret = new SDSL_RRR_127();
         ret->bv = _SDSL_RRR<127>::load_stream(f);
+        ret->length = ret->bv->getLength();
+        ret->ones = ret->bv->rank1(ret->length-1);
         return ret;
     }
 
@@ -266,8 +274,7 @@ public:
         bv->save_stream(f);
     }
 
-    virtual size_t getSize() const {return 0;}
-    virtual size_t getLength() const {return bv->getLength();}
+    virtual size_t getSize() const {return bv->getSize();}
 
     virtual bool access(const size_t i) const { return bv->access(i);}
     virtual size_t rank1(const size_t i) const { return bv->rank1(i); }
@@ -301,6 +308,8 @@ public:
         }
         SDSL_RRR_255 *ret = new SDSL_RRR_255();
         ret->bv = _SDSL_RRR<255>::load_stream(f);
+        ret->length = ret->bv->getLength();
+        ret->ones = ret->bv->rank1(ret->length-1);
         return ret;
     }
 
@@ -310,8 +319,7 @@ public:
         bv->save_stream(f);
     }
 
-    virtual size_t getSize() const {return 0;}
-    virtual size_t getLength() const {return bv->getLength();}
+    virtual size_t getSize() const {return bv->getSize();}
 
     virtual bool access(const size_t i) const { return bv->access(i);}
     virtual size_t rank1(const size_t i) const { return bv->rank1(i); }
@@ -377,6 +385,10 @@ public:
         return _bv.size();
     }
 
+    size_t getSize() {
+        return size_in_bytes(_bv);
+    }
+
 protected:
     BV _bv;
     typename BV::rank_1_type _rank1_bv;
@@ -408,6 +420,8 @@ public:
         }
         SDSL_IL_512 *ret = new SDSL_IL_512();
         ret->bv = _SDSL_BV< bit_vector_il<512> >::load_stream(f);
+        ret->length = ret->bv->getLength();
+        ret->ones = ret->bv->rank1(ret->length-1);
         return ret;
     }
 
@@ -417,8 +431,7 @@ public:
         bv->save_stream(f);
     }
 
-    virtual size_t getSize() const {return 0;}
-    virtual size_t getLength() const {return bv->getLength();}
+    virtual size_t getSize() const {return bv->getSize();}
 
     virtual bool access(const size_t i) const { return bv->access(i);}
     virtual size_t rank1(const size_t i) const { return bv->rank1(i); }
@@ -452,6 +465,8 @@ public:
         }
         SDSL_IL_1024 *ret = new SDSL_IL_1024();
         ret->bv = _SDSL_BV< bit_vector_il<1024> >::load_stream(f);
+        ret->length = ret->bv->getLength();
+        ret->ones = ret->bv->rank1(ret->length-1);
         return ret;
     }
 
@@ -461,8 +476,7 @@ public:
         bv->save_stream(f);
     }
 
-    virtual size_t getSize() const {return 0;}
-    virtual size_t getLength() const {return bv->getLength();}
+    virtual size_t getSize() const {return bv->getSize();}
 
     virtual bool access(const size_t i) const { return bv->access(i);}
     virtual size_t rank1(const size_t i) const { return bv->rank1(i); }
@@ -496,6 +510,8 @@ public:
         }
         SDSL_IL_128 *ret = new SDSL_IL_128();
         ret->bv = _SDSL_BV< bit_vector_il<128> >::load_stream(f);
+        ret->length = ret->bv->getLength();
+        ret->ones = ret->bv->rank1(ret->length-1);
         return ret;
     }
 
@@ -505,8 +521,7 @@ public:
         bv->save_stream(f);
     }
 
-    virtual size_t getSize() const {return 0;}
-    virtual size_t getLength() const {return bv->getLength();}
+    virtual size_t getSize() const {return bv->getSize();}
 
     virtual bool access(const size_t i) const { return bv->access(i);}
     virtual size_t rank1(const size_t i) const { return bv->rank1(i); }
