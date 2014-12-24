@@ -76,20 +76,20 @@ do
     	echo Creating $OUTFILE
 
 	if [ ! -f "$OUTFILE" ]; then
-#		gzcat $INPUT | ./create -s PRB2 -g $TYPEGRAPH -f k1:2,k2:2,lk1:0,lki:0,lf:0,F:$F,T:$BITT,B:$BITB,C:$BITC $OUTFILE
+		gzcat $INPUT | ./create -s PRB2 -g $TYPEGRAPH -f k1:2,k2:2,lk1:0,lki:0,lf:0,F:$F,T:$BITT,B:$BITB,C:$BITC $OUTFILE
 	fi
 	
     OUTFILE=$OUTPUT-2,2,0,$(( LEVELS/2 )),0,$F-$BITT-$BITB-$BITC.prb2
     	echo Creating $OUTFILE
 
 	if [ ! -f "$OUTFILE" ]; then
-#		gzcat $INPUT | ./create -s PRB2 -g $TYPEGRAPH -f k1:2,k2:2,lk1:0,lki:$(( LEVELS/2 )),lf:0,F:$F,T:$BITT,B:$BITB,C:$BITC $OUTFILE
+		gzcat $INPUT | ./create -s PRB2 -g $TYPEGRAPH -f k1:2,k2:2,lk1:0,lki:$(( LEVELS/2 )),lf:0,F:$F,T:$BITT,B:$BITB,C:$BITC $OUTFILE
 	fi
 	
     OUTFILE=$OUTPUT-2,2,0,$LEVELS,0,$F-$BITT-$BITB-$BITC.prb2
     	echo Creating $OUTFILE
 
 	if [ ! -f "$OUTFILE" ]; then
-#		gzcat $INPUT | ./create -s PRB2 -g $TYPEGRAPH -f k1:2,k2:2,lk1:0,lki:$LEVELS,lf:0,F:$F,T:$BITT,B:$BITB,C:$BITC $OUTFILE
+		gzcat $INPUT | ./create -s PRB2 -g $TYPEGRAPH -f k1:2,k2:2,lk1:0,lki:$LEVELS,lf:0,F:$F,T:$BITT,B:$BITB,C:$BITC $OUTFILE
 	fi
 done
