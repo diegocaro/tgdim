@@ -192,7 +192,7 @@ class TemporalGraph {
 //  }
 //  ;
 
-  void stats() {
+  virtual void stats() {
     qt_->stats_space();
   }
 
@@ -950,6 +950,11 @@ class IntervalContactGraphGrowth : public TemporalGraph {
      past_->updateBitmaps(bt,bb,bc);
      curr_->updateBitmaps(bt,bb,bc);
  }
+ 
+ virtual void stats() {
+   past_->stats();
+   curr_->stats();
+ }
 
   /// Interface
 
@@ -1068,6 +1073,12 @@ class IntervalContactGraphPoint : public TemporalGraph {
      interval_->updateBitmaps(bt,bb,bc);
      point_->updateBitmaps(bt,bb,bc);
  }
+ 
+ virtual void stats() {
+   interval_->stats();
+   point_->stats();
+ }
+ 
   /// Interface
 
   virtual void direct_point(uint u, uint t, uint *res) {
