@@ -141,7 +141,7 @@ public:
         bv->save_stream(f);
     }
 
-    virtual size_t getSize() const {return 0;}
+    virtual size_t getSize() const {return bv->getSize();}
 
     virtual bool access(const size_t i) const { return bv->access(i);}
     virtual size_t rank1(const size_t i) const { return bv->rank1(i); }
