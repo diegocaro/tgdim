@@ -30,6 +30,9 @@ class __Point {
 template<typename tdata>
 class Point : public __Point {
  public:
+
+    tdata weight;
+
     Point() {
         //data_point_ = NULL;
         num_dims_ = 0;
@@ -45,11 +48,12 @@ class Point : public __Point {
     }
 
     Point(const Point<tdata> &obj)
-            : num_dims_(obj.num_dims_) {
+            : num_dims_(obj.num_dims_), weight(obj.weight) {
 //        data_point_ = new tdata[num_dims_];
 
         //memcpy(data_point_, obj.data_point_, sizeof(tdata)*num_dims_);
         std::copy(obj.data_point_, obj.data_point_ + num_dims_, data_point_);
+
     }
 
 //    ~Point() {

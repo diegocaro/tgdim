@@ -103,6 +103,7 @@ int main(int argc, char ** argv) {
 
 		if (typequery == DIRECT_NEIGHBORS) {
 			 for (unsigned i = 0; i < vertices; i++) {
+				 *gotreslist = 0;
 				 if ( (i & 0x8000) == 0x8000) fprintf(stderr, "Progress: %.2f\r", (float)i/vertices*100.0); 
 #ifdef TIMESAMPLE
         		 startClockTime();
@@ -119,6 +120,7 @@ int main(int argc, char ** argv) {
 		
 		else if (typequery == REVERSE_NEIGHBORS) {
 			 for (unsigned i = 0; i < vertices; i++) {
+				 *gotreslist = 0;
  				 if ((i & 0x8000) == 0x8000) fprintf(stderr, "Progress: %.2f\r", (float)i/vertices*100.0);
 #ifdef TIMESAMPLE
         		 startClockTime();
