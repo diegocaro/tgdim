@@ -187,6 +187,9 @@ class TemporalGraph {
     contacts_ = contacts;
   }
 
+  unsigned getNodes() {
+	  return nodes_;
+  }
 //  void setOpts(struct opts &opts) {
 //    opts_ = opts;
 //  }

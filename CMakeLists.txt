@@ -1,3 +1,6 @@
+# cmake -DCMAKE_BUILD_TYPE=Release .  //for experiments
+# cmake -DCMAKE_BUILD_TYPE=Debug . //for debugging
+
 cmake_minimum_required(VERSION 2.8.11)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
@@ -115,9 +118,18 @@ target_link_libraries(stats cqtree)
 add_executable( leaves leaves.cc TemporalGraph.cc)
 target_link_libraries(leaves cqtree)
 
+add_executable( allvertices allvertices.cc TemporalGraph.cc)
+target_link_libraries(allvertices cqtree)
+
+add_executable( allvertices_time allvertices.cc TemporalGraph.cc)
+target_link_libraries(allvertices_time cqtree)
+set_target_properties (allvertices_time PROPERTIES COMPILE_DEFINITIONS TIMESAMPLE)
+
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     target_link_libraries(benchmark -lrt)
     target_link_libraries(checkans -lrt)
     target_link_libraries(benchmark_time -lrt)
+	target_link_libraries(allvertices -lrt)
+	target_link_libraries(allvertices_time -lrt)
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
