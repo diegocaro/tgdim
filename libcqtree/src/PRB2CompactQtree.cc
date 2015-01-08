@@ -1249,7 +1249,7 @@ void PRB2CompactQtree::stats_space() const {
       printf("%10lu\t%10lu\t%8.2f\t%10lu\t%8.2f\t", B_[i]->getLength(), B_[i]->countOnes(),1.0*B_[i]->countOnes()/B_[i]->getLength() ,B_[i]->getSize(), 1.0*B_[i]->getSize()*8/B_[i]->getLength());
       printf("%10lu\t%10lu\t%8.2f\t%10lu\t%8.2f\t", C_[i]->getLength(), C_[i]->countOnes(),1.0*C_[i]->countOnes()/C_[i]->getLength() ,C_[i]->getSize(), 1.0*C_[i]->getSize()*8/C_[i]->getLength());
       size_t A=0;
-      for(int j=0; i!=depth_-1 && j < dims_[i]; j++) {
+      for(int j=0; i!=depth_-1 && j < num_dims_; j++) {
         A += leaves_[i][j]->getSize();
       }
       printf("%10lu\n",A);
