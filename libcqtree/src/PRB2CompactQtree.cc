@@ -556,7 +556,7 @@ void PRB2CompactQtree::create(const std::vector<Point<uint> > &vp,
                     //if (i != depth_-2) {
                         for(int j=rangedim_by_level_[i].first; j < rangedim_by_level_[i].second; j++) {
                            leaves_[i][j] = new Array(leaves_per_level_[i], maxval-1);
-                    //   }
+                       }
                     //} else {
                      //   for(int j=rangedim_by_level_[i].first; j < rangedim_by_level_[i].second; j++) {
                       //                       leaves_[i][j] = new Array(0UL,0);
