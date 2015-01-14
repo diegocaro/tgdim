@@ -82,6 +82,30 @@ BitSequenceBuilder* getBSBuilder(string e) {
 
     return bs;
 }
+
+XorCodeBuilder* getXorBuilder(string e) {
+    XorCodeBuilder *bx = NULL;
+
+    if (e == "HUFF128") {
+        bx = new XorHuffmanVectorBuilder(128);
+    }
+    else if (e == "HUFF64") {
+        bx = new XorHuffmanVectorBuilder(64);
+    }
+    else if (e == "HUFF32") {
+        bx = new XorHuffmanVectorBuilder(32);
+    }
+    else if (e == "HUFF256") {
+        bx = new XorHuffmanVectorBuilder(256);
+    }
+    else {
+        fprintf(stderr, "Error: XorBuilder '%s' not found.\n",e.c_str());
+        return NULL;
+    }
+
+    return bx;
+}
+
 uint *getBitmap(BitSequence *bs) {
     size_t len = bs->getLength();
 

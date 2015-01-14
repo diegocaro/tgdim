@@ -75,6 +75,9 @@ void printsettings(struct opts *opts) {
     case ePRWhite:
       printf("PRW compact data structure\n");
       break;
+    case ePRB2XORBlack:
+      printf("PRB2 XOR compact data structure\n");
+      break;
   }
 
 //  printf("params_char = '%s'\n",opts->params_char);
@@ -94,6 +97,7 @@ void printsettings(struct opts *opts) {
 
   printf("F: %d\n", opts->F);
 
+  printf("X: %s\n",opts->params["X"].c_str());
 
   printf("Reading input file '%s'\n",opts->infile);
 
@@ -107,7 +111,7 @@ int readopts(int argc, char **argv, struct opts *opts) {
     // Default options
     opts->infile = "-";
 
-    const char *def_params = "T:RG5,B:RG5,C:RG5,k1:4,k2:2,lk1:0,lki:0,F:2,lf:1";
+    const char *def_params = "T:RG5,B:RG5,C:RG5,k1:4,k2:2,lk1:0,lki:0,F:2,lf:1,X:HUFF128";
     readflags(opts, def_params);
 
     opts->typegraph = kInterval;
@@ -131,6 +135,9 @@ int readopts(int argc, char **argv, struct opts *opts) {
                 } else if (strcmp(optarg, "PRB2") == 0) {
                     INFO("Using PRB2Black");
                     opts->ds = ePRB2Black;
+                } else if (strcmp(optarg, "PRB2XOR") == 0) {
+                    INFO("Using PRB2XORBlack");
+                    opts->ds = ePRB2XORBlack;
                 } else {
                     dsflag = 0;
                 }
@@ -168,10 +175,12 @@ int readopts(int argc, char **argv, struct opts *opts) {
     opts->bb = getBSBuilder(opts->params["B"]);
     opts->bc = getBSBuilder(opts->params["C"]);
 
+    opts->bx = getXorBuilder(opts->params["X"]);
+
     if (optind >= argc || (argc - optind) < 1 || dsflag == 0 || opts->bs == NULL || opts->bb == NULL || opts->bc == NULL
-            || (opts->lf == 0 && opts->ds == eMXFixed)) {
+            || (opts->bx == NULL && opts->ds == ePRB2XORBlack) ||(opts->lf == 0 && opts->ds == eMXFixed)) {
         fprintf(stderr,
-                "%s -s {MXD,MXF,PRB,PRW,PRB2} [-f k1,k2,lk1,lki,lf,F] [-g I,P,G] [-i <inputfile>] <outputfile> \n",
+                "%s -s {MXD,MXF,PRB,PRW,PRB2,PRB2XOR} [-f k1,k2,lk1,lki,lf,F,X] [-g I,P,G] [-i <inputfile>] <outputfile> \n",
                 argv[0]);
         fprintf(stderr, "Expected data structure (-s):\n");
         fprintf(stderr, "\tMXD for MatriX Quadtree (automatic depth)\n");
@@ -182,6 +191,8 @@ int readopts(int argc, char **argv, struct opts *opts) {
                 "\tPRB2 for Point Region Quadtree Leaves as Black Nodes (variable)\n");
         fprintf(stderr,
                 "\tPRW for Point Region Quadtree Leaves as White Nodes\n");
+        fprintf(stderr,
+                        "\tPRB2XOR for Point Region Quadtree Leaves as Black Nodes (variable with xor encoding on blocks)\n");
 
         fprintf(stderr,
                 "\nExpected data structure flags (-f k1:2,k2:2,lk1:0,lki:1,lf:2,F:2,T:RG,B:RG,C:RG):\n");
@@ -368,6 +379,9 @@ int main(int argc, char *argv[]) {
     case eMXFixed:
       cq = new MXCompactQtreeFixed(vp,opts.bs,opts.bb,opts.k1,opts.k2,opts.lk1,opts.lki,opts.lf);
       break;
+    case ePRB2XORBlack:
+        cq = new PRB2XORCompactQtree(vp,opts.bs,opts.bb,opts.bc,opts.bx,opts.k1,opts.k2,opts.F,opts.lk1,opts.lki);
+        break;
   }
 
 
@@ -429,6 +443,9 @@ int main(int argc, char *argv[]) {
           case eMXFixed:
               cqcurr = new MXCompactQtreeFixed(vp3dim,opts.bs,opts.bb,opts.k1,opts.k2,opts.lk1,opts.lki,opts.lf);
             break;
+          case ePRB2XORBlack:
+              cqcurr = new PRB2XORCompactQtree(vp3dim,opts.bs,opts.bb,opts.bc,opts.bx,opts.k1,opts.k2,opts.F,opts.lk1,opts.lki);
+                  break;
         }
 
 
@@ -485,6 +502,9 @@ int main(int argc, char *argv[]) {
             break;
           case eMXFixed:
               cq3d = new MXCompactQtreeFixed(vp3dim,opts.bs,opts.bb,opts.k1,opts.k2,opts.lk1,opts.lki,opts.lf);
+            break;
+          case ePRB2XORBlack:
+            cq3d = new PRB2XORCompactQtree(vp3dim,opts.bs,opts.bb,opts.bc,opts.bx,opts.k1,opts.k2,opts.F,opts.lk1,opts.lki);
             break;
         }
 

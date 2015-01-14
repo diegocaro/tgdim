@@ -12,6 +12,8 @@
 
 #include <CompactQtree.h>
 
+using namespace cqtree_static;
+
 enum TypeGraph {
   kInterval,
   kGrowth,
@@ -25,7 +27,8 @@ enum typeds {
   ePRWhite,
   eMXDepth,
   eMXFixed,
-  ePRB2Black
+  ePRB2Black,
+  ePRB2XORBlack
 };
 
 struct opts {
@@ -51,6 +54,8 @@ struct opts {
   int lk1;  //levels for k1
   int lki;  //levels for ki
   int lf;  //levels for fixed mx
+
+  XorCodeBuilder *bx; //xor builder
 };
 
 #define TG_INTERV 3
@@ -60,12 +65,12 @@ struct opts {
 #define TG_INTERVPOINT 7
 
 
-using namespace cqtree_static;
+
 
 void readflags(struct opts *opts, const char *flags);
 BitSequenceBuilder* getBSBuilder(string e);
 uint *getBitmap(BitSequence *bs);
-
+XorCodeBuilder* getXorBuilder(string e);
 
 class UpdateMXCompactQtree: public MXCompactQtree {
     public:

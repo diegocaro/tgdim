@@ -27,6 +27,7 @@ using namespace cqtree_utils;
 #define PRQBLK_SAV 4
 #define PRQWHT_SAV 5
 #define PRQBLK2_SAV 6
+#define PRQBLK2XOR_SAV 7
 
 namespace cqtree_static {
 
@@ -55,5 +56,5 @@ public:
 #include "PRBCompactQtree.h"
 //#include "PRWCompactQtree.h"
 #include "PRB2CompactQtree.h"
-
+#include "PRB2XORCompactQtree.h"
 #endif /* COMPACTQTREE_H_ */
