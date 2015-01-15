@@ -61,6 +61,8 @@ add_subdirectory(../cdswrapper ext_cdswrapper)
 #add_subdirectory(../../sdsl-lite ext_sdsl-lite)
 #include_directories(../../sdsl-lite/include)
 
+add_subdirectory(../../compresslists ext_compresslists)
+
 ################################
 # Unit Tests
 ################################
@@ -103,9 +105,9 @@ add_test( runPRB2XORUnitTests runPRB2XORUnitTests )
 
 ### Common objects files in my project
 #add_library(cqtree src/utils.cc src/CompactQtree.cc src/MXCompactQtree.cc src/MXCompactQtreeFixed.cc src/PRBCompactQtree.cc src/PRWCompactQtree.cc )
-add_library(cqtree src/utils.cc src/CompactQtree.cc src/MXCompactQtree.cc src/MXCompactQtreeFixed.cc src/PRBCompactQtree.cc src/PRB2CompactQtree.cc src/PRB2XORCompactQtree.cc src/XorCode.cc )
+add_library(cqtree src/utils.cc src/CompactQtree.cc src/MXCompactQtree.cc src/MXCompactQtreeFixed.cc src/PRBCompactQtree.cc src/PRB2CompactQtree.cc src/PRB2XORCompactQtree.cc src/XorCode.cc  src/MyCoder.cc )
 
 target_include_directories(cqtree PUBLIC src)
 target_include_directories(cqtree PUBLIC include)
 
-target_link_libraries(cqtree cdswrapper)
+target_link_libraries(cqtree cdswrapper compress)

@@ -87,17 +87,35 @@ XorCodeBuilder* getXorBuilder(string e) {
     XorCodeBuilder *bx = NULL;
 
     if (e == "HUFF128") {
-        bx = new XorHuffmanVectorBuilder(128);
+        bx = new XorHuffmanVectorBuilder(129);
     }
     else if (e == "HUFF64") {
-        bx = new XorHuffmanVectorBuilder(64);
+        bx = new XorHuffmanVectorBuilder(65);
     }
     else if (e == "HUFF32") {
-        bx = new XorHuffmanVectorBuilder(32);
+        bx = new XorHuffmanVectorBuilder(33);
     }
     else if (e == "HUFF256") {
-        bx = new XorHuffmanVectorBuilder(256);
+        bx = new XorHuffmanVectorBuilder(257);
     }
+    else if (e == "PFOR128") {
+        char p[] = "pfor:128:rice:128";
+            bx = new XorCompressedVectorBuilder(p,129);
+        }
+        else if (e == "PFOR64") {
+            char p[] = "pfor:64:rice:64";
+            bx = new XorCompressedVectorBuilder(p,65);
+        }
+        else if (e == "PFOR32") {
+            char p[] = "pfor:32:rice:32";
+            bx = new XorCompressedVectorBuilder(p,33);
+        }
+        else if (e == "PFOR256") {
+            char p[] = "pfor:256:rice:256";
+            bx = new XorCompressedVectorBuilder(p,257);
+        }
+
+
     else {
         fprintf(stderr, "Error: XorBuilder '%s' not found.\n",e.c_str());
         return NULL;

@@ -702,11 +702,18 @@ void PRB2XORCompactQtree::create(const std::vector<Point<uint> > &vp,
         delete [] countbits[i];
     }
 
-    leaves_ = new XorCode**[depth_];
+    // first pass to update the ditionary
+    for(int i = 0; i < depth_-1; i++) {
+         for(int j = 0; j < num_dims_; j++) {
+             xorbuild->updateDict(leaves[i][j]);
+         }
+     }
 
+    hc_ = xorbuild->getCoder();
+
+    leaves_ = new XorCode**[depth_];
     for(int i = 0; i < depth_-1; i++) {
         leaves_[i] = new XorCode*[num_dims_];
-
         for(int j = 0; j < num_dims_; j++) {
             //printf("level: %d -> dim: %d -> size: %lu\n",i,j,leaves[i][j].size());
             leaves_[i][j] = xorbuild->build(leaves[i][j]);
@@ -922,7 +929,7 @@ void PRB2XORCompactQtree::all(Point<uint> p, size_t z, int level, vector<Point<u
             tmp.insert(tmp.begin(),hi-lo,p);
 
             for(int i=0; i < num_dims_; i++) {
-                leaves_[level][i]->getRange(lo,hi,bufferxor);
+                leaves_[level][i]->getRange(hc_,lo,hi,bufferxor);
                   for(int j = 0; j < hi-lo; j++) {
                       tmp[j][i] = p[i] + bufferxor[j];
                   }
@@ -1146,7 +1153,7 @@ void PRB2XORCompactQtree::range(Point<uint> &p, size_t z, int level, Point<uint>
                tmp.insert(tmp.begin(),hi-lo,p);
 
                for(int i=0; i < num_dims_; i++) {
-                   leaves_[level][i]->getRange(lo,hi,bufferxor);
+                   leaves_[level][i]->getRange(hc_,lo,hi,bufferxor);
                      for(int j = 0; j < hi-lo; j++) {
                          tmp[j][i] = p[i] + bufferxor[j];
                      }

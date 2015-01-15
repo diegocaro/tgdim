@@ -1,21 +1,21 @@
 /*
- * XorCode.cc
+ * MyCoder.cc
  *
- *  Created on: Jan 14, 2015
+ *  Created on: Jan 15, 2015
  *      Author: diegocaro
  */
 
-#include "XorCode.h"
+#include "MyCoder.h"
 
 namespace cqtree_static {
 
-XorCode * XorCode::load(ifstream & fp) {
+MyCoder * MyCoder::load(ifstream & fp) {
     uint r = cds_utils::loadValue<unsigned>(fp);
     size_t pos = fp.tellg();
     fp.seekg(pos-sizeof(uint));
     switch(r) {
-      case XORHUFFMAN_SAV: return new XorHuffmanVector(fp);
-      case XORCOMPRESS_SAV: return new XorCompressedVector(fp);
+      case MYHUFF_HDR: return new MyHuffmanCoder(fp);
+      case MYCOMPR_HDR: return new MyCompressionCoder(fp);
     }
     return NULL;
   }

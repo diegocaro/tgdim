@@ -30,13 +30,14 @@ namespace cqtree_static {
 
 class XorHuffmanVector: public XorCode {
 public:
-    XorHuffmanVector(const vector<unsigned> &vi, unsigned sample_rate = 128) : sample_rate_(sample_rate) {
+    XorHuffmanVector(MyHuffmanCoder *hc, const vector<unsigned> &vi, unsigned sample_rate = 128) : sample_rate_(sample_rate) {
+        assert(hc != NULL);
+
         N_ = vi.size();
 
         if (N_ == 0) {
             samples_ = 0;
             bits_huffmancoded_ = 0;
-            hc_ = NULL;
             huffmancoded_ = new unsigned[1];
             samples_and_pointers_ = new size_t[samples_*2+2];
             samples_and_pointers_[0] = 0;
@@ -47,40 +48,8 @@ public:
 
         unsigned v1,v2;
 
-        // (0) First pass, create the huffman dictionary
-
         unsigned sample_now = 0;
         auto it = vi.begin();
-
-        vector<unsigned> xorvector;
-        size_t jj=0;
-        for(it = vi.begin(), v1 = *it; it != vi.end(); ++it ) {
-            if (++jj%10000 == 0) fprintf(stderr,"Zero pass: %.2f\r", 100.0*jj/vi.size() );
-            v2 = *it;
-            if (sample_now == 0) {
-                sample_now = sample_rate_;
-            }
-            else {
-                //printf("xorvector %u %u -> %u\n",v1,v2,v1^v2);
-                xorvector.push_back(v1 ^ v2);
-            }
-            v1 = v2;
-            --sample_now;
-        }
-
-        if(xorvector.size() == 0){
-            hc_ = NULL;
-        }
-        else {
-            //fprintf(stderr, "Creating dictionary\r");
-            hc_ = new HuffmanCoder(xorvector.data(),xorvector.size());
-            //printf("Largest Huffman code: %lu\n", hc_->maxLength());
-            xorvector.clear();
-        }
-
-
-//      printf("table symbol: %.2lf MBytes\n", (double)hc_->getSize()/1024/1024);
-//      cout << "Max length: " << hc->maxLength() << endl;
 
         // (1) Calculate maximal value of samples and of deltas, and the size for huffmancoded_
         //unsigned max_sample_value = 0;
@@ -88,7 +57,7 @@ public:
         sample_now = 0;
         samples_ = 0;
         uint stream[10];
-        jj = 0;
+        size_t jj = 0;
         for(it = vi.begin(), v1 = *it; it != vi.end(); ++it ) {
             if (++jj%10000 == 0) fprintf(stderr,"First pass: %.2f\r", 100.0*jj/vi.size() );
 
@@ -100,7 +69,7 @@ public:
             }
             else {
                 //printf("encoding %u %u -> %u\n",v1,v2,v1^v2);
-                bits_huffmancoded_ += hc_->encode(v1 ^ v2,stream,0); //encoding xor
+                bits_huffmancoded_ += hc->encode(v1 ^ v2,stream,0); //encoding xor
             }
             v1 = v2;
             --sample_now;
@@ -128,7 +97,7 @@ public:
                 *sp_it = ptr; ++sp_it;
             }
             else {
-                ptr = hc_->encode(v1 ^ v2, huffmancoded_,ptr); //encoding xor
+                ptr = hc->encode(v1 ^ v2, huffmancoded_,ptr); //encoding xor
             }
             v1 = v2;
              --sample_now;
@@ -149,14 +118,10 @@ public:
     }
 
     virtual size_t getSize() {
-        size_t hs = 0;
-        if (hc_ != NULL) {
-           hs = hc_->getSize();
-        }
-        return sizeof(XorHuffmanVector) + hs + (samples_+1)*2*sizeof(size_t) + (bits_huffmancoded_/32+1)*4;
+        return sizeof(XorHuffmanVector) + (samples_+1)*2*sizeof(size_t) + (bits_huffmancoded_/32+1)*4;
     }
 
-    virtual unsigned at(size_t i) {
+    virtual unsigned at(MyCoder *hc,size_t i) {
         assert(i < N_);
 
         size_t idx = i/sample_rate_;
@@ -168,7 +133,7 @@ public:
         size_t ptr = samples_and_pointers_[idx*2+1];
 
         for(unsigned j = 0; j < mod; j++) {
-             ptr = hc_->decode(&v2,huffmancoded_,ptr);
+             ptr = hc->decode(&v2,huffmancoded_,ptr);
              v1 = v2 ^ v1;
         }
 
@@ -177,7 +142,7 @@ public:
 
     //decode the block (things between sample rate), including the sample!
     // return the number of items in output
-    virtual size_t getBlock(size_t idx, unsigned *output) {
+    virtual size_t getBlock(MyCoder *hc,size_t idx, unsigned *output) {
         unsigned *o = output;
 
         unsigned v1 = samples_and_pointers_[idx*2];
@@ -194,7 +159,7 @@ public:
         }
 
         for(unsigned j = 0; j < mod; j++) {
-             ptr = hc_->decode(&v2,huffmancoded_,ptr);
+             ptr = hc->decode(&v2,huffmancoded_,ptr);
              v1 = v2 ^ v1;
              *o = v1; o++;
         }
@@ -202,7 +167,7 @@ public:
     }
 
     // get values between [lo, hi)
-    virtual size_t getRange(size_t lo, size_t hi, unsigned *output) {
+    virtual size_t getRange(MyCoder *hc, size_t lo, size_t hi, unsigned *output) {
         assert(lo < hi);
         assert(hi <= N_);
 
@@ -214,7 +179,7 @@ public:
         unsigned *o = output;
 
         // first block
-        o += getBlock(idxlo, o);
+        o += getBlock(hc,idxlo, o);
 
         // erase data between [0, modlo)
         std::move(output+modlo, o, output);
@@ -222,7 +187,7 @@ public:
 
         // inner to last blocks
         for(size_t j = idxlo+1; j <= idxhi; j++) {
-            o += getBlock(j,o);
+            o += getBlock(hc,j,o);
         }
 
         return hi - lo;
@@ -242,13 +207,6 @@ public:
 
         samples_and_pointers_ = cds_utils::loadValue<size_t>(f,samples_*2+2);
         huffmancoded_ = cds_utils::loadValue<unsigned>(f, bits_huffmancoded_/32 + 1);
-
-        if (N_ > 1 ) {
-            hc_ = HuffmanCoder::load(f);
-        }
-        else {
-            hc_ = NULL;
-        }
     }
 
     virtual void save(ofstream &f) {
@@ -262,10 +220,6 @@ public:
 
         cds_utils::saveValue(f,samples_and_pointers_,samples_*2+2);
         cds_utils::saveValue(f,huffmancoded_, bits_huffmancoded_/32 + 1);
-
-        if (N_ > 1){
-            hc_->save(f);
-        }
     }
 
 
@@ -275,7 +229,6 @@ private:
 
     unsigned sample_rate_;
     size_t *samples_and_pointers_;
-    HuffmanCoder *hc_;
 
     unsigned *huffmancoded_;
     unsigned N_; //number of elements in the input vector
@@ -286,18 +239,57 @@ private:
 class XorHuffmanVectorBuilder: public XorCodeBuilder {
  public:
     XorHuffmanVectorBuilder(unsigned sample_rate):sample_rate_(sample_rate) {
-
+        fixedDict = false;
+        hc_ = NULL;
     }
     virtual ~XorHuffmanVectorBuilder() {
 
     }
     virtual XorCode* build(const vector<unsigned> &vi) {
-        return new XorHuffmanVector(vi, sample_rate_);
+        getCoder();
+        return new XorHuffmanVector(hc_, vi, sample_rate_);
+    }
+
+    // update the dictionary, with only non-sample values
+    virtual void updateDict(const vector<unsigned> &vi) {
+        assert(fixedDict == false);
+
+        unsigned sample_now = 0;
+
+        if (vi.size() == 0) return;
+        unsigned v1,v2;
+        size_t jj = 0;
+        auto it = vi.begin();
+        for(v1 = *it; it != vi.end(); ++it ) {
+            if (++jj%10000 == 0) fprintf(stderr,"First pass: %.2f\r", 100.0*jj/vi.size() );
+
+            v2 = *it;
+            if (sample_now == 0) {
+                sample_now = sample_rate_;
+            }
+            else {
+                dict[v1 ^ v2] += 1;
+            }
+            v1 = v2;
+            --sample_now;
+        }
+    }
+
+    virtual MyCoder* getCoder() {
+        fixedDict = true;
+
+        if (hc_ == NULL) {
+            hc_ = new MyHuffmanCoder(dict);
+        }
+
+        return hc_;
     }
 
  private:
     unsigned sample_rate_;
-
+    unordered_map<unsigned,unsigned> dict;
+    bool fixedDict;
+    MyHuffmanCoder *hc_;
 };
 
 }

@@ -1,6 +1,6 @@
 #include "utils.h"
 #include "PRB2XORCompactQtree.h"
-#include "XorHuffmanVector.h"
+#include "XorCode.h"
 #include "gtest/gtest.h"
 
 #include <vector>
@@ -70,6 +70,45 @@ namespace {
 		  }
 
 		  
+	        void AllPointsTesterB(int k1=2, int k2=2, int F=2,int max_level_k1=0, int max_level_ki=0) {
+	              printf("checking k1=%d k2=%d F=%d lk1=%d lki=%d\n",k1,k2,F,max_level_k1,max_level_ki);
+char p[] = "rice";
+	            PRB2XORCompactQtree a(vp_, new BitSequenceBuilderRG(20),new BitSequenceBuilderRG(20),new BitSequenceBuilderRG(20), new XorCompressedVectorBuilder(p,128), F,k1,k2,max_level_k1,max_level_ki);
+	            vector<Point<uint> > vpall;
+	                a.all(vpall);
+
+	                ASSERT_EQ(vp_.size(), vpall.size());
+	                for(size_t i=0; i < vp_.size(); i++) {
+	                    EXPECT_EQ(vp_[i], vpall[i]);
+	                }
+	          }
+
+	          void LoadSaveB(int k1=2, int k2=2, int F=2, int max_level_k1=0, int max_level_ki=0) {
+	              char p[] = "rice";
+	              PRB2XORCompactQtree a(vp_, new BitSequenceBuilderRG(20),new BitSequenceBuilderRG(20),new BitSequenceBuilderRG(20),new XorCompressedVectorBuilder(p,128),F,k1,k2,max_level_k1,max_level_ki);
+
+	              ofstream f;
+	              f.open("/tmp/aaa",ios::binary);
+	              a.save(f);
+	              f.close();
+
+	              ifstream fp;
+	              fp.open("/tmp/aaa",ios::binary);
+	              PRB2XORCompactQtree b(fp);
+	              fp.close();
+
+
+	              vector<Point<uint> > vpall;
+	              b.all(vpall);
+
+	              ASSERT_EQ(vp_.size(), vpall.size());
+	              for(size_t i=0; i < vp_.size(); i++) {
+	                  EXPECT_EQ(vp_[i], vpall[i]);
+	              }
+	          }
+
+
+
 		vector<Point<uint> > vp_;
 		
 	};
@@ -147,6 +186,84 @@ namespace {
             }
         }
     }
+
+
+
+    TEST_F(PRB2Test, AllPointsSimpleB) {
+        AllPointsTesterB(2,2,2,0,0);
+    }
+
+    TEST_F(PRB2Test, K1EqualsB) {
+        int k1=4;
+        int k2=2;
+        Point<uint> pmax_dim(max(vp_));
+        uint maxval;
+        maxval = max(pmax_dim);
+
+        uint l4 = mylog(k1, maxval) / 2;
+
+        for(uint i=0; i < l4; i++) {
+            AllPointsTesterB(k1,k2,2,i,0);
+        }
+    }
+
+    TEST_F(PRB2Test, KiB) {
+        int k1=2;
+        int k2=2;
+        Point<uint> pmax_dim(max(vp_));
+        uint maxval;
+        maxval = max(pmax_dim);
+
+        uint li = mylog(2, maxval);
+
+        for(uint i=0; i < li; i++) {
+            AllPointsTesterB(k1,k2,2,0,i*2);
+        }
+    }
+
+    TEST_F(PRB2Test, AllModsB) {
+        int k1=4;
+        int k2=2;
+        Point<uint> pmax_dim(max(vp_));
+        uint maxval;
+        maxval = max(pmax_dim);
+
+        uint l4 = mylog(k1, maxval);
+        //uint li = mylog(2, maxval);
+
+        for(uint i=0; i < l4; i++) {
+            for(uint j=0; j < 2*(l4-i); j+=2) {
+                for(int F=1; F < 16; F++) {
+                    AllPointsTesterB(k1,k2,F,i,j);
+                }
+            }
+        }
+    }
+
+    TEST_F(PRB2Test, LoadSaveBasicB) {
+        LoadSaveB();
+    }
+
+    TEST_F(PRB2Test, LoadSaveAllModsB) {
+        int k1=4;
+        int k2=2;
+        Point<uint> pmax_dim(max(vp_));
+        uint maxval;
+        maxval = max(pmax_dim);
+
+        uint l4 = mylog(k1, maxval);
+        //uint li = mylog(2, maxval);
+
+        for(uint i=0; i < l4; i++) {
+            for(uint j=0; j < 2*(l4-i); j+=2) {
+                for(int F=1; F < 16; F++) {
+                    LoadSaveB(k1,k2,F,i,j);
+                }
+            }
+        }
+    }
+
+
 
 }  // namespace
 
