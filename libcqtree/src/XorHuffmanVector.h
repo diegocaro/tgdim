@@ -284,6 +284,7 @@ class XorHuffmanVectorBuilder: public XorCodeBuilder {
         fixedDict = true;
 
         if (hc_ == NULL) {
+            fprintf(stderr,"Building Huffman Coder\n");
             if(dict.size() == 0) dict[0]=1;
             hc_ = new MyHuffmanCoder(dict);
         }
