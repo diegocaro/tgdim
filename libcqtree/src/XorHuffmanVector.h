@@ -266,7 +266,7 @@ class XorHuffmanVectorBuilder: public XorCodeBuilder {
         size_t jj = 0;
         auto it = vi.begin();
         for(v1 = *it; it != vi.end(); ++it ) {
-            if (++jj%10000 == 0) fprintf(stderr,"First pass: %.2f\r", 100.0*jj/vi.size() );
+            if (++jj%10000 == 0) fprintf(stderr,"Updating dict: %.2f\r", 100.0*jj/vi.size() );
 
             v2 = *it;
             if (sample_now == 0) {
