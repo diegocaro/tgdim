@@ -245,6 +245,11 @@ class XorHuffmanVectorBuilder: public XorCodeBuilder {
     virtual ~XorHuffmanVectorBuilder() {
 
     }
+
+    virtual XorCodeBuilder* copy() {
+        return new XorHuffmanVectorBuilder(sample_rate_);
+    }
+
     virtual XorCode* build(const vector<unsigned> &vi) {
         getCoder();
         return new XorHuffmanVector(hc_, vi, sample_rate_);
@@ -279,11 +284,13 @@ class XorHuffmanVectorBuilder: public XorCodeBuilder {
         fixedDict = true;
 
         if (hc_ == NULL) {
+            if(dict.size() == 0) dict[0]=1;
             hc_ = new MyHuffmanCoder(dict);
         }
 
         return hc_;
     }
+
 
  private:
     unsigned sample_rate_;

@@ -284,8 +284,14 @@ private:
 class XorCompressedVectorBuilder: public XorCodeBuilder {
  public:
     XorCompressedVectorBuilder(char *codername, unsigned sample_rate):sample_rate_(sample_rate) {
+        sprintf(codername_,"%s",codername);
         cc_ = new MyCompressionCoder(codername);
     }
+
+    virtual XorCodeBuilder* copy() {
+        return new XorCompressedVectorBuilder(codername_, sample_rate_);
+    }
+
     virtual ~XorCompressedVectorBuilder() {
 
     }
@@ -305,6 +311,7 @@ class XorCompressedVectorBuilder: public XorCodeBuilder {
  private:
     unsigned sample_rate_;
     MyCompressionCoder *cc_;
+    char codername_[255];
 };
 
 

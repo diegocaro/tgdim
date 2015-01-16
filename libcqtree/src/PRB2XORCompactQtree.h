@@ -213,7 +213,14 @@ class PRB2XORCompactQtree:public CompactQtree {
              }
          }
 
-         hc_ = MyCoder::load(f);
+         hc_ = new MyCoder**[depth_];
+         for(int i = 0; i < depth_-1; i++) {
+             hc_[i] = new MyCoder*[num_dims_];
+             for(int j=0; j < num_dims_; j++) {
+                 hc_[i][j] = MyCoder::load(f);
+             }
+         }
+
         }
 
     virtual void save(ofstream &f) const {
@@ -269,7 +276,11 @@ class PRB2XORCompactQtree:public CompactQtree {
               }
           }
 
-          hc_->save(f);
+          for(int i = 0; i < depth_-1; i++) {
+                for(int j=0; j < num_dims_; j++) {
+                        hc_[i][j]->save(f);
+                }
+            }
     }
 
     void print_leaves() {
@@ -401,7 +412,7 @@ class PRB2XORCompactQtree:public CompactQtree {
     // number of leaves with data per node (minimum is 1, maximum is F_)
     vector<BitSequence*> C_; //one bit per leaf
 
-    MyCoder *hc_; //to encode leaves
+    MyCoder ***hc_; //to encode leaves
 };
 
 } /* namespace cqtree_static */

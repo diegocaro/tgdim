@@ -53,6 +53,8 @@ class XorCodeBuilder {
  public:
     XorCodeBuilder() {}
     virtual ~XorCodeBuilder() {}
+
+    virtual XorCodeBuilder* copy() = 0;
     virtual XorCode* build(const std::vector<unsigned> &vi) = 0;
     virtual void updateDict(const std::vector<unsigned> &vi) = 0;
     virtual MyCoder* getCoder() = 0;
