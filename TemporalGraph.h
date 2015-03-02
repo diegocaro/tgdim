@@ -11,6 +11,7 @@
 #include <sys/types.h>
 
 #include <CompactQtree.h>
+#include "arraysort.h"
 
 using namespace cqtree_static;
 
@@ -329,21 +330,25 @@ class IntervalContactGraph : public TemporalGraph {
 
       to[0] = u+1;
       to[1] = nodes_;
-      to[2] = tend;
+      to[2] = tend+1;
       to[3] = lifetime_;
 
 
 
-#ifdef EXPERIMENTS
-      *res += qt_->range(from,to,vp,false);
-#else
+//#ifdef EXPERIMENTS
+//      *res += qt_->range(from,to,vp,false);
+//#else
       qt_->range(from,to,vp,true);
         //*res = vp.size();
       for (size_t i = 0; i < vp.size(); i++) {
         res[i + 1 + *res] = vp[i][1];
       }
       *res += vp.size();
-#endif
+//#endif
+
+      qsort(&res[1], *res, sizeof(unsigned int), compare);
+      remove_duplicates(res);
+
   }
   virtual void direct_strong(uint u, uint tstart, uint tend, uint *res) {
     vp.clear();
@@ -353,13 +358,13 @@ class IntervalContactGraph : public TemporalGraph {
 
       from[0] = u;
       from[1] = 0;
-      from[2] = tstart;
-      from[3] = tstart+1;
+      from[2] = 0;
+      from[3] = tend;
 
       to[0] = u+1;
       to[1] = nodes_;
-      to[2] = tend-1;
-      to[3] = tend;
+      to[2] = tstart+1;
+      to[3] = lifetime_;
 
 #ifdef EXPERIMENTS
       *res += qt_->range(from,to,vp,false);
@@ -390,19 +395,21 @@ class IntervalContactGraph : public TemporalGraph {
 
       to[0] = nodes_;
       to[1] = v+1;
-      to[2] = tend;
+      to[2] = tend+1;
       to[3] = lifetime_;
 
-#ifdef EXPERIMENTS
-      *res += qt_->range(from,to,vp,false);
-#else
+//#ifdef EXPERIMENTS
+//      *res += qt_->range(from,to,vp,false);
+//#else
       qt_->range(from,to,vp,true);
         //*res = vp.size();
       for (size_t i = 0; i < vp.size(); i++) {
         res[i + 1 + *res] = vp[i][0];
       }
       *res += vp.size();
-#endif
+      qsort(&res[1], *res, sizeof(unsigned int), compare);
+      remove_duplicates(res);
+//#endif
   }
   virtual void reverse_strong(uint v, uint tstart, uint tend, uint *res) {
     vp.clear();
@@ -412,13 +419,13 @@ class IntervalContactGraph : public TemporalGraph {
 
       from[0] = 0;
       from[1] = v;
-      from[2] = tstart;
-      from[3] = tstart+1;
+      from[2] = 0;
+      from[3] = tend;
 
       to[0] = nodes_;
       to[1] = v+1;
-      to[2] = tend-1;
-      to[3] = tend;
+      to[2] = tstart+1;
+      to[3] = lifetime_;
 
 #ifdef EXPERIMENTS
       *res = qt_->range(from,to,vp,false);
@@ -449,7 +456,7 @@ class IntervalContactGraph : public TemporalGraph {
 
       to[0] = u+1;
       to[1] = v+1;
-      to[2] = tend;
+      to[2] = tend+1;
       to[3] = lifetime_;
 
       qt_->range(from,to,vp,true);
@@ -465,11 +472,11 @@ class IntervalContactGraph : public TemporalGraph {
       from[0] = u;
       from[1] = v;
       from[2] = 0;
-      from[3] = tstart+1;
+      from[3] = tend;
 
       to[0] = u+1;
       to[1] = v+1;
-      to[2] = tend;
+      to[2] = tstart+1;
       to[3] = lifetime_;
 
       qt_->range(from,to,vp,true);
@@ -765,16 +772,19 @@ class PointContactGraph : public TemporalGraph {
       to[1] = nodes_;
       to[2] = tend;
 
-#ifdef EXPERIMENTS
-      *res += qt_->range(from,to,vp,false);
-#else
+//#ifdef EXPERIMENTS
+//      *res += qt_->range(from,to,vp,false);
+//#else
       qt_->range(from,to,vp,true);
       //*res = vp.size();
           for (size_t i = 0; i < vp.size(); i++) {
             res[i + 1 + *res] = vp[i][0];
           }
           *res += vp.size();
-      #endif
+//     #endif
+
+          qsort(&res[1], *res, sizeof(unsigned int), compare);
+          remove_duplicates(res);
   }
   virtual void direct_strong(uint u, uint tstart, uint tend, uint *res) {
     if (tstart+1 == tend) {
@@ -805,16 +815,18 @@ class PointContactGraph : public TemporalGraph {
       to[1] = v+1;
       to[2] = tend;
 
-#ifdef EXPERIMENTS
-      *res += qt_->range(from,to,vp,false);
-#else
+//#ifdef EXPERIMENTS
+//      *res += qt_->range(from,to,vp,false);
+//#else
       qt_->range(from,to,vp,true);
       //*res = vp.size();
           for (size_t i = 0; i < vp.size(); i++) {
             res[i + 1 + *res] = vp[i][1];
           }
           *res += vp.size();
-      #endif
+//#endif
+      qsort(&res[1], *res, sizeof(unsigned int), compare);
+      remove_duplicates(res);
   }
   virtual void reverse_strong(uint v, uint tstart, uint tend, uint *res) {
     if (tstart+1 == tend) {
@@ -974,10 +986,16 @@ class IntervalContactGraphGrowth : public TemporalGraph {
   virtual void direct_weak(uint u, uint tstart, uint tend, uint *res) {
       past_->direct_weak(u,tstart,tend,res);
       curr_->direct_weak(u,tstart,tend,res);
+
+      qsort(&res[1], *res, sizeof(unsigned int), compare);
+      remove_duplicates(res);
   }
   virtual void direct_strong(uint u, uint tstart, uint tend, uint *res) {
       past_->direct_strong(u,tstart,tend,res);
       curr_->direct_strong(u,tstart,tend,res);
+
+      qsort(&res[1], *res, sizeof(unsigned int), compare);
+      remove_duplicates(res);
   }
 
   virtual void reverse_point(uint v, uint t, uint *res) {
@@ -988,10 +1006,16 @@ class IntervalContactGraphGrowth : public TemporalGraph {
   virtual void reverse_weak(uint v, uint tstart, uint tend, uint *res) {
     past_->reverse_weak(v,tstart,tend,res);
     curr_->reverse_weak(v,tstart,tend,res);
+
+    qsort(&res[1], *res, sizeof(unsigned int), compare);
+    remove_duplicates(res);
   }
   virtual void reverse_strong(uint v, uint tstart, uint tend, uint *res) {
     past_->reverse_strong(v,tstart,tend,res);
     curr_->reverse_strong(v,tstart,tend,res);
+
+    qsort(&res[1], *res, sizeof(unsigned int), compare);
+    remove_duplicates(res);
   }
 
   virtual int edge_point(uint u, uint v, uint t) {

@@ -89,10 +89,10 @@ endif()
 #   message(STATUS "Makefile for Release mode")
 #endif()
 
-add_executable( update update.cc TemporalGraph.cc)
+add_executable( update update.cc arraysort.cc TemporalGraph.cc)
 target_link_libraries(update cqtree)
 
-add_executable( create create.cc TemporalGraph.cc)
+add_executable( create create.cc arraysort.cc TemporalGraph.cc)
 target_link_libraries(create cqtree)
 
 add_executable( sort sort.cc )
@@ -112,16 +112,16 @@ set_property(TARGET benchmark_time APPEND PROPERTY COMPILE_DEFINITIONS EXPERIMEN
 add_executable( checkans benchmark.cc arraysort.cc TemporalGraph.cc)
 target_link_libraries(checkans cqtree)
 
-add_executable( stats stats.cc TemporalGraph.cc)
+add_executable( stats stats.cc arraysort.cc TemporalGraph.cc)
 target_link_libraries(stats cqtree)
 
-add_executable( leaves leaves.cc TemporalGraph.cc)
+add_executable( leaves leaves.cc arraysort.cc TemporalGraph.cc)
 target_link_libraries(leaves cqtree)
 
-add_executable( allvertices allvertices.cc TemporalGraph.cc)
+add_executable( allvertices allvertices.cc arraysort.cc TemporalGraph.cc)
 target_link_libraries(allvertices cqtree)
 
-add_executable( allvertices_time allvertices.cc TemporalGraph.cc)
+add_executable( allvertices_time allvertices.cc arraysort.cc TemporalGraph.cc)
 target_link_libraries(allvertices_time cqtree)
 set_target_properties (allvertices_time PROPERTIES COMPILE_DEFINITIONS TIMESAMPLE)
 
