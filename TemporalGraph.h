@@ -9,11 +9,15 @@
 #define TEMPORALGRAPH_H_
 
 #include <sys/types.h>
-
 #include <CompactQtree.h>
 #include "arraysort.h"
 
 using namespace cqtree_static;
+
+// todo: remove duplicated edges in actived and deactived operations
+// todo: remove duplicated edges in changed edges
+// hint: use hashing for pair<uint,uint> to use in a unordered_set
+// moreinfo: http://stackoverflow.com/a/15161034/187284
 
 enum TypeGraph {
   kInterval,
@@ -258,6 +262,14 @@ class TemporalGraph {
   virtual unsigned long snapshot(uint t)=0;
   virtual unsigned long contacts()=0;
 
+  virtual unsigned long change_point(uint t)=0;
+  virtual unsigned long change_interval(uint tstart, uint tend)=0;
+  virtual unsigned long actived_point(uint t)=0;
+  virtual unsigned long actived_interval(uint tstart, uint tend)=0;
+  virtual unsigned long deactived_point(uint t)=0;
+  virtual unsigned long deactived_interval(uint tstart, uint tend)=0;
+
+
  protected:
   uint nodes_;
   uint edges_;
@@ -314,7 +326,7 @@ class IntervalContactGraph : public TemporalGraph {
   /// Interface
 
   virtual void direct_point(uint u, uint t, uint *res) {
-    direct_weak(u, t, t+1, res);
+    direct_strong(u, t, t+1, res);
   }
 
   virtual void direct_weak(uint u, uint tstart, uint tend, uint *res) {
@@ -330,7 +342,7 @@ class IntervalContactGraph : public TemporalGraph {
 
       to[0] = u+1;
       to[1] = nodes_;
-      to[2] = tend+1;
+      to[2] = tend;
       to[3] = lifetime_;
 
 
@@ -379,7 +391,7 @@ class IntervalContactGraph : public TemporalGraph {
   }
 
   virtual void reverse_point(uint v, uint t, uint *res) {
-    reverse_weak(v, t, t+1, res);
+    reverse_strong(v, t, t+1, res);
   }
 
   virtual void reverse_weak(uint v, uint tstart, uint tend, uint *res) {
@@ -395,7 +407,7 @@ class IntervalContactGraph : public TemporalGraph {
 
       to[0] = nodes_;
       to[1] = v+1;
-      to[2] = tend+1;
+      to[2] = tend;
       to[3] = lifetime_;
 
 //#ifdef EXPERIMENTS
@@ -440,7 +452,7 @@ class IntervalContactGraph : public TemporalGraph {
   }
 
   virtual int edge_point(uint u, uint v, uint t) {
-    return edge_weak(u,v,t,t+1);
+    return edge_strong(u,v,t,t+1);
   }
 
   virtual int edge_weak(uint u, uint v, uint tstart, uint tend) {
@@ -456,7 +468,7 @@ class IntervalContactGraph : public TemporalGraph {
 
       to[0] = u+1;
       to[1] = v+1;
-      to[2] = tend+1;
+      to[2] = tend;
       to[3] = lifetime_;
 
       qt_->range(from,to,vp,true);
@@ -523,6 +535,78 @@ class IntervalContactGraph : public TemporalGraph {
 
       return qt_->range(from,to,vp,false);
   }
+
+  virtual unsigned long change_point(uint t) {
+      change_interval(t,t+1);
+  }
+
+
+  virtual unsigned long change_interval(uint tstart, uint tend) {
+      return actived_interval(tstart,tend) + deactived_interval(tstart,tend);
+  }
+  virtual unsigned long actived_point(uint t) {
+      actived_interval(t,t+1);
+  }
+  virtual unsigned long actived_interval(uint tstart, uint tend) {
+      vp.clear();
+      Point<uint> from(4);
+      Point<uint> to(4);
+
+      from[0] = 0;
+      from[1] = 0;
+      from[2] = tstart;
+      from[3] = tstart+1;
+
+      to[0] = nodes_;
+      to[1] = nodes_;
+      to[2] = tend;
+      to[3] = lifetime_;
+
+      //returning duplicated entries
+      return qt_->range(from,to,vp,false);
+
+      /*
+       * If you want to remove duplicated edges...
+       *
+       *  struct pair_hash {
+       *        inline std::size_t operator()(const std::pair<int,int> & v) const {
+       *            return v.first*31+v.second;
+       *        }
+       *  };
+       */
+
+//      unordered_set< pair<uint,uint>,  pair_hash > ans;
+//
+//      qt_->range(from,to,vp,true);
+//      for (size_t i = 0; i < vp.size(); i++) {
+//          ans.insert(make_pair(vp[i][0],vp[i][1]));
+//      }
+//      return ans.size();
+
+
+
+  }
+  virtual unsigned long deactived_point(uint t) {
+      deactived_interval(t,t+1);
+  }
+  virtual unsigned long deactived_interval(uint tstart, uint tend) {
+      vp.clear();
+      Point<uint> from(4);
+      Point<uint> to(4);
+
+      from[0] = 0;
+      from[1] = 0;
+      from[2] = 0;
+      from[3] = tstart;
+
+      to[0] = nodes_;
+      to[1] = nodes_;
+      to[2] = tend-1;
+      to[3] = tend;
+
+      return qt_->range(from,to,vp,false);
+  }
+
 
 
 };
@@ -705,6 +789,49 @@ class GrowingContactGraph : public TemporalGraph {
 
       return qt_->range(from,to,vp,false);
   }
+
+  virtual unsigned long change_point(uint t) {
+      change_interval(t,t+1);
+  }
+
+  virtual unsigned long change_interval(uint tstart, uint tend) {
+      return actived_interval(tstart,tend) + deactived_interval(tstart,tend);
+  }
+  virtual unsigned long actived_point(uint t) {
+      actived_interval(t,t+1);
+  }
+  virtual unsigned long actived_interval(uint tstart, uint tend) {
+      vp.clear();
+
+      Point<uint> from(3);
+        Point<uint> to(3);
+
+        from[0] = 0;
+        from[1] = 0;
+        from[2] = tstart;
+
+
+        to[0] = nodes_;
+        to[1] = nodes_;
+        to[2] = tend;
+
+      return qt_->range(from,to,vp,false);
+  }
+  virtual unsigned long deactived_point(uint t) {
+      deactived_interval(t,t+1);
+  }
+  virtual unsigned long deactived_interval(uint tstart, uint tend) {
+      vp.clear();
+
+      if (tend < lifetime_-1) {
+          return 0;
+      }
+
+      return snapshot(tend);
+  }
+
+
+
 
 };
 
@@ -909,6 +1036,60 @@ class PointContactGraph : public TemporalGraph {
 
   }
 
+
+
+  virtual unsigned long change_point(uint t) {
+      change_interval(t,t+1);
+  }
+
+  virtual unsigned long change_interval(uint tstart, uint tend) {
+      return actived_interval(tstart,tend) + deactived_interval(tstart,tend);
+  }
+  virtual unsigned long actived_point(uint t) {
+      actived_interval(t,t+1);
+  }
+  virtual unsigned long actived_interval(uint tstart, uint tend) {
+      vp.clear();
+
+      Point<uint> from(3);
+        Point<uint> to(3);
+
+        from[0] = 0;
+        from[1] = 0;
+        from[2] = tstart;
+
+
+        to[0] = nodes_;
+        to[1] = nodes_;
+        to[2] = tend;
+
+      return qt_->range(from,to,vp,false);
+  }
+  virtual unsigned long deactived_point(uint t) {
+      deactived_interval(t,t+1);
+  }
+  virtual unsigned long deactived_interval(uint tstart, uint tend) {
+      vp.clear();
+
+       Point<uint> from(3);
+         Point<uint> to(3);
+
+         from[0] = 0;
+         from[1] = 0;
+         from[2] = tstart-1;
+
+
+         to[0] = nodes_;
+         to[1] = nodes_;
+         to[2] = tend-1;
+
+       return qt_->range(from,to,vp,false);
+  }
+
+
+
+
+
 };
 
 // @TODO this can be improved..., is ugly the way I mixed up the classes
@@ -1041,6 +1222,32 @@ class IntervalContactGraphGrowth : public TemporalGraph {
       return past_->contacts() + curr_->contacts();
   }
 
+
+  virtual unsigned long change_point(uint t) {
+      return past_->change_point(t) + curr_->change_point(t);
+  }
+
+  virtual unsigned long change_interval(uint tstart, uint tend) {
+      return past_->change_interval(tstart,tend) + curr_->change_interval(tstart,tend);
+  }
+
+  virtual unsigned long actived_point(uint t) {
+      return past_->actived_point(t) + curr_->actived_point(t);
+  }
+
+  virtual unsigned long actived_interval(uint tstart, uint tend) {
+      return past_->actived_interval(tstart,tend) + curr_->actived_interval(tstart,tend);
+  }
+
+  virtual unsigned long deactived_point(uint t) {
+      return past_->deactived_point(t) + curr_->deactived_point(t);
+  }
+
+  virtual unsigned long deactived_interval(uint tstart, uint tend) {
+      return past_->deactived_interval(tstart,tend) + curr_->deactived_interval(tstart,tend);
+  }
+
+
   IntervalContactGraph *past_;
   GrowingContactGraph *curr_;
 
@@ -1163,6 +1370,32 @@ class IntervalContactGraphPoint : public TemporalGraph {
   virtual unsigned long contacts() {
       return interval_->contacts() + point_->contacts();
   }
+
+  virtual unsigned long change_point(uint t) {
+      return interval_->change_point(t) + point_->change_point(t);
+  }
+
+  virtual unsigned long change_interval(uint tstart, uint tend) {
+      return interval_->change_interval(tstart,tend) + point_->change_interval(tstart,tend);
+  }
+
+  virtual unsigned long actived_point(uint t) {
+      return interval_->actived_point(t) + point_->actived_point(t);
+  }
+
+  virtual unsigned long actived_interval(uint tstart, uint tend) {
+      return interval_->actived_interval(tstart,tend) + point_->actived_interval(tstart,tend);
+  }
+
+  virtual unsigned long deactived_point(uint t) {
+      return interval_->deactived_point(t) + point_->deactived_point(t);
+  }
+
+  virtual unsigned long deactived_interval(uint tstart, uint tend) {
+      return interval_->deactived_interval(tstart,tend) + point_->deactived_interval(tstart,tend);
+  }
+
+
 
   IntervalContactGraph *interval_;
   PointContactGraph *point_;
