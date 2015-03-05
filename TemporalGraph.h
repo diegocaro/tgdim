@@ -14,10 +14,15 @@
 
 using namespace cqtree_static;
 
-// todo: remove duplicated edges in actived and deactived operations
-// todo: remove duplicated edges in changed edges
-// hint: use hashing for pair<uint,uint> to use in a unordered_set
+// this is to remove duplicated items using hashing for pair<uint,uint> in a unordered_set
 // moreinfo: http://stackoverflow.com/a/15161034/187284
+#include <unordered_set>
+#include <utility>
+struct pair_hash {
+   inline std::size_t operator()(const std::pair<int,int> & v) const {
+       return v.first*31+v.second;
+   }
+};
 
 enum TypeGraph {
   kInterval,
@@ -542,20 +547,19 @@ class IntervalContactGraph : public TemporalGraph {
 
 
   virtual unsigned long change_interval(uint tstart, uint tend) {
-      return actived_interval(tstart,tend) + deactived_interval(tstart,tend);
+      actived_interval_(tstart,tend,false,true);
+      return deactived_interval_(tstart,tend,false,false);
   }
-  virtual unsigned long actived_point(uint t) {
-      actived_interval(t,t+1);
-  }
-  virtual unsigned long actived_interval(uint tstart, uint tend) {
-      vp.clear();
+
+  unsigned long actived_interval_(uint tstart, uint tend, bool allow_duplicated, bool clear_vp=true) {
+      if (clear_vp) vp.clear();
       Point<uint> from(4);
       Point<uint> to(4);
 
       from[0] = 0;
       from[1] = 0;
       from[2] = tstart;
-      from[3] = tstart+1;
+      from[3] = 0; // can be "tstart+1", but due the temporal interval we can do the same with "0"
 
       to[0] = nodes_;
       to[1] = nodes_;
@@ -563,34 +567,31 @@ class IntervalContactGraph : public TemporalGraph {
       to[3] = lifetime_;
 
       //returning duplicated entries
-      return qt_->range(from,to,vp,false);
+      if (allow_duplicated == true) {
+          return qt_->range(from,to,vp,false);
+      }
 
-      /*
-       * If you want to remove duplicated edges...
-       *
-       *  struct pair_hash {
-       *        inline std::size_t operator()(const std::pair<int,int> & v) const {
-       *            return v.first*31+v.second;
-       *        }
-       *  };
-       */
+      //removing duplicated
+      unordered_set< pair<uint,uint>,  pair_hash > ans;
 
-//      unordered_set< pair<uint,uint>,  pair_hash > ans;
-//
-//      qt_->range(from,to,vp,true);
-//      for (size_t i = 0; i < vp.size(); i++) {
-//          ans.insert(make_pair(vp[i][0],vp[i][1]));
-//      }
-//      return ans.size();
-
-
-
+      qt_->range(from,to,vp,true);
+      for (size_t i = 0; i < vp.size(); i++) {
+          ans.insert(make_pair(vp[i][0],vp[i][1]));
+      }
+      return ans.size();
   }
-  virtual unsigned long deactived_point(uint t) {
-      deactived_interval(t,t+1);
+
+  virtual unsigned long actived_point(uint t) {
+      actived_interval_(t,t+1,true);
   }
-  virtual unsigned long deactived_interval(uint tstart, uint tend) {
-      vp.clear();
+
+  virtual unsigned long actived_interval(uint tstart, uint tend) {
+      return actived_interval_(tstart,tend,false);
+  }
+
+
+  virtual unsigned long deactived_interval_(uint tstart, uint tend, bool allow_duplicated, bool clear_vp=true) {
+      if (clear_vp) vp.clear();
       Point<uint> from(4);
       Point<uint> to(4);
 
@@ -601,13 +602,30 @@ class IntervalContactGraph : public TemporalGraph {
 
       to[0] = nodes_;
       to[1] = nodes_;
-      to[2] = tend-1;
+      to[2] = lifetime_; // can be "tend-1", but due the temporal interval we can do the same with "lifetime_"
       to[3] = tend;
 
-      return qt_->range(from,to,vp,false);
+      //returning duplicated entries
+      if (allow_duplicated == true) {
+          return qt_->range(from,to,vp,false);
+      }
+
+      //removing duplicated
+      unordered_set< pair<uint,uint>,  pair_hash > ans;
+
+      qt_->range(from,to,vp,true);
+      for (size_t i = 0; i < vp.size(); i++) {
+          ans.insert(make_pair(vp[i][0],vp[i][1]));
+      }
+      return ans.size();
+  }
+  virtual unsigned long deactived_point(uint t) {
+      deactived_interval_(t,t+1,true);
   }
 
-
+  virtual unsigned long deactived_interval(uint tstart, uint tend) {
+      return deactived_interval_(tstart,tend,false);
+  }
 
 };
 
@@ -1043,13 +1061,20 @@ class PointContactGraph : public TemporalGraph {
   }
 
   virtual unsigned long change_interval(uint tstart, uint tend) {
-      return actived_interval(tstart,tend) + deactived_interval(tstart,tend);
+      actived_interval_(tstart,tend,false,true);
+            return deactived_interval_(tstart,tend,false,false);
   }
   virtual unsigned long actived_point(uint t) {
-      actived_interval(t,t+1);
+      actived_interval_(t,t+1, true);
   }
+
   virtual unsigned long actived_interval(uint tstart, uint tend) {
-      vp.clear();
+      actived_interval_(tstart,tend,false);
+  }
+
+
+  unsigned long actived_interval_(uint tstart, uint tend, bool allow_duplicated, bool clear_vp=true) {
+      if (clear_vp) vp.clear();
 
       Point<uint> from(3);
         Point<uint> to(3);
@@ -1063,13 +1088,31 @@ class PointContactGraph : public TemporalGraph {
         to[1] = nodes_;
         to[2] = tend;
 
-      return qt_->range(from,to,vp,false);
+        //returning duplicated entries
+        if (allow_duplicated == true) {
+            return qt_->range(from,to,vp,false);
+        }
+
+        //removing duplicated
+        unordered_set< pair<uint,uint>,  pair_hash > ans;
+
+        qt_->range(from,to,vp,true);
+        for (size_t i = 0; i < vp.size(); i++) {
+            ans.insert(make_pair(vp[i][0],vp[i][1]));
+        }
+        return ans.size();
   }
   virtual unsigned long deactived_point(uint t) {
       deactived_interval(t,t+1);
   }
+
   virtual unsigned long deactived_interval(uint tstart, uint tend) {
-      vp.clear();
+      deactived_interval_(tstart,tend,false);
+
+  }
+
+  unsigned long deactived_interval_(uint tstart, uint tend, bool allow_duplicated, bool clear_vp=true) {
+      if (clear_vp) vp.clear();
 
        Point<uint> from(3);
          Point<uint> to(3);
@@ -1083,7 +1126,19 @@ class PointContactGraph : public TemporalGraph {
          to[1] = nodes_;
          to[2] = tend-1;
 
-       return qt_->range(from,to,vp,false);
+         //returning duplicated entries
+         if (allow_duplicated == true) {
+             return qt_->range(from,to,vp,false);
+         }
+
+         //removing duplicated
+         unordered_set< pair<uint,uint>,  pair_hash > ans;
+
+         qt_->range(from,to,vp,true);
+         for (size_t i = 0; i < vp.size(); i++) {
+             ans.insert(make_pair(vp[i][0],vp[i][1]));
+         }
+         return ans.size();
   }
 
 
