@@ -923,7 +923,7 @@ class PointContactGraph : public TemporalGraph {
       qt_->range(from,to,vp,true);
       //*res = vp.size();
           for (size_t i = 0; i < vp.size(); i++) {
-            res[i + 1 + *res] = vp[i][0];
+            res[i + 1 + *res] = vp[i][1];
           }
           *res += vp.size();
 //     #endif
@@ -966,7 +966,7 @@ class PointContactGraph : public TemporalGraph {
       qt_->range(from,to,vp,true);
       //*res = vp.size();
           for (size_t i = 0; i < vp.size(); i++) {
-            res[i + 1 + *res] = vp[i][1];
+            res[i + 1 + *res] = vp[i][0];
           }
           *res += vp.size();
 //#endif
