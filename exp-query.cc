@@ -129,7 +129,13 @@ int main(int argc, char ** argv) {
             }
 		}
 		
-		
+    // Opening files
+    f.open(fileName, ios::binary);
+
+    if (!f.is_open()) {
+        fprintf(stderr,"Error, data structure '%s' not found.\n",fileName);
+        exit(1);
+    }
 		
         TemporalGraph *index;
         index =  TemporalGraph::load(f);
