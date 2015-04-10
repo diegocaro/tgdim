@@ -355,8 +355,9 @@ class IntervalContactGraph : public TemporalGraph {
 //#ifdef EXPERIMENTS
 //      *res += qt_->range(from,to,vp,false);
 //#else
-      qt_->range(from,to,vp,true);
-        //*res = vp.size();
+      *res += qt_->range(from,to,vp,false);
+	return;      
+  //*res = vp.size();
       for (size_t i = 0; i < vp.size(); i++) {
         res[i + 1 + *res] = vp[i][1];
       }
