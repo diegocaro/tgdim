@@ -130,10 +130,10 @@ int main(int argc, char ** argv) {
 		}
 		
     // Opening files
-    f.open(fileName, ios::binary);
+    f.open(fileNameIndex, ios::binary);
 
     if (!f.is_open()) {
-        fprintf(stderr,"Error, data structure '%s' not found.\n",fileName);
+        fprintf(stderr,"Error, data structure '%s' not found.\n",fileNameIndex);
         exit(1);
     }
 		
