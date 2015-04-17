@@ -478,6 +478,12 @@ class IntervalContactGraph : public TemporalGraph {
       to[3] = lifetime_;
 
       qt_->range(from,to,vp,true);
+
+//      for(int i=0; i < vp.size();i++) {
+//          vp[i].print();
+//      }
+
+
       if (vp.size() > 0) return 1;
       return 0;
   }
@@ -502,8 +508,14 @@ class IntervalContactGraph : public TemporalGraph {
       return 0;
   }
   virtual int edge_next(uint u, uint v, uint t) {
-    //return cqtree->edge_next(u,v,t);
-    return 0;
+	  if (edge_point(u,v,t)) return t;
+	  
+	  edge_weak(u,v,t,lifetime_);
+	  if (vp.size() > 0) {
+	      return vp[0][3];
+	  }
+	  
+	  return -1;
   }
 
   virtual unsigned long snapshot(uint t) {
@@ -768,9 +780,16 @@ class GrowingContactGraph : public TemporalGraph {
   virtual int edge_strong(uint u, uint v, uint tstart, uint tend) {
     return edge_point(u,v,tstart);
   }
+
   virtual int edge_next(uint u, uint v, uint t) {
-    //return cqtree->edge_next(u,v,t);
-    return 0;
+      if (edge_point(u,v,t)) return t;
+
+      edge_weak(u,v,t,lifetime_);
+      if (vp.size() > 0) {
+          return vp[0][3];
+      }
+
+      return -1;
   }
 
   virtual unsigned long snapshot(uint t) {
@@ -1013,9 +1032,16 @@ class PointContactGraph : public TemporalGraph {
     return 0;
   }
   virtual int edge_next(uint u, uint v, uint t) {
-    //return cqtree->edge_next(u,v,t);
-    return 0;
+      if (edge_point(u,v,t)) return t;
+
+      edge_weak(u,v,t,lifetime_);
+      if (vp.size() > 0) {
+          return vp[0][3];
+      }
+
+      return -1;
   }
+
 
   virtual unsigned long snapshot(uint t) {
     vp.clear();
@@ -1266,8 +1292,11 @@ class IntervalContactGraphGrowth : public TemporalGraph {
       return (past_->edge_strong(u,v,tstart,tend) || curr_->edge_strong(u,v,tstart,tend));
   }
   virtual int edge_next(uint u, uint v, uint t) {
-    //return cqtree->edge_next(u,v,t);
-    return 0;
+    int p = past_->edge_next(u,v,t);
+    int c = curr_->edge_next(u,v,t);
+
+    if (p >= 0 && p < c) return p;
+    return c;
   }
 
   virtual unsigned long snapshot(uint t) {
@@ -1415,8 +1444,11 @@ class IntervalContactGraphPoint : public TemporalGraph {
       return (interval_->edge_strong(u,v,tstart,tend) || point_->edge_strong(u,v,tstart,tend));
   }
   virtual int edge_next(uint u, uint v, uint t) {
-    //return cqtree->edge_next(u,v,t);
-    return 0;
+    int p = interval_->edge_next(u,v,t);
+    int c = point_->edge_next(u,v,t);
+
+    if (p >= 0 && p < c) return p;
+    return c;
   }
 
   virtual unsigned long snapshot(uint t) {
