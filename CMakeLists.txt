@@ -89,45 +89,49 @@ endif()
 #   message(STATUS "Makefile for Release mode")
 #endif()
 
-add_executable( update update.cc arraysort.cc TemporalGraph.cc)
-target_link_libraries(update cqtree)
+add_library( tempgraph arraysort.cc TemporalGraph.cc)
+target_link_libraries( tempgraph cqtree)
 
-add_executable( create create.cc arraysort.cc TemporalGraph.cc)
-target_link_libraries(create cqtree)
+add_executable( update update.cc )
+target_link_libraries(update tempgraph)
+
+
+add_executable( create create.cc)
+target_link_libraries(create tempgraph)
 
 add_executable( sort sort.cc )
-target_link_libraries(sort cqtree)
+target_link_libraries(sort tempgraph)
 
 
-add_executable( benchmark benchmark.cc arraysort.cc TemporalGraph.cc)
-target_link_libraries(benchmark cqtree)
+add_executable( benchmark benchmark.cc)
+target_link_libraries(benchmark tempgraph)
 set_target_properties (benchmark PROPERTIES COMPILE_DEFINITIONS "EXPERIMENTS")
 
-add_executable( benchmark_time benchmark.cc arraysort.cc TemporalGraph.cc)
-target_link_libraries(benchmark_time cqtree)
+add_executable( benchmark_time benchmark.cc)
+target_link_libraries(benchmark_time tempgraph)
 set_target_properties (benchmark_time PROPERTIES COMPILE_DEFINITIONS TIMESAMPLE)
 set_property(TARGET benchmark_time APPEND PROPERTY COMPILE_DEFINITIONS EXPERIMENTS)
 
 
-add_executable( checkans benchmark.cc arraysort.cc TemporalGraph.cc)
-target_link_libraries(checkans cqtree)
+add_executable( checkans benchmark.cc )
+target_link_libraries(checkans tempgraph)
 
-add_executable( stats stats.cc arraysort.cc TemporalGraph.cc)
-target_link_libraries(stats cqtree)
+add_executable( stats stats.cc )
+target_link_libraries(stats tempgraph)
 
-add_executable( leaves leaves.cc arraysort.cc TemporalGraph.cc)
-target_link_libraries(leaves cqtree)
+add_executable( leaves leaves.cc )
+target_link_libraries(leaves tempgraph)
 
-add_executable( allvertices allvertices.cc arraysort.cc TemporalGraph.cc)
-target_link_libraries(allvertices cqtree)
+add_executable( allvertices allvertices.cc )
+target_link_libraries(allvertices tempgraph)
 
-add_executable( allvertices_time allvertices.cc arraysort.cc TemporalGraph.cc)
-target_link_libraries(allvertices_time cqtree)
+add_executable( allvertices_time allvertices.cc )
+target_link_libraries(allvertices_time tempgraph)
 set_target_properties (allvertices_time PROPERTIES COMPILE_DEFINITIONS TIMESAMPLE)
 
 
-add_executable( exp-query exp-query.cc arraysort.cc TemporalGraph.cc)
-target_link_libraries(exp-query cqtree)
+add_executable( exp-query exp-query.cc )
+target_link_libraries(exp-query tempgraph)
 
 
 #For testing 2d data

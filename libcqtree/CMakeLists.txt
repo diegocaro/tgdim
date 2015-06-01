@@ -105,7 +105,7 @@ add_test( runPRB2XORUnitTests runPRB2XORUnitTests )
 
 ### Common objects files in my project
 #add_library(cqtree src/utils.cc src/CompactQtree.cc src/MXCompactQtree.cc src/MXCompactQtreeFixed.cc src/PRBCompactQtree.cc src/PRWCompactQtree.cc )
-add_library(cqtree src/utils.cc src/CompactQtree.cc src/MXCompactQtree.cc src/MXCompactQtreeFixed.cc src/PRBCompactQtree.cc src/PRB2CompactQtree.cc src/PRB2XORCompactQtree.cc src/XorCode.cc  src/MyCoder.cc )
+add_library(cqtree src/utils.cc src/CompactQtree.cc src/MXCompactQtree.cc src/MXCompactQtreeFixed.cc src/PRBCompactQtree.cc src/PRB2CompactQtree.cc src/PRB2XORCompactQtree.cc src/XorCode.cc  src/MyCoder.cc src/bitvector.cc )
 
 target_include_directories(cqtree PUBLIC src)
 target_include_directories(cqtree PUBLIC include)

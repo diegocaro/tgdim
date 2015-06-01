@@ -25,8 +25,12 @@ class MyCompressionCoder : public MyCoder {
         hc->LoadPolicy(policy);
     }
 
-    virtual size_t encode(uint symb, uint * stream, size_t pos) const { return 0; };
-    virtual size_t decode(uint * symb, uint *stream, size_t pos) const { return 0; };
+    virtual size_t encode(uint symb, uint * stream, size_t pos) const {
+    	UNUSED(symb); UNUSED(stream); UNUSED(pos); return 0;
+    };
+    virtual size_t decode(uint * symb, uint *stream, size_t pos) const {
+    	UNUSED(symb); UNUSED(stream); UNUSED(pos); return 0;
+    };
     virtual size_t maxLength() const { return 0; };
     virtual size_t getSize() const {return sizeof(MyCompressionCoder); }
 

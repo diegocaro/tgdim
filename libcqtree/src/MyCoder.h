@@ -9,6 +9,7 @@
 #define MYCODER_H_
 
 #include <Coder.h> //libcds
+#include "utils.h"
 
 #define MYHUFF_HDR 1
 #define MYCOMPR_HDR 2

@@ -138,3 +138,85 @@ uint *getBitmap(BitSequence *bs) {
 
     return ret;
 }
+
+
+
+
+  void UpdateMXCompactQtree::updateBitmaps(BitSequenceBuilder *bt) {
+      uint *btemp;
+      size_t len;
+
+      for(int i = 0; i < depth_; i++ ) {
+          fprintf(stderr, "New bitmaps at level %d\n",i);
+
+          btemp = getBitmap(T_[i]);
+          len = T_[i]->getLength();
+
+
+          delete T_[i];
+          T_[i] = bt->build(btemp, len);
+          delete btemp;
+      }
+  }
+
+
+  void UpdatePRBCompactQtree::updateBitmaps(BitSequenceBuilder *bt,BitSequenceBuilder *bb) {
+      uint *btemp;
+      size_t len;
+
+      for(int i = 0; i < depth_; i++ ) {
+          fprintf(stderr, "New bitmaps at level %d\n",i);
+
+          btemp = getBitmap(T_[i]);
+          len = T_[i]->getLength();
+
+
+          delete T_[i];
+          T_[i] = bt->build(btemp, len);
+          delete btemp;
+
+
+
+          btemp = getBitmap(B_[i]);
+          len = B_[i]->getLength();
+
+          delete B_[i];
+          B_[i] = bb->build(btemp, len);
+          delete btemp;
+      }
+  }
+
+
+
+    void UpdatePRB2CompactQtree::updateBitmaps(BitSequenceBuilder *bt,BitSequenceBuilder *bb, BitSequenceBuilder *bc) {
+        uint *btemp;
+        size_t len;
+
+        for(int i = 0; i < depth_; i++ ) {
+            fprintf(stderr, "New bitmaps at level %d\n",i);
+
+            btemp = getBitmap(T_[i]);
+            len = T_[i]->getLength();
+
+
+            delete T_[i];
+            T_[i] = bt->build(btemp, len);
+            delete btemp;
+
+
+
+            btemp = getBitmap(B_[i]);
+            len = B_[i]->getLength();
+
+            delete B_[i];
+            B_[i] = bb->build(btemp, len);
+            delete btemp;
+
+            btemp = getBitmap(C_[i]);
+            len = C_[i]->getLength();
+
+            delete C_[i];
+            C_[i] = bb->build(btemp, len);
+            delete btemp;
+        }
+    }

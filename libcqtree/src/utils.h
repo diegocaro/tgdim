@@ -16,6 +16,13 @@
 
 using namespace std;
 
+// to avoid the unused parameter warning... ugly, but it maintains
+// the requirements of the super class
+#ifndef UNUSED
+	#define UNUSED(x) (void)(x)
+#endif
+
+
 namespace cqtree_utils {
 
 // return a point with the maximum range of all dimensions

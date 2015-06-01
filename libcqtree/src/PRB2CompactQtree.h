@@ -34,28 +34,6 @@ class PRB2CompactQtree:public CompactQtree {
       int level;
   };
 
-//    struct Less {
-//            Less(const PRB2CompactQtree& cl) : c(cl) {
-////                printf("depth: %d\n",c.depth_);
-////                for(int i = 0; i < c.depth_; i++) {
-////                    printf("k_[%d] = %d\n",i,c.k_[i]);
-////                    printf("nk_[%d] = %d\n",i,c.nk_[i]);
-////                }
-//            }
-//            bool operator () (const Point<uint> &x, const Point<uint> &y) {
-//                for(int i=0; i < c.depth_; i++) {
-//                    for(int j=c.rangedim_by_level_[i].first; j < c.rangedim_by_level_[i].second; j++) {
-//                        int a=(x[j]/c.nk_[i])%c.k_[i];
-//                        int b=(y[j]/c.nk_[i])%c.k_[i];
-//
-//                        if (a!=b) return (a < b);
-//                    }
-//                }
-//                return false;
-//            }
-//
-//            const PRB2CompactQtree& c;
-//        };
 
  public:
     PRB2CompactQtree() {
@@ -156,134 +134,11 @@ class PRB2CompactQtree:public CompactQtree {
     }
 
 
-    PRB2CompactQtree(ifstream & f) {
-      uint type = loadValue<uint>(f);
-                  // TODO:throw an exception!
-                  if(type!=PRQBLK2_SAV) {
-                    abort();
-                  }
+    PRB2CompactQtree(ifstream & f);
 
-        loadValue(f,items_);
-        loadValue(f,levels_k1_);
-        loadValue(f,levels_k2_);
-        loadValue(f,levels_ki_);
+    virtual void save(ofstream &f) const;
 
-        loadValue(f,k1_);
-        loadValue(f,k2_);
-        loadValue(f,ki_);
-
-        loadValue(f,depth_);
-        loadValue(f,maxvalue_);
-
-        loadValue(f,num_dims_);
-
-        loadValue(f,max_children_);
-        loadValue(f,is_interleaved_);
-
-        loadValue(f,F_);
-
-       loadVector(f,k_);
-       loadVector(f,children_);
-       loadVector(f,nk_);
-       loadVector(f,rangedim_by_level_);
-       loadVector(f, dims_);
-       loadVector(f, nodes_by_level_);
-
-       loadVector(f, grayblack_);
-       loadVector(f, leaves_per_level_);
-       loadVector(f, kpower_per_level_dim_);
-
-       for(int i = 0; i < depth_; i++) {
-           T_.push_back(NewBitSequence::load(f));
-       }
-
-       for(int i = 0; i < depth_; i++) {
-           B_.push_back(NewBitSequence::load(f));
-       }
-
-       for(int i = 0; i < depth_; i++) {
-           C_.push_back(NewBitSequence::load(f));
-       }
-
-       leaves_ = new Array**[depth_];
-         for(int i = 0; i < depth_-1; i++) {
-             leaves_[i] = new Array*[num_dims_];
-             for(int j=0; j < num_dims_; j++) {
-                     leaves_[i][j] = new Array(f);
-             }
-         }
-
-        }
-
-    virtual void save(ofstream &f) const {
-      uint wr = PRQBLK2_SAV;
-            cds_utils::saveValue(f,wr);
-
-            cds_utils::saveValue(f,items_);
-        cds_utils::saveValue(f,levels_k1_);
-        cds_utils::saveValue(f,levels_k2_);
-        cds_utils::saveValue(f,levels_ki_);
-
-        cds_utils::saveValue(f,k1_);
-        cds_utils::saveValue(f,k2_);
-        cds_utils::saveValue(f,ki_);
-
-        cds_utils::saveValue(f,depth_);
-        cds_utils::saveValue(f,maxvalue_);
-
-        cds_utils::saveValue(f,num_dims_);
-
-        cds_utils::saveValue(f,max_children_);
-        cds_utils::saveValue(f,is_interleaved_);
-
-        cds_utils::saveValue(f,F_);
-
-
-        saveVector(f,k_);
-        saveVector(f,children_);
-        saveVector(f,nk_);
-        saveVector(f,rangedim_by_level_);
-        saveVector(f, dims_);
-        saveVector(f, nodes_by_level_);
-
-        saveVector(f, grayblack_);
-        saveVector(f, leaves_per_level_);
-        saveVector(f, kpower_per_level_dim_);
-
-        for(int i = 0; i < depth_; i++) {
-            T_[i]->save(f);
-        }
-
-        for(int i = 0; i < depth_; i++) {
-            B_[i]->save(f);
-        }
-
-        for(int i = 0; i < depth_; i++) {
-            C_[i]->save(f);
-        }
-
-          for(int i = 0; i < depth_-1; i++) {
-              for(int j=0; j < num_dims_; j++) {
-                      leaves_[i][j]->save(f);
-              }
-          }
-    }
-
-    void print_leaves() {
-        //Point<uint> p(num_dims_);
-        //print_leaves(p, -1, -1);
-
-        for(int i = 0; i < depth_; i++) {
-            for(size_t j=0; j < leaves_per_level_[i]; j++) {
-                printf("%d", i);
-                for(int k=0; k < num_dims_; k++) {
-                    printf("\t%d", leaves_[i][k]->getField(j));
-                }
-                printf("\n");
-            }
-        }
-
-    }
+    void print_leaves();
 
  protected:
     void __setdefaultvalues() {

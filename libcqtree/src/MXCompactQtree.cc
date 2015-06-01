@@ -953,6 +953,103 @@ void MXCompactQtree::stats_space() const {
   printf("T space (MBytes): %0.1f\n", 1.0*treebits/1024/1024);
 }
 
+
+// load from file
+MXCompactQtree::MXCompactQtree(ifstream & f) {
+  uint type = loadValue<uint>(f);
+        // TODO:throw an exception!
+        if(type!=MXQDPT_SAV) {
+          abort();
+        }
+
+    loadValue(f,items_);
+    loadValue(f,levels_k1_);
+    loadValue(f,levels_k2_);
+    loadValue(f,levels_ki_);
+
+    loadValue(f,k1_);
+    loadValue(f,k2_);
+    loadValue(f,ki_);
+
+    loadValue(f,depth_);
+    loadValue(f,maxvalue_);
+
+    loadValue(f,num_dims_);
+
+    loadValue(f,max_children_);
+    loadValue(f,is_interleaved_);
+
+   loadVector(f,k_);
+   loadVector(f,children_);
+   loadVector(f,nk_);
+   loadVector(f,rangedim_by_level_);
+   loadVector(f, dims_);
+   loadVector(f, nodes_by_level_);
+   loadVector(f,kpower_per_level_dim_);
+
+    for(int i = 0; i < depth_; i++) {
+        T_.push_back(NewBitSequence::load(f));
+        //printf("s T_[%d].size() = %lu %p\n", i,T_[i]->getLength(),T_[i]);
+    }
+
+
+    }
+
+void MXCompactQtree::save(ofstream &f) const {
+  uint wr = MXQDPT_SAV;
+  cds_utils::saveValue(f,wr);
+
+    cds_utils::saveValue(f,items_);
+
+    cds_utils::saveValue(f,levels_k1_);
+    cds_utils::saveValue(f,levels_k2_);
+    cds_utils::saveValue(f,levels_ki_);
+
+    cds_utils::saveValue(f,k1_);
+    cds_utils::saveValue(f,k2_);
+    cds_utils::saveValue(f,ki_);
+
+    cds_utils::saveValue(f,depth_);
+    cds_utils::saveValue(f,maxvalue_);
+
+    cds_utils::saveValue(f,num_dims_);
+
+    cds_utils::saveValue(f,max_children_);
+    cds_utils::saveValue(f,is_interleaved_);
+
+    saveVector(f,k_);
+    saveVector(f,children_);
+    saveVector(f,nk_);
+    saveVector(f,rangedim_by_level_);
+    saveVector(f, dims_);
+    saveVector(f, nodes_by_level_);
+    saveVector(f, kpower_per_level_dim_);
+
+    for(int i = 0; i < depth_; i++) {
+        T_[i]->save(f);
+    }
+
+}
+
+
+MXCompactQtree::~MXCompactQtree() {
+        for(size_t i=0; i < T_.size(); i++) {
+            delete T_[i];
+        }
+        T_.clear();
+
+        __setdefaultvalues();
+    }
+
+
+
+
+
+
+
+
+
+
 /*
  template <typename T>
  void MXCompactQtree<T>::save(ofstream & f) const

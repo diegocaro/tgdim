@@ -14,7 +14,7 @@
 
 using namespace cqtree_static;
 
-// this is to remove duplicated items using hashing for pair<uint,uint> in a unordered_set
+// this is to remove duplicated items using hashing for pair<uint,uint> in an unordered_set
 // moreinfo: http://stackoverflow.com/a/15161034/187284
 #include <unordered_set>
 #include <utility>
@@ -82,89 +82,24 @@ BitSequenceBuilder* getBSBuilder(string e);
 uint *getBitmap(BitSequence *bs);
 XorCodeBuilder* getXorBuilder(string e);
 
+
+
+// For updating the bitmaps data structures once is built
+// This saves a lot of time for the MXCompactQtree (specially on compressed bitmaps!)
+
 class UpdateMXCompactQtree: public MXCompactQtree {
     public:
-  void updateBitmaps(BitSequenceBuilder *bt) {
-      uint *btemp;
-      size_t len;
-
-      for(int i = 0; i < depth_; i++ ) {
-          fprintf(stderr, "New bitmaps at level %d\n",i);
-
-          btemp = getBitmap(T_[i]);
-          len = T_[i]->getLength();
-
-
-          delete T_[i];
-          T_[i] = bt->build(btemp, len);
-          delete btemp;
-      }
-  }
+  void updateBitmaps(BitSequenceBuilder *bt);
 };
 
 class UpdatePRBCompactQtree: public PRBCompactQtree {
     public:
-  void updateBitmaps(BitSequenceBuilder *bt,BitSequenceBuilder *bb) {
-      uint *btemp;
-      size_t len;
-
-      for(int i = 0; i < depth_; i++ ) {
-          fprintf(stderr, "New bitmaps at level %d\n",i);
-
-          btemp = getBitmap(T_[i]);
-          len = T_[i]->getLength();
-
-
-          delete T_[i];
-          T_[i] = bt->build(btemp, len);
-          delete btemp;
-
-
-
-          btemp = getBitmap(B_[i]);
-          len = B_[i]->getLength();
-
-          delete B_[i];
-          B_[i] = bb->build(btemp, len);
-          delete btemp;
-      }
-  }
+  void updateBitmaps(BitSequenceBuilder *bt,BitSequenceBuilder *bb);
 };
 
   class UpdatePRB2CompactQtree: public PRB2CompactQtree {
   public:
-    void updateBitmaps(BitSequenceBuilder *bt,BitSequenceBuilder *bb, BitSequenceBuilder *bc) {
-        uint *btemp;
-        size_t len;
-
-        for(int i = 0; i < depth_; i++ ) {
-            fprintf(stderr, "New bitmaps at level %d\n",i);
-
-            btemp = getBitmap(T_[i]);
-            len = T_[i]->getLength();
-
-
-            delete T_[i];
-            T_[i] = bt->build(btemp, len);
-            delete btemp;
-
-
-
-            btemp = getBitmap(B_[i]);
-            len = B_[i]->getLength();
-
-            delete B_[i];
-            B_[i] = bb->build(btemp, len);
-            delete btemp;
-
-            btemp = getBitmap(C_[i]);
-            len = C_[i]->getLength();
-
-            delete C_[i];
-            C_[i] = bb->build(btemp, len);
-            delete btemp;
-        }
-    }
+    void updateBitmaps(BitSequenceBuilder *bt,BitSequenceBuilder *bb, BitSequenceBuilder *bc);
 };
 
 

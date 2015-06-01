@@ -39,8 +39,12 @@ class MyHuffmanCoder: public MyCoder {
         hc = HuffmanCoder::load(fp);
     }
 
-    virtual size_t Compress(unsigned *input, unsigned *ouput, int n) {return 0;};
-    virtual size_t Decompress(unsigned *input, unsigned *ouput, int n) {return 0;};
+    virtual size_t Compress(unsigned *input, unsigned *ouput, int n) {
+    	UNUSED(input); UNUSED(ouput); UNUSED(n); return 0;
+    };
+    virtual size_t Decompress(unsigned *input, unsigned *ouput, int n) {
+    	UNUSED(input); UNUSED(ouput); UNUSED(n); return 0;
+    };
 
  private:
     HuffmanCoder *hc;

@@ -48,7 +48,7 @@ class Point : public __Point {
     }
 
     Point(const Point<tdata> &obj)
-            : num_dims_(obj.num_dims_), weight(obj.weight) {
+            :  weight(obj.weight), num_dims_(obj.num_dims_) {
 //        data_point_ = new tdata[num_dims_];
 
         //memcpy(data_point_, obj.data_point_, sizeof(tdata)*num_dims_);

@@ -30,39 +30,9 @@ struct Node {
     int level;
 };
 
-
-
-
-
 //typename int or long
 //template<typename T>
 class MXCompactQtree: public CompactQtree {
-
-
-//    struct Less {
-//            Less(const MXCompactQtree& cl) : c(cl) {
-////                printf("depth: %d\n",c.depth_);
-////                for(int i = 0; i < c.depth_; i++) {
-////                    printf("k_[%d] = %d\n",i,c.k_[i]);
-////                    printf("nk_[%d] = %d\n",i,c.nk_[i]);
-////                }
-//            }
-//            bool operator () (const Point<uint> &x, const Point<uint> &y) {
-//                for(int i=0; i < c.depth_; i++) {
-//                    for(int j=c.rangedim_by_level_[i].first; j < c.rangedim_by_level_[i].second; j++) {
-//                        int a=(x[j]/c.nk_[i])%c.k_[i];
-//                        int b=(y[j]/c.nk_[i])%c.k_[i];
-//
-//                        if (a!=b) return (a < b);
-//                    }
-//                }
-//                return false;
-//            }
-//
-//            const MXCompactQtree& c;
-//        };
-//
-
  public:
     MXCompactQtree() {
         __setdefaultvalues();
@@ -70,14 +40,7 @@ class MXCompactQtree: public CompactQtree {
 
     MXCompactQtree(std::vector<Point<uint> > &points, BitSequenceBuilder *bs, int k1=2, int k2=2, int max_level_k1=0, int max_levels_ki=0);
 
-    virtual ~MXCompactQtree() {
-        for(size_t i=0; i < T_.size(); i++) {
-            delete T_[i];
-        }
-        T_.clear();
-
-        __setdefaultvalues();
-    }
+    virtual ~MXCompactQtree();
     
     virtual void stats_space() const;
     
@@ -142,84 +105,8 @@ class MXCompactQtree: public CompactQtree {
         return r;
     }
 
-
-
-    MXCompactQtree(ifstream & f) {
-      uint type = loadValue<uint>(f);
-            // TODO:throw an exception!
-            if(type!=MXQDPT_SAV) {
-              abort();
-            }
-
-        loadValue(f,items_);
-        loadValue(f,levels_k1_);
-        loadValue(f,levels_k2_);
-        loadValue(f,levels_ki_);
-
-        loadValue(f,k1_);
-        loadValue(f,k2_);
-        loadValue(f,ki_);
-
-        loadValue(f,depth_);
-        loadValue(f,maxvalue_);
-
-        loadValue(f,num_dims_);
-
-        loadValue(f,max_children_);
-        loadValue(f,is_interleaved_);
-
-       loadVector(f,k_);
-       loadVector(f,children_);
-       loadVector(f,nk_);
-       loadVector(f,rangedim_by_level_);
-       loadVector(f, dims_);
-       loadVector(f, nodes_by_level_);
-       loadVector(f,kpower_per_level_dim_);
-
-        for(int i = 0; i < depth_; i++) {
-            T_.push_back(NewBitSequence::load(f));
-            //printf("s T_[%d].size() = %lu %p\n", i,T_[i]->getLength(),T_[i]);
-        }
-
-
-        }
-
-    virtual void save(ofstream &f) const {
-      uint wr = MXQDPT_SAV;
-      cds_utils::saveValue(f,wr);
-
-        cds_utils::saveValue(f,items_);
-
-        cds_utils::saveValue(f,levels_k1_);
-        cds_utils::saveValue(f,levels_k2_);
-        cds_utils::saveValue(f,levels_ki_);
-
-        cds_utils::saveValue(f,k1_);
-        cds_utils::saveValue(f,k2_);
-        cds_utils::saveValue(f,ki_);
-
-        cds_utils::saveValue(f,depth_);
-        cds_utils::saveValue(f,maxvalue_);
-
-        cds_utils::saveValue(f,num_dims_);
-
-        cds_utils::saveValue(f,max_children_);
-        cds_utils::saveValue(f,is_interleaved_);
-
-        saveVector(f,k_);
-        saveVector(f,children_);
-        saveVector(f,nk_);
-        saveVector(f,rangedim_by_level_);
-        saveVector(f, dims_);
-        saveVector(f, nodes_by_level_);
-        saveVector(f, kpower_per_level_dim_);
-
-        for(int i = 0; i < depth_; i++) {
-            T_[i]->save(f);
-        }
-
-    }
-
+    MXCompactQtree(ifstream & f);
+    virtual void save(ofstream &f) const;
 
  protected:
     void __setdefaultvalues() {
@@ -232,56 +119,6 @@ class MXCompactQtree: public CompactQtree {
 
 
     }
-
-    /*
-    size_t rank(const std::vector<Point<uint> > &vp, int key, uint level,
-                long lo, long hi) const {
-        if (hi < lo)
-            return lo;  //this is because we are using size_t instead of int as indices
-        long mid = lo + (hi - lo) / 2;
-
-        //printf("%u %u\n", vp[mid].getMorton(level), code(vp[mid], depth_-level-1));
-
-        //printf("lo: %u - hi: %u\n", lo, hi);
-        // printf("vp_[%u].get(%u) = %u\n", mid, level, vp_[mid].get(level));
-        if (vp[mid].getMorton(level) == key
-                && (mid == 0 || (mid > 0 && vp[mid - 1].getMorton(level) != key))) {
-            //printf("found in %u\n", mid);
-            return mid;
-        } else if (key <= vp[mid].getMorton(level)) {
-            return rank(vp, key, level, lo, mid - 1);
-        } else {  // if (key > keys[mid])
-            return rank(vp, key, level, mid + 1, hi);
-        }
-    }*/
-
-/* not used anymore
-    size_t rank(const std::vector<Point<uint> > &vp, int key, uint level,
-                long lo, long hi) const {
-        if (hi < lo)
-            return lo;  //this is because we are using size_t instead of int as indices
-        long mid = lo + (hi - lo) / 2;
-
-        //printf("%u %u\n", vp[mid].getMorton(level), code(vp[mid], depth_-level-1));
-
-        //printf("lo: %u - hi: %u\n", lo, hi);
-        // printf("vp_[%u].get(%u) = %u\n", mid, level, vp_[mid].get(level));
-        if (code(vp[mid],level) == key
-                && (mid == 0 || (mid > 0 && code(vp[mid-1],level) != key))) {
-            //printf("found in %u\n", mid);
-            return mid;
-        } else if (key <= code(vp[mid],level)) {
-            return rank(vp, key, level, lo, mid - 1);
-        } else {  // if (key > keys[mid])
-            return rank(vp, key, level, mid + 1, hi);
-        }
-    }
-*/
-
-//    void get_stats(const std::vector<Point<uint> > &vp);
-//
-//    void create(const std::vector<Point<uint> > &vp,
-//                BitSequenceBuilder *bs);
 
     void build(std::vector<Point<uint> > &vp,
                     BitSequenceBuilder *bs);

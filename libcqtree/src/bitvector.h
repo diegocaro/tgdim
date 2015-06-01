@@ -14,49 +14,22 @@ namespace cqtree_utils {
 const unsigned int W_ = 32;
 class bitvector {
  public:
-    bitvector() {
-        length_ = 0;
-    }
+    bitvector();
 
     // build vector of a given size
-    bitvector(size_t size) {
-        reserve(size);
-        length_ = size;
-    }
+    bitvector(size_t size);
 
-    ~bitvector() {
-
-    }
+    ~bitvector();
 
     // reserve spaces and increase capacity
-    void reserve(size_t s) {
-//        printf("BitVector: increasing size\n");
-        data_.reserve(s/W_+1);
-        data_.insert(data_.end(), s/W_+1 - data_.size(), 0);
-    }
+    void reserve(size_t s);
 
     /** sets bit p in data */
-    void bitset(size_t p) {
-        if (p >= length_) {
-            //if current data_ size need to be updated
+    void bitset(size_t p);
 
-            if (p/W_+1 < data_.size()) {
-                printf("reserving more data...\n");
-                reserve(2*p);
-            }
-            length_ = p+1;
-        }
+    const unsigned int *data() const;
 
-        data_[p/W_] |= (1<<(p%W_));
-    }
-
-    const unsigned int *data() const {
-        return data_.data();
-    }
-
-    size_t length() const {
-        return length_;
-    }
+    size_t length() const;
 
 
  private:

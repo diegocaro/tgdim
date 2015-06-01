@@ -118,11 +118,11 @@ class RamModel {
 
 class RamModel {
  public:
-    RamModel(const char *name) {}
-    void rank(size_t k=1) {}
-    void access(size_t k=1) {}
-    void select(size_t k=1) {}
-    void print(const char *b="\n") {}
+    RamModel(const char *name) {(void)name;}
+    void rank(size_t k=1) {(void)k;}
+    void access(size_t k=1) {(void)k;}
+    void select(size_t k=1) {(void)k;}
+    void print(const char *b="\n") {(void)b;}
     void clear() {}
 };
 

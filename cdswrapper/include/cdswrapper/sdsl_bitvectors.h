@@ -26,6 +26,12 @@ using namespace cds_static;
 #define SDSL_IL_1024_HDR 1102
 #define SDSL_IL_128_HDR 1103
 
+// to avoid the unused parameter warning... ugly, but it maintains
+// the requirements of the super class
+#ifndef UNUSED
+	#define UNUSED(x) (void)(x)
+#endif
+
 namespace cqtree_utils {
 
 
@@ -579,7 +585,7 @@ class BitSequenceBuilder_SDSL_RRR_15 : public BitSequenceBuilder {
         BitSequenceBuilder_SDSL_RRR_15() {};
         virtual ~BitSequenceBuilder_SDSL_RRR_15() {}
         virtual BitSequence * build(uint * bitseq, size_t len) const { return new SDSL_RRR_15(bitseq,len); };
-        virtual BitSequence * build(const BitString & bs) const { return NULL;};
+        virtual BitSequence * build(const BitString & bs) const { UNUSED(bs); return NULL;};
 };
 
 class BitSequenceBuilder_SDSL_RRR_31 : public BitSequenceBuilder {
@@ -587,7 +593,7 @@ class BitSequenceBuilder_SDSL_RRR_31 : public BitSequenceBuilder {
         BitSequenceBuilder_SDSL_RRR_31() {};
         virtual ~BitSequenceBuilder_SDSL_RRR_31() {}
         virtual BitSequence * build(uint * bitseq, size_t len) const { return new SDSL_RRR_31(bitseq,len); };
-        virtual BitSequence * build(const BitString & bs) const { return NULL;};
+        virtual BitSequence * build(const BitString & bs) const { UNUSED(bs); return NULL;};
 };
 
 class BitSequenceBuilder_SDSL_RRR_63 : public BitSequenceBuilder {
@@ -595,7 +601,7 @@ class BitSequenceBuilder_SDSL_RRR_63 : public BitSequenceBuilder {
         BitSequenceBuilder_SDSL_RRR_63() {};
         virtual ~BitSequenceBuilder_SDSL_RRR_63() {}
         virtual BitSequence * build(uint * bitseq, size_t len) const { return new SDSL_RRR_63(bitseq,len); };
-        virtual BitSequence * build(const BitString & bs) const { return NULL;};
+        virtual BitSequence * build(const BitString & bs) const { UNUSED(bs); return NULL;};
 };
 
 class BitSequenceBuilder_SDSL_RRR_127 : public BitSequenceBuilder {
@@ -603,7 +609,7 @@ class BitSequenceBuilder_SDSL_RRR_127 : public BitSequenceBuilder {
         BitSequenceBuilder_SDSL_RRR_127() {};
         virtual ~BitSequenceBuilder_SDSL_RRR_127() {}
         virtual BitSequence * build(uint * bitseq, size_t len) const { return new SDSL_RRR_127(bitseq,len); };
-        virtual BitSequence * build(const BitString & bs) const { return NULL;};
+        virtual BitSequence * build(const BitString & bs) const { UNUSED(bs); return NULL;};
 };
 
 class BitSequenceBuilder_SDSL_RRR_255 : public BitSequenceBuilder {
@@ -611,7 +617,7 @@ class BitSequenceBuilder_SDSL_RRR_255 : public BitSequenceBuilder {
         BitSequenceBuilder_SDSL_RRR_255() {};
         virtual ~BitSequenceBuilder_SDSL_RRR_255() {}
         virtual BitSequence * build(uint * bitseq, size_t len) const { return new SDSL_RRR_255(bitseq,len); };
-        virtual BitSequence * build(const BitString & bs) const { return NULL;};
+        virtual BitSequence * build(const BitString & bs) const { UNUSED(bs); return NULL;};
 };
 
 class BitSequenceBuilder_SDSL_IL_512 : public BitSequenceBuilder {
@@ -619,7 +625,7 @@ class BitSequenceBuilder_SDSL_IL_512 : public BitSequenceBuilder {
         BitSequenceBuilder_SDSL_IL_512() {};
         virtual ~BitSequenceBuilder_SDSL_IL_512() {}
         virtual BitSequence * build(uint * bitseq, size_t len) const { return new SDSL_IL_512(bitseq,len); };
-        virtual BitSequence * build(const BitString & bs) const { return NULL;};
+        virtual BitSequence * build(const BitString & bs) const { UNUSED(bs); return NULL;};
 };
 
 class BitSequenceBuilder_SDSL_IL_1024 : public BitSequenceBuilder {
@@ -627,7 +633,7 @@ class BitSequenceBuilder_SDSL_IL_1024 : public BitSequenceBuilder {
         BitSequenceBuilder_SDSL_IL_1024() {};
         virtual ~BitSequenceBuilder_SDSL_IL_1024() {}
         virtual BitSequence * build(uint * bitseq, size_t len) const { return new SDSL_IL_1024(bitseq,len); };
-        virtual BitSequence * build(const BitString & bs) const { return NULL;};
+        virtual BitSequence * build(const BitString & bs) const { UNUSED(bs); return NULL;};
 };
 
 class BitSequenceBuilder_SDSL_IL_128 : public BitSequenceBuilder {
@@ -635,7 +641,7 @@ class BitSequenceBuilder_SDSL_IL_128 : public BitSequenceBuilder {
         BitSequenceBuilder_SDSL_IL_128() {};
         virtual ~BitSequenceBuilder_SDSL_IL_128() {}
         virtual BitSequence * build(uint * bitseq, size_t len) const { return new SDSL_IL_128(bitseq,len); };
-        virtual BitSequence * build(const BitString & bs) const { return NULL;};
+        virtual BitSequence * build(const BitString & bs) const { UNUSED(bs); return NULL;};
 };
 
 

@@ -1192,6 +1192,122 @@ void PRBCompactQtree::stats_space() const {
 
 
 
+PRBCompactQtree::PRBCompactQtree(ifstream & f) {
+  uint type = loadValue<uint>(f);
+              // TODO:throw an exception!
+              if(type!=PRQBLK_SAV) {
+                abort();
+              }
+    loadValue(f,items_);
+    loadValue(f,levels_k1_);
+    loadValue(f,levels_k2_);
+    loadValue(f,levels_ki_);
+
+    loadValue(f,k1_);
+    loadValue(f,k2_);
+    loadValue(f,ki_);
+
+    loadValue(f,depth_);
+    loadValue(f,maxvalue_);
+
+    loadValue(f,num_dims_);
+
+    loadValue(f,max_children_);
+    loadValue(f,is_interleaved_);
+
+   loadVector(f,k_);
+   loadVector(f,children_);
+   loadVector(f,nk_);
+   loadVector(f,rangedim_by_level_);
+   loadVector(f, dims_);
+   loadVector(f, nodes_by_level_);
+
+   loadVector(f, grayblack_);
+   loadVector(f, leaves_per_level_);
+   loadVector(f, kpower_per_level_dim_);
+
+   for(int i = 0; i < depth_; i++) {
+       T_.push_back(NewBitSequence::load(f));
+   }
+
+   for(int i = 0; i < depth_; i++) {
+       B_.push_back(NewBitSequence::load(f));
+   }
+
+
+   leaves_ = new Array**[depth_];
+     for(int i = 0; i < depth_-1; i++) {
+         leaves_[i] = new Array*[num_dims_];
+         for(int j=0; j < num_dims_; j++) {
+                 leaves_[i][j] = new Array(f);
+         }
+     }
+
+    }
+
+void PRBCompactQtree::save(ofstream &f) const {
+  uint wr = PRQBLK_SAV;
+        cds_utils::saveValue(f,wr);
+
+    cds_utils::saveValue(f,items_);
+    cds_utils::saveValue(f,levels_k1_);
+    cds_utils::saveValue(f,levels_k2_);
+    cds_utils::saveValue(f,levels_ki_);
+
+    cds_utils::saveValue(f,k1_);
+    cds_utils::saveValue(f,k2_);
+    cds_utils::saveValue(f,ki_);
+
+    cds_utils::saveValue(f,depth_);
+    cds_utils::saveValue(f,maxvalue_);
+
+    cds_utils::saveValue(f,num_dims_);
+
+    cds_utils::saveValue(f,max_children_);
+    cds_utils::saveValue(f,is_interleaved_);
+
+    saveVector(f,k_);
+    saveVector(f,children_);
+    saveVector(f,nk_);
+    saveVector(f,rangedim_by_level_);
+    saveVector(f, dims_);
+    saveVector(f, nodes_by_level_);
+
+    saveVector(f, grayblack_);
+    saveVector(f, leaves_per_level_);
+    saveVector(f, kpower_per_level_dim_);
+
+    for(int i = 0; i < depth_; i++) {
+        T_[i]->save(f);
+    }
+
+    for(int i = 0; i < depth_; i++) {
+        B_[i]->save(f);
+    }
+
+
+
+      for(int i = 0; i < depth_-1; i++) {
+          for(int j=0; j < num_dims_; j++) {
+                  leaves_[i][j]->save(f);
+          }
+      }
+}
+
+void PRBCompactQtree::print_leaves() {
+    //Point<uint> p(num_dims_);
+    //print_leaves(p, -1, -1);
+
+    for(int i = 0; i < depth_; i++) {
+        for(size_t j=0; j < leaves_per_level_[i]; j++) {
+            printf("%d", i);
+            for(int k=0; k < num_dims_; k++) {
+                printf("\t%d", leaves_[i][k]->getField(j));
+            }
+            printf("\n");
+        }
+    }
+}
 
 // void PRBCompactQtree::print_leaves(Point<uint> p, size_t z, int level) {
 //     size_t y = 0;
