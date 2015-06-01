@@ -155,7 +155,7 @@ void xor_arraysort(unsigned int *b) {
 
 // res must be different than a and b
 void intersection_arraysort(unsigned int *res, const unsigned int *a, const unsigned int *b) {
-  int i, j, u;
+  uint i, j, u;
 
   i = j = u = 1;
 

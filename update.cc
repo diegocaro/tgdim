@@ -19,12 +19,7 @@ int main(int argc, char ** argv) {
         char *fileName;
         char *fileOut;
 
-        int totalres = 0;
-        char * gotqueryFile = NULL;
-        FILE * gotFile = NULL;
         ifstream f;
-        unsigned int * gotreslist;
-        uint gotres = 0;
 
         if (argc < 4) {
                 fprintf(stderr,"Usage: %s <inputfile> <outputfile> 'flags'\n", argv[0]);
@@ -34,13 +29,6 @@ int main(int argc, char ** argv) {
         fileName = argv[1];
         fileOut = argv[2];
         
-
-
-
-
-
-
-        // Opening files
         f.open(fileName, ios::binary);
 
         if (!f.is_open()) {

@@ -28,7 +28,7 @@ void readflags(struct opts *opts, const char *flags) {
     vector<string> s;
     tokenize(flags,s,',');
 
-    for(int i = 0; i < s.size(); i++) {
+    for(size_t i = 0; i < s.size(); i++) {
         vector<string> u;
         tokenize(s[i],u,':');
         opts->params[u[0]] = u[1];
@@ -216,7 +216,7 @@ uint *getBitmap(BitSequence *bs) {
             len = C_[i]->getLength();
 
             delete C_[i];
-            C_[i] = bb->build(btemp, len);
+            C_[i] = bc->build(btemp, len);
             delete btemp;
         }
     }

@@ -301,7 +301,7 @@ class XorCompressedVectorBuilder: public XorCodeBuilder {
 
     // not used
     virtual void updateDict(const std::vector<unsigned> &vi){
-
+        UNUSED(vi);
     }
 
     virtual MyCoder* getCoder() {

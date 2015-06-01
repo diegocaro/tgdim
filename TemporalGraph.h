@@ -33,12 +33,12 @@ enum TypeGraph {
 };
 
 enum typeds {
-  ePRBlack,
-  ePRWhite,
-  eMXDepth,
-  eMXFixed,
-  ePRB2Black,
-  ePRB2XORBlack
+  ePRBlack, // compressed k^d-tree
+  ePRWhite, // a failed experiment
+  eMXDepth, // k^d-tree
+  eMXFixed, // a failed experiment
+  ePRB2Black, // bucket compressed k^d-tree
+  ePRB2XORBlack // bucket xor compressed k^d-tree ... failed experiment
 };
 
 struct opts {
@@ -103,7 +103,6 @@ class UpdatePRBCompactQtree: public PRBCompactQtree {
 };
 
 
-//TODO Add Interval operations
 class TemporalGraph {
  public:
 
@@ -117,18 +116,16 @@ class TemporalGraph {
 
   static TemporalGraph* load(ifstream &f);
 
-  ~TemporalGraph() {
+  virtual ~TemporalGraph() {
     if (qt_ != NULL) {
       delete qt_;
     }
     qt_ = NULL;
   }
-  ;
 
   void setDs(CompactQtree *q) {
     qt_ = q;
   }
-  ;
 
   void setInfo(uint nodes, uint edges, uint lifetime, uint contacts) {
     nodes_ = nodes;
@@ -140,10 +137,7 @@ class TemporalGraph {
   unsigned getNodes() {
 	  return nodes_;
   }
-//  void setOpts(struct opts &opts) {
-//    opts_ = opts;
-//  }
-//  ;
+
 
   virtual void stats() {
     qt_->stats_space();
@@ -185,7 +179,7 @@ class TemporalGraph {
 
   virtual void save(ofstream &f)=0;
 
-  //interface to query a temporal graph
+  //interface for quering a temporal graph
   virtual void direct_point(uint u, uint t, uint *res)=0;
   virtual void direct_weak(uint u, uint tstart, uint tend, uint *res)=0;
   virtual void direct_strong(uint u, uint tstart, uint tend, uint *res)=0;
@@ -217,7 +211,6 @@ class TemporalGraph {
   uint contacts_;
 
   CompactQtree *qt_;
-  //struct opts opts_;
   vector<Point<uint> > vp;
 };
 
@@ -490,7 +483,7 @@ class IntervalContactGraph : public TemporalGraph {
   }
 
   virtual unsigned long change_point(uint t) {
-      change_interval(t,t+1);
+      return change_interval(t,t+1);
   }
 
 
@@ -530,7 +523,7 @@ class IntervalContactGraph : public TemporalGraph {
   }
 
   virtual unsigned long actived_point(uint t) {
-      actived_interval_(t,t+1,true);
+      return actived_interval_(t,t+1,true);
   }
 
   virtual unsigned long actived_interval(uint tstart, uint tend) {
@@ -568,7 +561,7 @@ class IntervalContactGraph : public TemporalGraph {
       return ans.size();
   }
   virtual unsigned long deactived_point(uint t) {
-      deactived_interval_(t,t+1,true);
+      return deactived_interval_(t,t+1,true);
   }
 
   virtual unsigned long deactived_interval(uint tstart, uint tend) {
@@ -648,10 +641,12 @@ class GrowingContactGraph : public TemporalGraph {
       #endif
   }
   virtual void direct_strong(uint u, uint tstart, uint tend, uint *res) {
+      UNUSED(tend);
     direct_point(u,tstart,res);
   }
 
   virtual void direct_weak(uint u, uint tstart, uint tend, uint *res) {
+      UNUSED(tstart);
     direct_point(u,tend,res);
   }
 
@@ -683,9 +678,11 @@ class GrowingContactGraph : public TemporalGraph {
   }
 
   virtual void reverse_weak(uint v, uint tstart, uint tend, uint *res) {
+      UNUSED(tstart);
     reverse_point(v,tend,res);
   }
   virtual void reverse_strong(uint v, uint tstart, uint tend, uint *res) {
+      UNUSED(tend);
     reverse_point(v,tstart,res);
   }
 
@@ -710,9 +707,11 @@ class GrowingContactGraph : public TemporalGraph {
   }
 
   virtual int edge_weak(uint u, uint v, uint tstart, uint tend) {
+      UNUSED(tstart);
     return edge_point(u,v,tend);
   }
   virtual int edge_strong(uint u, uint v, uint tstart, uint tend) {
+      UNUSED(tend);
     return edge_point(u,v,tstart);
   }
 
@@ -764,14 +763,14 @@ class GrowingContactGraph : public TemporalGraph {
   }
 
   virtual unsigned long change_point(uint t) {
-      change_interval(t,t+1);
+      return change_interval(t,t+1);
   }
 
   virtual unsigned long change_interval(uint tstart, uint tend) {
       return actived_interval(tstart,tend) + deactived_interval(tstart,tend);
   }
   virtual unsigned long actived_point(uint t) {
-      actived_interval(t,t+1);
+      return actived_interval(t,t+1);
   }
   virtual unsigned long actived_interval(uint tstart, uint tend) {
       vp.clear();
@@ -791,9 +790,10 @@ class GrowingContactGraph : public TemporalGraph {
       return qt_->range(from,to,vp,false);
   }
   virtual unsigned long deactived_point(uint t) {
-      deactived_interval(t,t+1);
+      return deactived_interval(t,t+1);
   }
   virtual unsigned long deactived_interval(uint tstart, uint tend) {
+      UNUSED(tstart);
       vp.clear();
 
       if (tend < lifetime_-1) {
@@ -1019,7 +1019,7 @@ class PointContactGraph : public TemporalGraph {
 
 
   virtual unsigned long change_point(uint t) {
-      change_interval(t,t+1);
+      return change_interval(t,t+1);
   }
 
   virtual unsigned long change_interval(uint tstart, uint tend) {
@@ -1027,11 +1027,11 @@ class PointContactGraph : public TemporalGraph {
             return deactived_interval_(tstart,tend,false,false);
   }
   virtual unsigned long actived_point(uint t) {
-      actived_interval_(t,t+1, true);
+      return actived_interval_(t,t+1, true);
   }
 
   virtual unsigned long actived_interval(uint tstart, uint tend) {
-      actived_interval_(tstart,tend,false);
+      return actived_interval_(tstart,tend,false);
   }
 
 
@@ -1065,11 +1065,11 @@ class PointContactGraph : public TemporalGraph {
         return ans.size();
   }
   virtual unsigned long deactived_point(uint t) {
-      deactived_interval(t,t+1);
+      return deactived_interval(t,t+1);
   }
 
   virtual unsigned long deactived_interval(uint tstart, uint tend) {
-      deactived_interval_(tstart,tend,false);
+      return deactived_interval_(tstart,tend,false);
 
   }
 

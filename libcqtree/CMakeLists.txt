@@ -111,3 +111,7 @@ target_include_directories(cqtree PUBLIC src)
 target_include_directories(cqtree PUBLIC include)
 
 target_link_libraries(cqtree cdswrapper compress)
+
+
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Make.helper.cmake"
+		       "${CMAKE_CURRENT_SOURCE_DIR}/Make.helper" @ONLY)
