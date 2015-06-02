@@ -175,24 +175,24 @@ int readopts(int argc, char **argv, struct opts *opts) {
     opts->bb = getBSBuilder(opts->params["B"]);
     opts->bc = getBSBuilder(opts->params["C"]);
 
-    opts->bx = getXorBuilder(opts->params["X"]);
+    //opts->bx = getXorBuilder(opts->params["X"]);
 
     if (optind >= argc || (argc - optind) < 1 || dsflag == 0 || opts->bs == NULL || opts->bb == NULL || opts->bc == NULL
-            || (opts->bx == NULL && opts->ds == ePRB2XORBlack) ||(opts->lf == 0 && opts->ds == eMXFixed)) {
+            || (opts->lf == 0 && opts->ds == eMXFixed)) {
         fprintf(stderr,
-                "%s -s {MXD,MXF,PRB,PRW,PRB2,PRB2XOR} [-f k1,k2,lk1,lki,lf,F,X] [-g I,P,G] [-i <inputfile>] <outputfile> \n",
+                "%s -s {MXD,PRB,PRB2} [-f k1,k2,lk1,lki,lf,F,X] [-g I,P,G] [-i <inputfile>] <outputfile> \n",
                 argv[0]);
         fprintf(stderr, "Expected data structure (-s):\n");
         fprintf(stderr, "\tMXD for MatriX Quadtree (automatic depth)\n");
-        fprintf(stderr, "\tMXF for MatriX Quadtree Fixed Depth\n");
+        //fprintf(stderr, "\tMXF for MatriX Quadtree Fixed Depth\n");
         fprintf(stderr,
                 "\tPRB for Point Region Quadtree Leaves as Black Nodes\n");
         fprintf(stderr,
                 "\tPRB2 for Point Region Quadtree Leaves as Black Nodes (variable)\n");
-        fprintf(stderr,
-                "\tPRW for Point Region Quadtree Leaves as White Nodes\n");
-        fprintf(stderr,
-                        "\tPRB2XOR for Point Region Quadtree Leaves as Black Nodes (variable with xor encoding on blocks)\n");
+        //fprintf(stderr,
+        //        "\tPRW for Point Region Quadtree Leaves as White Nodes\n");
+        //fprintf(stderr,
+        //                "\tPRB2XOR for Point Region Quadtree Leaves as Black Nodes (variable with xor encoding on blocks)\n");
 
         fprintf(stderr,
                 "\nExpected data structure flags (-f k1:2,k2:2,lk1:0,lki:1,lf:2,F:2,T:RG,B:RG,C:RG):\n");
@@ -376,12 +376,6 @@ int main(int argc, char *argv[]) {
     case eMXDepth:
       cq = new MXCompactQtree(vp,opts.bs,opts.k1,opts.k2,opts.lk1,opts.lki);
       break;
-    case eMXFixed:
-      cq = new MXCompactQtreeFixed(vp,opts.bs,opts.bb,opts.k1,opts.k2,opts.lk1,opts.lki,opts.lf);
-      break;
-    case ePRB2XORBlack:
-        cq = new PRB2XORCompactQtree(vp,opts.bs,opts.bb,opts.bc,opts.bx,opts.k1,opts.k2,opts.F,opts.lk1,opts.lki);
-        break;
   }
 
 
@@ -440,12 +434,6 @@ int main(int argc, char *argv[]) {
           case eMXDepth:
               cqcurr = new MXCompactQtree(vp3dim,opts.bs,opts.k1,opts.k2,opts.lk1,opts.lki);
             break;
-          case eMXFixed:
-              cqcurr = new MXCompactQtreeFixed(vp3dim,opts.bs,opts.bb,opts.k1,opts.k2,opts.lk1,opts.lki,opts.lf);
-            break;
-          case ePRB2XORBlack:
-              cqcurr = new PRB2XORCompactQtree(vp3dim,opts.bs,opts.bb,opts.bc,opts.bx,opts.k1,opts.k2,opts.F,opts.lk1,opts.lki);
-                  break;
         }
 
 
@@ -499,12 +487,6 @@ int main(int argc, char *argv[]) {
       //      break;
           case eMXDepth:
               cq3d = new MXCompactQtree(vp3dim,opts.bs,opts.k1,opts.k2,opts.lk1,opts.lki);
-            break;
-          case eMXFixed:
-              cq3d = new MXCompactQtreeFixed(vp3dim,opts.bs,opts.bb,opts.k1,opts.k2,opts.lk1,opts.lki,opts.lf);
-            break;
-          case ePRB2XORBlack:
-            cq3d = new PRB2XORCompactQtree(vp3dim,opts.bs,opts.bb,opts.bc,opts.bx,opts.k1,opts.k2,opts.F,opts.lk1,opts.lki);
             break;
         }
 

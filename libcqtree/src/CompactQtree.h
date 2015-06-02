@@ -52,9 +52,6 @@ public:
 } /* namespace cqtree_static */
 
 #include "MXCompactQtree.h"
-#include "MXCompactQtreeFixed.h"
 #include "PRBCompactQtree.h"
-//#include "PRWCompactQtree.h"
 #include "PRB2CompactQtree.h"
-#include "PRB2XORCompactQtree.h"
 #endif /* COMPACTQTREE_H_ */

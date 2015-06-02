@@ -65,7 +65,7 @@ struct opts {
   int lki;  //levels for ki
   int lf;  //levels for fixed mx
 
-  XorCodeBuilder *bx; //xor builder
+  //XorCodeBuilder *bx; //xor builder
 };
 
 #define TG_INTERV 3
@@ -80,7 +80,7 @@ struct opts {
 void readflags(struct opts *opts, const char *flags);
 BitSequenceBuilder* getBSBuilder(string e);
 uint *getBitmap(BitSequence *bs);
-XorCodeBuilder* getXorBuilder(string e);
+//XorCodeBuilder* getXorBuilder(string e);
 
 
 
