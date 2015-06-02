@@ -16,54 +16,53 @@
 
 int main(int argc, char ** argv) {
 
-        char *fileName;
-        char *fileOut;
+	char *fileName;
+	char *fileOut;
 
-        ifstream f;
+	ifstream f;
 
-        if (argc < 4) {
-                fprintf(stderr,"Usage: %s <inputfile> <outputfile> 'flags'\n", argv[0]);
-                exit(1);
-        }
-   
-        fileName = argv[1];
-        fileOut = argv[2];
-        
-        f.open(fileName, ios::binary);
+	if (argc < 4) {
+		fprintf(stderr, "Usage: %s <inputfile> <outputfile> 'flags'\n",
+				argv[0]);
+		exit(1);
+	}
 
-        if (!f.is_open()) {
-            fprintf(stderr,"Error, data structure '%s' not found.\n",fileName);
-            exit(1);
-        }
+	fileName = argv[1];
+	fileOut = argv[2];
 
+	f.open(fileName, ios::binary);
 
-        TemporalGraph *index;
-        index =  TemporalGraph::load(f);
-        f.close();
+	if (!f.is_open()) {
+		fprintf(stderr, "Error, data structure '%s' not found.\n", fileName);
+		exit(1);
+	}
 
-        struct opts opts;
-        printf("flags: %s\n",argv[3]);
-        const char *def_params = "T:RG5,B:RG5,C:RG5";
-        readflags(&opts, def_params);
-        readflags(&opts, argv[3]);
+	TemporalGraph *index;
+	index = TemporalGraph::load(f);
+	f.close();
 
-        opts.bs = getBSBuilder(opts.params["T"]);
-        opts.bb = getBSBuilder(opts.params["B"]);
-        opts.bc = getBSBuilder(opts.params["C"]);
+	struct opts opts;
+	printf("flags: %s\n", argv[3]);
+	const char *def_params = "T:RG5,B:RG5,C:RG5";
+	readflags(&opts, def_params);
+	readflags(&opts, argv[3]);
 
-        if ( opts.bs == NULL || opts.bb == NULL || opts.bc == NULL) {
-            fprintf(stderr,"Error, BitmapBuilder was not present.");
-            return 1;
-        }
+	opts.bs = getBSBuilder(opts.params["T"]);
+	opts.bb = getBSBuilder(opts.params["B"]);
+	opts.bc = getBSBuilder(opts.params["C"]);
 
-        index->updateBitmaps(opts.bs,opts.bb,opts.bc);
+	if (opts.bs == NULL || opts.bb == NULL || opts.bc == NULL) {
+		fprintf(stderr, "Error, BitmapBuilder was not present.");
+		return 1;
+	}
 
-        ofstream of;
-        of.open(fileOut, ios::binary);
+	index->updateBitmaps(opts.bs, opts.bb, opts.bc);
 
-        index->save(of);
-        of.close();
+	ofstream of;
+	of.open(fileOut, ios::binary);
 
+	index->save(of);
+	of.close();
 
-        exit(0);
+	exit(0);
 }

@@ -60,18 +60,18 @@ int main() {
 	vp2.push_back(q);
 	vp2.push_back(p);
 	/*
-	PRCompactQtreeBlack<Point4d> b(vp2, new BitSequenceBuilderRG(20));
+	 PRCompactQtreeBlack<Point4d> b(vp2, new BitSequenceBuilderRG(20));
 
-	ofstream fileout;
-	fileout.open("/tmp/test4d", ios::binary);
-	b.save(fileout);
-	fileout.close();
+	 ofstream fileout;
+	 fileout.open("/tmp/test4d", ios::binary);
+	 b.save(fileout);
+	 fileout.close();
 
-	ifstream filein;
-	filein.open("/tmp/test4d", ios::binary);
-	CompactQtree<Point4d> *c = PRCompactQtreeBlack<Point4d>::load(filein);
-	filein.close();
-	*/
+	 ifstream filein;
+	 filein.open("/tmp/test4d", ios::binary);
+	 CompactQtree<Point4d> *c = PRCompactQtreeBlack<Point4d>::load(filein);
+	 filein.close();
+	 */
 
 	return 0;
 }

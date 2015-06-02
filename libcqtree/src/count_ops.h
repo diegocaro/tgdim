@@ -12,7 +12,6 @@ namespace count_ops {
 
 #include <assert.h>
 
-
 #ifdef COUNTOPS
 //// Using Singleton Pattern
 //// http://www.codeproject.com/Articles/1921/Singleton-Pattern-its-implementation-with-C
@@ -74,56 +73,65 @@ namespace count_ops {
 //bool RamModel::instanceFlag = false;
 //RamModel* RamModel::single = NULL;
 
-
 class RamModel {
- public:
-    RamModel(const char *name): _rank(0), _select(0), _access(0) {
-        sprintf(_name, "%s", name);
-    };
+public:
+	RamModel(const char *name): _rank(0), _select(0), _access(0) {
+		sprintf(_name, "%s", name);
+	};
 
-    void rank(size_t k=1) {
-        assert(k>0);
-        _rank+=k;
-    }
-    void access(size_t k=1) {
-            assert(k>0);
-            _access+=k;
-        }
+	void rank(size_t k=1) {
+		assert(k>0);
+		_rank+=k;
+	}
+	void access(size_t k=1) {
+		assert(k>0);
+		_access+=k;
+	}
 
-    void select(size_t k=1) {
-            assert(k>0);
-            _select+=k;
-        }
+	void select(size_t k=1) {
+		assert(k>0);
+		_select+=k;
+	}
 
-    void print(const char *b="\n") {
-        printf("%s.r\t%lu\t%s.s\t%lu\t%s.a\t%lu%s",_name,_rank,_name,_select,_name,_access,b);
-    }
+	void print(const char *b="\n") {
+		printf("%s.r\t%lu\t%s.s\t%lu\t%s.a\t%lu%s",_name,_rank,_name,_select,_name,_access,b);
+	}
 
-    void clear() {
-        _rank = 0;
-        _select = 0;
-        _access = 0;
-    }
+	void clear() {
+		_rank = 0;
+		_select = 0;
+		_access = 0;
+	}
 
- private:
-    size_t _rank;
-    size_t _select;
-    size_t _access;
-    char _name[256];
+private:
+	size_t _rank;
+	size_t _select;
+	size_t _access;
+	char _name[256];
 
 };
-
 
 #else
 
 class RamModel {
- public:
-    RamModel(const char *name) {(void)name;}
-    void rank(size_t k=1) {(void)k;}
-    void access(size_t k=1) {(void)k;}
-    void select(size_t k=1) {(void)k;}
-    void print(const char *b="\n") {(void)b;}
-    void clear() {}
+public:
+	RamModel(const char *name) {
+		(void) name;
+	}
+	void rank(size_t k = 1) {
+		(void) k;
+	}
+	void access(size_t k = 1) {
+		(void) k;
+	}
+	void select(size_t k = 1) {
+		(void) k;
+	}
+	void print(const char *b = "\n") {
+		(void) b;
+	}
+	void clear() {
+	}
 };
 
 #endif
@@ -132,7 +140,5 @@ static RamModel bitmapT("T");
 static RamModel bitmapB("B");
 static RamModel bitmapC("C");
 }
-
-
 
 #endif /* COUNT_OPS_H_ */

@@ -13,28 +13,27 @@
 namespace cqtree_utils {
 const unsigned int W_ = 32;
 class bitvector {
- public:
-    bitvector();
+public:
+	bitvector();
 
-    // build vector of a given size
-    bitvector(size_t size);
+	// build vector of a given size
+	bitvector(size_t size);
 
-    ~bitvector();
+	~bitvector();
 
-    // reserve spaces and increase capacity
-    void reserve(size_t s);
+	// reserve spaces and increase capacity
+	void reserve(size_t s);
 
-    /** sets bit p in data */
-    void bitset(size_t p);
+	/** sets bit p in data */
+	void bitset(size_t p);
 
-    const unsigned int *data() const;
+	const unsigned int *data() const;
 
-    size_t length() const;
+	size_t length() const;
 
-
- private:
-    size_t length_;
-    std::vector<unsigned int> data_;
+private:
+	size_t length_;
+	std::vector<unsigned int> data_;
 
 };
 

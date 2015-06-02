@@ -25,12 +25,11 @@ using namespace cqtree_utils;
 #define BUFFER 1024*1024*10
 
 /*
-FIXME: Non soporta un numero de nodos maior que MAX_INT.
+ FIXME: Non soporta un numero de nodos maior que MAX_INT.
 
-As consultas son nodos aleatorios (non  unha permutacin,
-pode haber repetidos)
-*/
-
+ As consultas son nodos aleatorios (non  unha permutacin,
+ pode haber repetidos)
+ */
 
 #define EDGE 6
 #define EDGE_WEAK 7
@@ -51,103 +50,102 @@ pode haber repetidos)
 #define ISIZE 5
 
 int main(int argc, char ** argv) {
-        if (argc < 4) {
-                fprintf(stderr,"Usage: %s <graphfile> <querytype> <timepoint>\n", argv[0]);
-				fprintf(stderr,"typequery=0 for direct neighbors\n");
-				fprintf(stderr,"typequery=1 for reverse neighbors\n");
-                exit(1);
-        }
+	if (argc < 4) {
+		fprintf(stderr, "Usage: %s <graphfile> <querytype> <timepoint>\n",
+				argv[0]);
+		fprintf(stderr, "typequery=0 for direct neighbors\n");
+		fprintf(stderr, "typequery=1 for reverse neighbors\n");
+		exit(1);
+	}
 
-		char *fileName;
-        ifstream f;
-        fileName = argv[1];
-        f.open(fileName, ios::binary);
+	char *fileName;
+	ifstream f;
+	fileName = argv[1];
+	f.open(fileName, ios::binary);
 
-        if (!f.is_open()) {
-            fprintf(stderr,"Error, data structure '%s' not found.\n",fileName);
-            exit(1);
-        }
+	if (!f.is_open()) {
+		fprintf(stderr, "Error, data structure '%s' not found.\n", fileName);
+		exit(1);
+	}
 
-		int typequery = atoi(argv[2]);
-		unsigned querytime = atoi(argv[3]);
-		
-		char namequery[255];
-		if (typequery == DIRECT_NEIGHBORS) {
-			sprintf(namequery,"dirnei-%u",querytime);
-		}
-		else if (typequery == REVERSE_NEIGHBORS) {
-			sprintf(namequery,"revnei-%u",querytime);
-		}
-		else {
-			fprintf(stderr,"Invalid query\n");
-			exit(1);
-		}
-		
+	int typequery = atoi(argv[2]);
+	unsigned querytime = atoi(argv[3]);
 
+	char namequery[255];
+	if (typequery == DIRECT_NEIGHBORS) {
+		sprintf(namequery, "dirnei-%u", querytime);
+	} else if (typequery == REVERSE_NEIGHBORS) {
+		sprintf(namequery, "revnei-%u", querytime);
+	} else {
+		fprintf(stderr, "Invalid query\n");
+		exit(1);
+	}
 
-        TemporalGraph *index;
-        index =  TemporalGraph::load(f);
-        f.close();
+	TemporalGraph *index;
+	index = TemporalGraph::load(f);
+	f.close();
 
-        unsigned int * gotreslist;
-        gotreslist = (uint*)malloc(sizeof(unsigned int)*BUFFER);
+	unsigned int * gotreslist;
+	gotreslist = (uint*) malloc(sizeof(unsigned int) * BUFFER);
 
-        unsigned totalres = 0;
-        unsigned gotres = 0;
+	unsigned totalres = 0;
+	unsigned gotres = 0;
 
-		unsigned vertices = index->getNodes();
+	unsigned vertices = index->getNodes();
 
 #ifndef TIMESAMPLE
-        startClockTime();
+	startClockTime();
 #endif
 
-		if (typequery == DIRECT_NEIGHBORS) {
-			 for (unsigned i = 0; i < vertices; i++) {
-				 *gotreslist = 0;
-				 if ( (i & 0x8000) == 0x8000) fprintf(stderr, "Progress: %.2f\r", (float)i/vertices*100.0); 
+	if (typequery == DIRECT_NEIGHBORS) {
+		for (unsigned i = 0; i < vertices; i++) {
+			*gotreslist = 0;
+			if ((i & 0x8000) == 0x8000)
+				fprintf(stderr, "Progress: %.2f\r",
+						(float) i / vertices * 100.0);
 #ifdef TIMESAMPLE
-        		 startClockTime();
+			startClockTime();
 #endif
 
-				 index->direct_point(i, querytime, gotreslist);
+			index->direct_point(i, querytime, gotreslist);
 
 #ifdef TIMESAMPLE
-                printf("%s\t%s\t%.3lf\t%u\n", fileName, namequery, 1.0*endClockTime()/1000, *gotreslist);
+			printf("%s\t%s\t%.3lf\t%u\n", fileName, namequery, 1.0*endClockTime()/1000, *gotreslist);
 #endif				 
-				 totalres += *gotreslist;
-			 }
+			totalres += *gotreslist;
 		}
-		
-		else if (typequery == REVERSE_NEIGHBORS) {
-			 for (unsigned i = 0; i < vertices; i++) {
-				 *gotreslist = 0;
- 				 if ((i & 0x8000) == 0x8000) fprintf(stderr, "Progress: %.2f\r", (float)i/vertices*100.0);
+	}
+
+	else if (typequery == REVERSE_NEIGHBORS) {
+		for (unsigned i = 0; i < vertices; i++) {
+			*gotreslist = 0;
+			if ((i & 0x8000) == 0x8000)
+				fprintf(stderr, "Progress: %.2f\r",
+						(float) i / vertices * 100.0);
 #ifdef TIMESAMPLE
-        		 startClockTime();
+			startClockTime();
 #endif
 
-				 index->reverse_point(i, querytime, gotreslist);
+			index->reverse_point(i, querytime, gotreslist);
 
 #ifdef TIMESAMPLE
-                printf("%s\t%s\t%.3lf\t%u\n", fileName, namequery, 1.0*endClockTime()/1000, *gotreslist);
+			printf("%s\t%s\t%.3lf\t%u\n", fileName, namequery, 1.0*endClockTime()/1000, *gotreslist);
 #endif				 
-				 totalres += *gotreslist; 
-			 }
+			totalres += *gotreslist;
 		}
-
-
+	}
 
 #ifndef TIMESAMPLE
 
-        unsigned long microsecs = endClockTime()/1000; //to microsecs
+	unsigned long microsecs = endClockTime() / 1000; //to microsecs
 
+	// datasets.structura namequery microsecs totaloutput timeperquery timeperoutput
+	printf("%s\t%s\t%ld\t%d\t%d\t%lf\t%lf\n", fileName, namequery, microsecs,
+			vertices, totalres, (double) microsecs / vertices,
+			(double) microsecs / totalres);
 
-        // datasets.structura namequery microsecs totaloutput timeperquery timeperoutput
-        printf("%s\t%s\t%ld\t%d\t%d\t%lf\t%lf\n", fileName, namequery,
-                       microsecs, vertices, totalres, (double)microsecs/vertices, (double)microsecs/totalres);
-
-        //destroyK2Tree(tree);
+	//destroyK2Tree(tree);
 #endif
 
-        exit(0);
+	exit(0);
 }

@@ -133,11 +133,6 @@ set_target_properties (allvertices_time PROPERTIES COMPILE_DEFINITIONS TIMESAMPL
 add_executable( exp-query exp-query.cc )
 target_link_libraries(exp-query tempgraph)
 
-
-#For testing 2d data
-add_executable( prb2d prb2d.cc )
-target_link_libraries(prb2d cqtree)
-
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     target_link_libraries(benchmark -lrt)
     target_link_libraries(checkans -lrt)
