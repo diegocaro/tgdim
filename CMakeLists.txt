@@ -133,6 +133,10 @@ set_target_properties (allvertices_time PROPERTIES COMPILE_DEFINITIONS TIMESAMPL
 add_executable( exp-query exp-query.cc )
 target_link_libraries(exp-query tempgraph)
 
+
+add_executable( vertices vertices.cc )
+target_link_libraries(vertices tempgraph)
+
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     target_link_libraries(benchmark -lrt)
     target_link_libraries(checkans -lrt)
@@ -140,4 +144,5 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	target_link_libraries(allvertices -lrt)
 	target_link_libraries(allvertices_time -lrt)
     target_link_libraries(exp-query -lrt)
+    target_link_libraries(vertices -lrt)
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
