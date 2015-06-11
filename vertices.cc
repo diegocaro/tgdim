@@ -83,8 +83,8 @@ int main(int argc, char ** argv) {
 
 	unsigned vertices = index->getNodes();
 	for (unsigned v = 0; v <vertices; v++) {
-		if ((v & 0x8000) == 0x8000)
-			fprintf(stderr, "Progress: %.2f\r",
+		if (v % 1000 == 0)
+			fprintf(stderr, "Progress: %.2f%%\r",
 					(float) v / vertices * 100.0);
 
 		*gotreslist = 0;
