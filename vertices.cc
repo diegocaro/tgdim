@@ -95,15 +95,14 @@ int main(int argc, char ** argv) {
 	shuffle (vrand.begin(), vrand.end(), std::default_random_engine(seed));
 	
 	unsigned v;
-	for (auto it = vrand.begin(); it != vrand.end(); ++it) {
-		if (v % 1000 == 0)
+	for (unsigned i=0; i < vertices; i++) {
+		if (i % 1000 == 0)
 			fprintf(stderr, "Progress: %.2f%%\r",
-					(float) v / vertices * 100.0);
+					(float) i / vertices * 100.0);
 
 		*gotreslist = 0;
 		
-		v = *it;
-		
+		v = vrand[i];
 		startClockTime();
 
 		switch (typeQuery) {
