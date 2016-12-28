@@ -41,12 +41,6 @@ include_directories(
 # Where libraries can be found.
 # link_directories(${gtest_BINARY_DIR}/src)
 
-################################
-# GTest
-################################
-add_subdirectory (../external/gtest-1.7.0 ext_gtest-1.7.0)
-include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
-
 ###
 # cdswrapper, sdsl and libcds are automatically included :D
 ##
@@ -63,6 +57,15 @@ add_subdirectory(../cdswrapper ext_cdswrapper)
 
 #library for compressing integers
 #add_subdirectory(../../compresslists ext_compresslists)
+
+################################
+# GTest
+################################
+include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
+if (NOT TARGET gtest)
+    add_subdirectory (../external/gtest-1.7.0 ext_gtest-1.7.0)
+endif()
+
 
 ################################
 # Unit Tests
