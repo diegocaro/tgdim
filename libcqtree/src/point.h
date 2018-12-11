@@ -219,7 +219,7 @@ public:
 	}
 private:
 	//tdata *data_point_;
-	tdata data_point_[4];
+	tdata data_point_[10];
 	int num_dims_;
 
 };
